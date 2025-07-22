@@ -35,8 +35,12 @@
             <div class="row">
               <div class="col">Cash: <span class="badge bg-success">₹<?= number_format($collectionStats['cash'] ?? 0) ?></span></div>
               <div class="col">UPI: <span class="badge bg-info">₹<?= number_format($collectionStats['upi'] ?? 0) ?></span></div>
+              <div class="col">Online: <span class="badge bg-primary">₹<?= number_format($collectionStats['online'] ?? 0) ?></span></div>
               <div class="col">Total: <span class="badge bg-warning">₹<?= number_format($collectionStats['total'] ?? 0) ?></span></div>
             </div>
+            <div class="text-center mt-2">
+              <small class="text-muted">*Trial fees only (T-shirt fees excluded)</small>
+            </div></div>
           </div>
         </div>
       </div>

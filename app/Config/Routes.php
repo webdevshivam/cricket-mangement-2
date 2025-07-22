@@ -71,6 +71,10 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->post('trial-verification/search-by-mobile', 'TrialRegistrationController::searchByMobile');
     $routes->post('trial-verification/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment');
     $routes->post('trial-verification/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted');
+
+    // Payment tracking routes
+    $routes->get('payment-tracking', 'TrialRegistrationController::paymentTracking');
+    $routes->post('payment-tracking/collect-payment', 'TrialRegistrationController::collectSpotPayment');
 });
 
 

@@ -85,11 +85,16 @@
           <li>
                   <a href="<?= base_url('admin/trial-registration') ?>" data-page="trial-cities">Manage Trial Registration</a>
                 </li>
-                <li>
-                  <a  href="<?= base_url('admin/trial-verification') ?>" data-page="trial-verification">
-                    <i class="fas fa-check-circle"></i> Trial Verification
-                  </a>
-                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/trial-verification') ?>">
+                      <i class="fas fa-check-circle"></i> Trial Verification
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/payment-tracking') ?>">
+                      <i class="fas fa-chart-line"></i> Payment Tracking
+                    </a>
+                  </li>
           <li><a href="#schedule-trials" data-page="schedule-trials">Schedule Trials</a></li>
           <li><a href="#trial-attendance" data-page="trial-attendance">Trial Attendance</a></li>
 

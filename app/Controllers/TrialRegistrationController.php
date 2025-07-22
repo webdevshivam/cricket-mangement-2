@@ -420,17 +420,13 @@ class TrialRegistrationController extends BaseController
     {
         $db = \Config\Database::connect();
         
-        // Calculate total collection for payments made on trial day
-        // This would require a payments table to track individual payment records
-        // For now, we'll estimate based on payment status changes
-        
+        // Calculate total collection excluding T-shirt fees for partial payments
         $builder = $db->table('trial_players');
         $builder->select('
             SUM(CASE 
-                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 1198
-                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1398
-                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "partial" THEN 199
-                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "partial" THEN 199
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
+                WHEN payment_status = "partial" THEN 0
                 ELSE 0
             END) as total_collection
         ');
@@ -443,14 +439,14 @@ class TrialRegistrationController extends BaseController
 
     private function getCollectionStatsByDate($date)
     {
-        // This would be more accurate with a separate payments table
-        // For now, returning estimated stats
+        // Calculate trial fees collection only (excluding T-shirt fees)
         $totalCollection = $this->calculateDailyCollection($date);
         
         return [
             'cash' => $totalCollection * 0.6, // Assume 60% cash
             'upi' => $totalCollection * 0.3,  // Assume 30% UPI
-            'card' => $totalCollection * 0.1, // Assume 10% card
+            'card' => $totalCollection * 0.08, // Assume 8% card
+            'online' => $totalCollection * 0.02, // Assume 2% online
             'total' => $totalCollection
         ];
     }
@@ -566,5 +562,135 @@ class TrialRegistrationController extends BaseController
                 'message' => 'An error occurred while marking trial as completed'
             ]);
         }
+    }
+
+    public function paymentTracking()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        $trialCitiesModel = new \App\Models\TrialcitiesModel();
+        
+        // Get filter parameters
+        $fromDate = $this->request->getGet('from_date') ?: date('Y-m-d', strtotime('-30 days'));
+        $toDate = $this->request->getGet('to_date') ?: date('Y-m-d');
+        $paymentMethod = $this->request->getGet('payment_method');
+        $trialCity = $this->request->getGet('trial_city');
+        $mobile = $this->request->getGet('mobile');
+        
+        // Build query with filters
+        $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
+                        ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
+                        ->where('DATE(trial_players.created_at) >=', $fromDate)
+                        ->where('DATE(trial_players.created_at) <=', $toDate);
+        
+        if ($trialCity) {
+            $builder->where('trial_players.trial_city_id', $trialCity);
+        }
+        
+        if ($mobile) {
+            $builder->like('trial_players.mobile', $mobile);
+        }
+        
+        $data['paymentRecords'] = $builder->orderBy('trial_players.created_at', 'DESC')->paginate(20);
+        $data['pager'] = $model->pager;
+        
+        // Calculate summary statistics excluding T-shirt fees for partial payments
+        $data['totalCollection'] = $this->calculateTotalCollection();
+        $data['todayCollection'] = $this->calculateTodayCollection();
+        $data['pendingAmount'] = $this->calculatePendingAmount();
+        $data['totalStudents'] = $model->countAll();
+        
+        // Payment method breakdown (would be more accurate with separate payments table)
+        $data['paymentMethods'] = $this->getPaymentMethodBreakdown();
+        
+        // Status counts
+        $data['statusCounts'] = $this->getPaymentStatusCounts();
+        
+        // Filter values and cities
+        $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
+        $data['from_date'] = $fromDate;
+        $data['to_date'] = $toDate;
+        $data['payment_method'] = $paymentMethod;
+        $data['trial_city'] = $trialCity;
+        $data['mobile'] = $mobile;
+
+        return view('admin/trial/payment_tracking', $data);
+    }
+
+    private function calculateTotalCollection()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        
+        // Calculate collection excluding T-shirt fees for partial payments
+        $query = $model->select('
+            SUM(CASE 
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
+                WHEN payment_status = "partial" THEN 0
+                ELSE 0
+            END) as total_trial_fees
+        ')->where('payment_status !=', 'no_payment')->first();
+        
+        return $query['total_trial_fees'] ?? 0;
+    }
+
+    private function calculateTodayCollection()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        
+        // Calculate today's collection excluding T-shirt fees for partial payments
+        $query = $model->select('
+            SUM(CASE 
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
+                WHEN payment_status = "partial" THEN 0
+                ELSE 0
+            END) as today_trial_fees
+        ')->where('DATE(verified_at)', date('Y-m-d'))
+          ->where('payment_status !=', 'no_payment')
+          ->first();
+        
+        return $query['today_trial_fees'] ?? 0;
+    }
+
+    private function calculatePendingAmount()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        
+        $query = $model->select('
+            SUM(CASE 
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status IN ("no_payment", "partial") THEN 999
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status IN ("no_payment", "partial") THEN 1199
+                ELSE 0
+            END) as pending_trial_fees
+        ')->where('payment_status !=', 'full')->first();
+        
+        return $query['pending_trial_fees'] ?? 0;
+    }
+
+    private function getPaymentMethodBreakdown()
+    {
+        // This would be more accurate with a separate payments table
+        // For now, returning estimated breakdown
+        $totalCollection = $this->calculateTotalCollection();
+        
+        return [
+            'cash' => $totalCollection * 0.6,
+            'upi' => $totalCollection * 0.3,
+            'card' => $totalCollection * 0.08,
+            'online' => $totalCollection * 0.02
+        ];
+    }
+
+    private function getPaymentStatusCounts()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        
+        $counts = [
+            'no_payment' => $model->where('payment_status', 'no_payment')->countAllResults(),
+            'partial' => $model->where('payment_status', 'partial')->countAllResults(),
+            'full' => $model->where('payment_status', 'full')->countAllResults()
+        ];
+        
+        return $counts;
     }
 }
