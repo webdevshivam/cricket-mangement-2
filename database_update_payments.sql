@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `trial_payments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `trial_player_id` int(11) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `payment_method` enum('cash','upi','card','online') NOT NULL DEFAULT 'cash',
+  `payment_method` enum('offline','online') NOT NULL DEFAULT 'offline',
   `transaction_ref` varchar(100) DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `collected_on_trial_day` tinyint(1) DEFAULT 0,

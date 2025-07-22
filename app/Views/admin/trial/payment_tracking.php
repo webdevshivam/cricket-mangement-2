@@ -74,27 +74,17 @@
       </div>
       <div class="card-body">
         <div class="row text-center">
-          <div class="col-3">
+          <div class="col-6">
             <div class="border-end">
-              <h6 class="text-success">Cash</h6>
-              <h5>₹<?= number_format($paymentMethods['cash'] ?? 0) ?></h5>
+              <h6 class="text-success">Offline Payment</h6>
+              <h5>₹<?= number_format($paymentMethods['offline'] ?? 0) ?></h5>
+              <small class="text-muted">Cash collection</small>
             </div>
           </div>
-          <div class="col-3">
-            <div class="border-end">
-              <h6 class="text-primary">UPI</h6>
-              <h5>₹<?= number_format($paymentMethods['upi'] ?? 0) ?></h5>
-            </div>
-          </div>
-          <div class="col-3">
-            <div class="border-end">
-              <h6 class="text-warning">Card</h6>
-              <h5>₹<?= number_format($paymentMethods['card'] ?? 0) ?></h5>
-            </div>
-          </div>
-          <div class="col-3">
-            <h6 class="text-info">Online</h6>
+          <div class="col-6">
+            <h6 class="text-info">Online Payment</h6>
             <h5>₹<?= number_format($paymentMethods['online'] ?? 0) ?></h5>
+            <small class="text-muted">UPI/Card/Bank Transfer</small>
           </div>
         </div>
       </div>
@@ -148,9 +138,7 @@
           <label class="form-label text-warning">Payment Method</label>
           <select class="form-select bg-dark text-white" name="payment_method">
             <option value="">All Methods</option>
-            <option value="cash" <?= (isset($payment_method) && $payment_method == 'cash') ? 'selected' : '' ?>>Cash</option>
-            <option value="upi" <?= (isset($payment_method) && $payment_method == 'upi') ? 'selected' : '' ?>>UPI</option>
-            <option value="card" <?= (isset($payment_method) && $payment_method == 'card') ? 'selected' : '' ?>>Card</option>
+            <option value="offline" <?= (isset($payment_method) && $payment_method == 'offline') ? 'selected' : '' ?>>Offline</option>
             <option value="online" <?= (isset($payment_method) && $payment_method == 'online') ? 'selected' : '' ?>>Online</option>
           </select>
         </div>
@@ -361,10 +349,8 @@
           <div class="mb-3">
             <label class="form-label">Payment Method</label>
             <select class="form-select bg-dark text-white" id="quickPaymentMethod">
-              <option value="cash">Cash</option>
-              <option value="upi">UPI</option>
-              <option value="card">Card</option>
-              <option value="online">Online Transfer</option>
+              <option value="offline">Offline (Cash)</option>
+              <option value="online">Online (UPI/Card/Transfer)</option>
             </select>
           </div>
           

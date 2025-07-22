@@ -674,10 +674,8 @@ class TrialRegistrationController extends BaseController
         $totalCollection = $this->calculateTotalCollection();
         
         return [
-            'cash' => $totalCollection * 0.6,
-            'upi' => $totalCollection * 0.3,
-            'card' => $totalCollection * 0.08,
-            'online' => $totalCollection * 0.02
+            'offline' => $totalCollection * 0.7, // Assume 70% offline (cash)
+            'online' => $totalCollection * 0.3   // Assume 30% online (UPI/Card/Transfer)
         ];
     }
 

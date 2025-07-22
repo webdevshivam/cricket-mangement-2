@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin'); ?>
 <?= $this->section('content'); ?>
 
@@ -132,7 +131,7 @@
                 // Calculate fees based on cricket type
                 $trialFees = 0;
                 $tshirtFees = 199;
-                
+
                 switch(strtolower($reg['cricket_type'])) {
                   case 'bowler':
                   case 'batsman':
@@ -143,11 +142,11 @@
                     $trialFees = 1199;
                     break;
                 }
-                
+
                 // Calculate due amount based on payment status
                 $dueAmount = 0;
                 $dueDescription = '';
-                
+
                 switch($reg['payment_status'] ?? 'no_payment') {
                   case 'no_payment':
                     $dueAmount = $tshirtFees + $trialFees;
@@ -213,7 +212,7 @@
                         <i class="fas fa-check"></i> Verified
                       </button>
                     <?php endif; ?>
-                    
+
                     <button class="btn btn-sm btn-outline-info" 
                             onclick="markTrialCompleted(<?= esc($reg['id']) ?>)" 
                             title="Mark Trial Completed">
@@ -256,17 +255,15 @@
             <strong>Phone:</strong> <span id="studentPhone"></span><br>
             <strong>Amount to Collect:</strong> ₹<span id="amountToCollect"></span>
           </div>
-          
+
           <div class="mb-3">
             <label class="form-label">Payment Method</label>
             <select class="form-select bg-dark text-white" id="paymentMethod">
-              <option value="cash">Cash</option>
-              <option value="upi">UPI</option>
-              <option value="card">Card</option>
-              <option value="online">Online Transfer</option>
+              <option value="offline">Offline (Cash)</option>
+              <option value="online">Online (UPI/Card/Transfer)</option>
             </select>
           </div>
-          
+
           <div class="mb-3">
             <label class="form-label">Transaction Reference (Optional)</label>
             <input type="text" class="form-control bg-dark text-white" id="transactionRef" 
@@ -300,7 +297,7 @@ let currentStudentData = {};
 // Quick mobile search functionality
 function quickSearchByMobile() {
     const mobile = document.getElementById('quickMobileSearch').value.trim();
-    
+
     if (!mobile || mobile.length < 10) {
         notyf.error('Please enter a valid 10-digit mobile number');
         return;
@@ -333,10 +330,10 @@ function displayStudentSearchResult(student) {
     // Calculate fees and due amount
     const trialFees = (student.cricket_type === 'bowler' || student.cricket_type === 'batsman') ? 999 : 1199;
     const tshirtFees = 199;
-    
+
     let dueAmount = 0;
     let dueDescription = '';
-    
+
     switch(student.payment_status || 'no_payment') {
         case 'no_payment':
             dueAmount = tshirtFees + trialFees;
@@ -382,7 +379,7 @@ function displayStudentSearchResult(student) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('studentSearchResult').style.display = 'block';
     document.getElementById('quickMobileSearch').value = '';
 }
@@ -395,11 +392,11 @@ function collectPaymentOnSpot(studentId, studentName, studentPhone, amount, curr
         amount: amount,
         currentStatus: currentStatus
     };
-    
+
     document.getElementById('studentName').textContent = studentName;
     document.getElementById('studentPhone').textContent = studentPhone;
     document.getElementById('amountToCollect').textContent = amount;
-    
+
     const modal = new bootstrap.Modal(document.getElementById('paymentCollectionModal'));
     modal.show();
 }
@@ -408,10 +405,10 @@ function confirmSpotPayment() {
     const paymentMethod = document.getElementById('paymentMethod').value;
     const transactionRef = document.getElementById('transactionRef').value;
     const notes = document.getElementById('paymentNotes').value;
-    
+
     // Determine new payment status
     let newStatus = 'full'; // Always full when collecting on spot
-    
+
     fetch("<?= base_url('admin/trial-verification/collect-spot-payment') ?>", {
         method: "POST",
         headers: {
