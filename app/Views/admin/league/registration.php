@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin'); ?>
 <?= $this->section('content'); ?>
 
@@ -19,7 +18,7 @@
         <div class="row">
           <div class="col-md-2">
             <input type="text" class="form-control bg-dark text-white" name="phone"
-                   placeholder="Search by phone" value="<?= esc($phone ?? '') ?>">
+              placeholder="Search by phone" value="<?= esc($phone ?? '') ?>">
           </div>
           <div class="col-md-2">
             <select class="form-select bg-dark text-white" name="payment_status">
@@ -27,10 +26,6 @@
               <option value="no_payment" <?= (isset($payment_status) && $payment_status == 'no_payment') ? 'selected' : '' ?>>No Payment</option>
               <option value="partial" <?= (isset($payment_status) && $payment_status == 'partial') ? 'selected' : '' ?>>Partial Paid</option>
               <option value="full" <?= (isset($payment_status) && $payment_status == 'full') ? 'selected' : '' ?>>Full Paid</option>
-            </select>
-          </div>
-
-              <?php endforeach; ?>
             </select>
           </div>
           <div class="col-md-2">
@@ -93,9 +88,9 @@
                   <td><span class="badge bg-success"><?= esc($reg['trial_city_name'] ?? 'N/A') ?></span></td>
                   <td>
                     <select class="form-select form-select-sm payment-status-select bg-dark text-white"
-                            data-player-id="<?= esc($reg['id']) ?>"
-                            data-player-name="<?= esc($reg['name']) ?>"
-                            data-player-phone="<?= esc($reg['mobile']) ?>">
+                      data-player-id="<?= esc($reg['id']) ?>"
+                      data-player-name="<?= esc($reg['name']) ?>"
+                      data-player-phone="<?= esc($reg['mobile']) ?>">
                       <option value="no_payment" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'no_payment') ? 'selected' : '' ?>>
                         ❌ No Payment
                       </option>
@@ -111,28 +106,28 @@
                     <div class="btn-group-vertical btn-group-sm">
                       <?php if (!empty($reg['aadhar_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/aadhar_document') ?>"
-                           target="_blank" class="btn btn-sm btn-outline-info mb-1" title="View Aadhar">
+                          target="_blank" class="btn btn-sm btn-outline-info mb-1" title="View Aadhar">
                           <i class="fas fa-id-card"></i> Aadhar
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['marksheet_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/marksheet_document') ?>"
-                           target="_blank" class="btn btn-sm btn-outline-success mb-1" title="View Marksheet">
+                          target="_blank" class="btn btn-sm btn-outline-success mb-1" title="View Marksheet">
                           <i class="fas fa-graduation-cap"></i> Marksheet
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['dob_proof'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/dob_proof') ?>"
-                           target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="View DOB Proof">
+                          target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="View DOB Proof">
                           <i class="fas fa-birthday-cake"></i> DOB
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['photo'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/photo') ?>"
-                           target="_blank" class="btn btn-sm btn-outline-secondary mb-1" title="View Photo">
+                          target="_blank" class="btn btn-sm btn-outline-secondary mb-1" title="View Photo">
                           <i class="fas fa-camera"></i> Photo
                         </a>
                       <?php endif; ?>
@@ -171,109 +166,109 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 
 <script>
-const notyf = new Notyf();
+  const notyf = new Notyf();
 
-// Individual payment status update
-document.addEventListener('DOMContentLoaded', function() {
+  // Individual payment status update
+  document.addEventListener('DOMContentLoaded', function() {
     const statusSelects = document.querySelectorAll('.payment-status-select');
 
     statusSelects.forEach(select => {
-        const originalValue = select.value;
+      const originalValue = select.value;
 
-        select.addEventListener('change', function() {
-            const playerId = this.getAttribute('data-player-id');
-            const playerName = this.getAttribute('data-player-name');
-            const playerPhone = this.getAttribute('data-player-phone');
-            const newStatus = this.value;
+      select.addEventListener('change', function() {
+        const playerId = this.getAttribute('data-player-id');
+        const playerName = this.getAttribute('data-player-name');
+        const playerPhone = this.getAttribute('data-player-phone');
+        const newStatus = this.value;
 
-            let statusText = '';
-            switch(newStatus) {
-                case 'no_payment':
-                    statusText = 'No Payment';
-                    break;
-                case 'partial':
-                    statusText = 'Partial Paid';
-                    break;
-                case 'full':
-                    statusText = 'Full Paid';
-                    break;
-            }
+        let statusText = '';
+        switch (newStatus) {
+          case 'no_payment':
+            statusText = 'No Payment';
+            break;
+          case 'partial':
+            statusText = 'Partial Paid';
+            break;
+          case 'full':
+            statusText = 'Full Paid';
+            break;
+        }
 
-            if (confirm(`Update ${playerName} (${playerPhone}) payment status to: ${statusText}?`)) {
-                updatePaymentStatus(playerId, newStatus, this);
-            } else {
-                this.value = originalValue;
-            }
-        });
+        if (confirm(`Update ${playerName} (${playerPhone}) payment status to: ${statusText}?`)) {
+          updatePaymentStatus(playerId, newStatus, this);
+        } else {
+          this.value = originalValue;
+        }
+      });
     });
-});
+  });
 
-function updatePaymentStatus(playerId, status, selectElement) {
+  function updatePaymentStatus(playerId, status, selectElement) {
     selectElement.disabled = true;
 
     fetch("<?= base_url('admin/league-registration/update-payment-status') ?>", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({
-            id: playerId,
-            payment_status: status
+          id: playerId,
+          payment_status: status
         }),
-    })
-    .then(response => {
+      })
+      .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok');
         }
         return response.json();
-    })
-    .then(data => {
+      })
+      .then(data => {
         selectElement.disabled = false;
 
         if (data.success) {
-            notyf.success("Payment status updated successfully!");
+          notyf.success("Payment status updated successfully!");
         } else {
-            notyf.error(data.message || "Failed to update payment status.");
-            selectElement.selectedIndex = 0;
+          notyf.error(data.message || "Failed to update payment status.");
+          selectElement.selectedIndex = 0;
         }
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         selectElement.disabled = false;
         notyf.error("Network error occurred. Please check your connection.");
         selectElement.selectedIndex = 0;
-    });
-}
+      });
+  }
 
-function deletePlayer(playerId, playerName) {
+  function deletePlayer(playerId, playerName) {
     if (!confirm(`Are you sure you want to delete ${playerName}? This action cannot be undone!`)) {
-        return;
+      return;
     }
 
     fetch("<?= base_url('admin/league-registration/delete') ?>", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({
-            player_id: playerId
+          player_id: playerId
         }),
-    })
-    .then(response => response.json())
-    .then(data => {
+      })
+      .then(response => response.json())
+      .then(data => {
         if (data.success) {
-            notyf.success(`${playerName} deleted successfully!`);
-            setTimeout(() => location.reload(), 1500);
+          notyf.success(`${playerName} deleted successfully!`);
+          setTimeout(() => location.reload(), 1500);
         } else {
-            notyf.error(data.message || "Failed to delete player.");
+          notyf.error(data.message || "Failed to delete player.");
         }
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         notyf.error("Network error occurred. Please check your connection.");
         console.error("Network error:", error);
-    });
-}
+      });
+  }
 </script>
 
 <?= $this->endSection(); ?>
