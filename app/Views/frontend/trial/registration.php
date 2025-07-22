@@ -50,6 +50,17 @@
             <i class="fas fa-user me-2"></i>Basic Information
           </h4>
 
+          <!-- Payment Information Notice -->
+          <div class="alert alert-info mb-4">
+            <h6><i class="fas fa-info-circle me-2"></i>Payment Information</h6>
+            <p class="mb-2">After registration, you will receive a QR code for payment:</p>
+            <ul class="mb-0">
+              <li><strong>Partial Payment (₹199):</strong> T-shirt only</li>
+              <li><strong>Full Payment:</strong> T-shirt + Trial participation</li>
+              <li><strong>Note:</strong> Payment verification will be done manually by admin on trial day</li>
+            </ul>
+          </div>
+
           <form id="basicInfoForm" action="<?= base_url('trial-registration-save') ?>" method="post" novalidate>
             <div class="row">
               <div class="col-md-6 mb-3">

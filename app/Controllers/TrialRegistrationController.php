@@ -44,13 +44,81 @@ class TrialRegistrationController extends BaseController
 
     public function adminIndex()
     {
-
         $model = new \App\Models\TrialPlayerModel();
+        
+        // Get search filters
+        $phone = $this->request->getGet('phone');
+        $paymentStatus = $this->request->getGet('payment_status');
+        
+        if ($phone) {
+            $model->like('mobile', $phone);
+        }
+        
+        if ($paymentStatus && $paymentStatus !== 'all') {
+            $model->where('payment_status', $paymentStatus);
+        }
 
-
-        $data['registrations'] = $model->orderBy('id', 'DESC')->paginate(10);
+        $data['registrations'] = $model->orderBy('id', 'DESC')->paginate(20);
         $data['pager'] = $model->pager;
 
         return view('admin/trial/registration', $data);
+    }
+    
+    public function updatePaymentStatus()
+    {
+        helper('email');
+        if ($this->request->isAJAX()) {
+            $data = $this->request->getJSON(true);
+
+            $model = new \App\Models\TrialPlayerModel();
+            $player = $model->find($data['id']);
+
+            if (!$player) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Player not found'
+                ]);
+            }
+
+            $update = $model->update($data['id'], [
+                'payment_status' => $data['payment_status'],
+                'verified_at' => date('Y-m-d H:i:s')
+            ]);
+
+            if ($update) {
+                // Load email helper if available
+                if (function_exists('sendCustomMail')) {
+                    helper('custom_mail');
+
+                    // Build email content based on payment status
+                    $statusMessages = [
+                        'not_verified' => 'Your payment is pending verification. Please bring payment proof to the trial.',
+                        'partial_paid' => 'Your partial payment (₹199) has been verified. You will receive a T-shirt. Please complete full payment for trial participation.',
+                        'full_paid' => 'Your full payment has been verified! You are all set for the trial and will receive a T-shirt.'
+                    ];
+
+                    $subject = "Payment Status Update - MPCL Trial";
+                    $message = "
+                        <p>Hello <strong>{$player['name']}</strong>,</p>
+                        <p>{$statusMessages[$data['payment_status']]}</p>
+                        <p>Phone: {$player['mobile']}</p>
+                        <p>Status: " . ucfirst(str_replace('_', ' ', $data['payment_status'])) . "</p>
+                        <br><p>Regards,<br>MegaStar Premier Cricket League Team</p>
+                    ";
+
+                    sendCustomMail($player['email'], $subject, $message);
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => $update,
+                'message' => $update ? 'Payment status updated successfully' : 'Failed to update payment status'
+            ]);
+        }
+        
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Invalid request'
+        ]);
     }
 }

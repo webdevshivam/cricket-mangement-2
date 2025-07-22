@@ -18,6 +18,9 @@ class TrialPlayerModel extends Model
     'city',
     'trial_city_id',
     'cricket_type',
+    'payment_status',
+    'verified_at',
+    'trial_completed',
     'created_at',
   ];
 
