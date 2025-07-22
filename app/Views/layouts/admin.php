@@ -82,8 +82,14 @@
           <i class="fas fa-map-marker-alt"></i> Trial Management
         </a>
         <ul class="collapse list-unstyled" id="trial-submenu">
-          <li><a href="<?= base_url('admin/manage-trial-cities') ?>" data-page="trial-cities">Manage Trial Cities</a></li>
-          <li><a href="<?= base_url('admin/trial-registration') ?>" data-page="trial-cities">Manage Trial Registration</a></li>
+          <li>
+                  <a href="<?= base_url('admin/trial-registration') ?>" data-page="trial-cities">Manage Trial Registration</a>
+                </li>
+                <li>
+                  <a  href="<?= base_url('admin/trial-verification') ?>" data-page="trial-verification">
+                    <i class="fas fa-check-circle"></i> Trial Verification
+                  </a>
+                </li>
           <li><a href="#schedule-trials" data-page="schedule-trials">Schedule Trials</a></li>
           <li><a href="#trial-attendance" data-page="trial-attendance">Trial Attendance</a></li>
 

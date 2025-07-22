@@ -68,6 +68,7 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
 
     // Trial verification routes
     $routes->get('trial-verification', 'TrialRegistrationController::verification');
+    $routes->post('trial-verification/search-by-mobile', 'TrialRegistrationController::searchByMobile');
     $routes->post('trial-verification/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment');
     $routes->post('trial-verification/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted');
 });

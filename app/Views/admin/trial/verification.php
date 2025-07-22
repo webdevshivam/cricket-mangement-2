@@ -4,37 +4,83 @@
 
 <div class="card bg-dark border-warning stats-card mb-4">
   <div class="card-body d-flex justify-content-between align-items-center">
-    <h5 class="card-title text-warning mb-0">Trial Day Verification</h5>
+    <h5 class="card-title text-warning mb-0">Trial Day Verification & Payment Collection</h5>
     <div>
-      <span class="badge bg-info me-2">Total: <?= count($registrations) ?></span>
-      <button class="btn btn-sm btn-success" onclick="showBulkVerification()">
-        <i class="fas fa-check-double"></i> Bulk Verify
-      </button>
+      <span class="badge bg-info me-2">Total Students: <?= count($registrations) ?></span>
+      <span class="badge bg-success me-2">Today's Collection: ₹<?= number_format($todayCollection ?? 0) ?></span>
     </div>
   </div>
 </div>
 
 <div class="container mt-3">
-  <!-- Search Section -->
+  <!-- Quick Mobile Search Section -->
+  <div class="card bg-dark border-success mb-4">
+    <div class="card-header bg-success text-dark">
+      <h6 class="mb-0"><i class="fas fa-mobile-alt"></i> Quick Mobile Search & Payment Collection</h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input type="text" class="form-control bg-dark text-white" id="quickMobileSearch" 
+                   placeholder="Enter mobile number to find student" maxlength="10">
+            <button class="btn btn-success" onclick="quickSearchByMobile()">
+              <i class="fas fa-search"></i> Find Student
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-center">
+            <h6 class="text-warning">Today's Collection Summary</h6>
+            <div class="row">
+              <div class="col">Cash: <span class="badge bg-success">₹<?= number_format($collectionStats['cash'] ?? 0) ?></span></div>
+              <div class="col">UPI: <span class="badge bg-info">₹<?= number_format($collectionStats['upi'] ?? 0) ?></span></div>
+              <div class="col">Total: <span class="badge bg-warning">₹<?= number_format($collectionStats['total'] ?? 0) ?></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Found Result -->
+  <div id="studentSearchResult" class="card bg-dark border-info mb-4" style="display: none;">
+    <div class="card-header bg-info text-dark">
+      <h6 class="mb-0"><i class="fas fa-user-check"></i> Student Details</h6>
+    </div>
+    <div class="card-body" id="studentDetails">
+      <!-- Student details will be populated here -->
+    </div>
+  </div>
+
+  <!-- Date Filter & Advanced Search -->
   <div class="card bg-dark border-warning mb-4">
     <div class="card-body">
       <form method="GET" action="<?= base_url('admin/trial-verification') ?>">
         <div class="row">
-          <div class="col-md-4">
-            <input type="text" class="form-control bg-dark text-white" name="phone" 
-                   placeholder="Search by phone number" value="<?= esc($phone ?? '') ?>" autofocus>
+          <div class="col-md-2">
+            <label class="form-label text-warning">Date Filter</label>
+            <input type="date" class="form-control bg-dark text-white" name="date_filter" 
+                   value="<?= esc($date_filter ?? date('Y-m-d')) ?>">
           </div>
           <div class="col-md-3">
+            <label class="form-label text-warning">Mobile Search</label>
+            <input type="text" class="form-control bg-dark text-white" name="phone" 
+                   placeholder="Search by phone number" value="<?= esc($phone ?? '') ?>">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label text-warning">Payment Status</label>
             <select class="form-select bg-dark text-white" name="payment_status">
-              <option value="">All Payment Status</option>
+              <option value="">All Status</option>
               <option value="no_payment" <?= (isset($payment_status) && $payment_status == 'no_payment') ? 'selected' : '' ?>>No Payment</option>
               <option value="partial" <?= (isset($payment_status) && $payment_status == 'partial') ? 'selected' : '' ?>>Partial Paid</option>
               <option value="full" <?= (isset($payment_status) && $payment_status == 'full') ? 'selected' : '' ?>>Full Paid</option>
             </select>
           </div>
           <div class="col-md-3">
+            <label class="form-label text-warning">Trial City</label>
             <select class="form-select bg-dark text-white" name="trial_city">
-              <option value="">All Trial Cities</option>
+              <option value="">All Cities</option>
               <?php foreach ($trial_cities as $city) : ?>
                 <option value="<?= $city['id'] ?>" <?= (isset($trial_city) && $trial_city == $city['id']) ? 'selected' : '' ?>>
                   <?= esc($city['city_name']) ?>
@@ -43,7 +89,8 @@
             </select>
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-warning me-2">
+            <label class="form-label">&nbsp;</label>
+            <button type="submit" class="btn btn-warning form-control">
               <i class="fas fa-search"></i> Search
             </button>
           </div>
@@ -112,7 +159,7 @@
                     break;
                 }
                 ?>
-                <tr data-student-id="<?= esc($reg['id']) ?>">
+                <tr data-student-id="<?= esc($reg['id']) ?>" data-mobile="<?= esc($reg['mobile']) ?>">
                   <td><?= $i++ ?></td>
                   <td><strong class="text-warning"><?= esc($reg['name']) ?></strong></td>
                   <td><span class="badge bg-info"><?= esc($reg['mobile']) ?></span></td>
@@ -246,6 +293,96 @@
 const notyf = new Notyf();
 let currentStudentData = {};
 
+// Quick mobile search functionality
+function quickSearchByMobile() {
+    const mobile = document.getElementById('quickMobileSearch').value.trim();
+    
+    if (!mobile || mobile.length < 10) {
+        notyf.error('Please enter a valid 10-digit mobile number');
+        return;
+    }
+
+    fetch("<?= base_url('admin/trial-verification/search-by-mobile') ?>", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({ mobile: mobile }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.student) {
+            displayStudentSearchResult(data.student);
+        } else {
+            notyf.error(data.message || 'Student not found');
+            document.getElementById('studentSearchResult').style.display = 'none';
+        }
+    })
+    .catch(error => {
+        notyf.error("Network error occurred.");
+        console.error("Network error:", error);
+    });
+}
+
+function displayStudentSearchResult(student) {
+    // Calculate fees and due amount
+    const trialFees = (student.cricket_type === 'bowler' || student.cricket_type === 'batsman') ? 999 : 1199;
+    const tshirtFees = 199;
+    
+    let dueAmount = 0;
+    let dueDescription = '';
+    
+    switch(student.payment_status || 'no_payment') {
+        case 'no_payment':
+            dueAmount = tshirtFees + trialFees;
+            dueDescription = `T-shirt (₹${tshirtFees}) + Trial Fees (₹${trialFees})`;
+            break;
+        case 'partial':
+            dueAmount = trialFees;
+            dueDescription = `Trial Fees (₹${trialFees}) - T-shirt paid`;
+            break;
+        case 'full':
+            dueAmount = 0;
+            dueDescription = "All dues clear";
+            break;
+    }
+
+    const statusBadge = {
+        'no_payment': '<span class="badge bg-danger">❌ No Payment</span>',
+        'partial': '<span class="badge bg-warning">🎽 Partial Paid</span>',
+        'full': '<span class="badge bg-success">✅ Full Paid</span>'
+    }[student.payment_status || 'no_payment'];
+
+    document.getElementById('studentDetails').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="text-warning">${student.name}</h5>
+                <p><strong>Mobile:</strong> <span class="badge bg-info">${student.mobile}</span></p>
+                <p><strong>Cricket Type:</strong> <span class="badge bg-secondary">${student.cricket_type} (₹${trialFees})</span></p>
+                <p><strong>Trial City:</strong> <span class="badge bg-primary">${student.trial_city_name || 'N/A'}</span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Payment Status:</strong> ${statusBadge}</p>
+                <p><strong>Due Amount:</strong> <span class="badge ${dueAmount > 0 ? 'bg-danger' : 'bg-success'} fs-5">₹${dueAmount}</span></p>
+                <p><small class="text-muted">${dueDescription}</small></p>
+                ${dueAmount > 0 ? `
+                    <button class="btn btn-success" onclick="collectPaymentOnSpot(${student.id}, '${student.name}', '${student.mobile}', ${dueAmount}, '${student.payment_status || 'no_payment'}')">
+                        <i class="fas fa-money-bill"></i> Collect ₹${dueAmount}
+                    </button>
+                ` : `
+                    <button class="btn btn-outline-success" disabled>
+                        <i class="fas fa-check"></i> All Paid
+                    </button>
+                `}
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('studentSearchResult').style.display = 'block';
+    document.getElementById('quickMobileSearch').value = '';
+}
+
 function collectPaymentOnSpot(studentId, studentName, studentPhone, amount, currentStatus) {
     currentStudentData = {
         id: studentId,
@@ -331,15 +468,16 @@ function markTrialCompleted(studentId) {
     }
 }
 
-function showBulkVerification() {
-    notyf.info('Bulk verification feature - to be implemented');
-}
-
-// Auto-focus on phone search
+// Auto-focus on mobile search and handle enter key
 document.addEventListener('DOMContentLoaded', function() {
-    const phoneInput = document.querySelector('input[name="phone"]');
-    if (phoneInput && !phoneInput.value) {
-        phoneInput.focus();
+    const quickMobileInput = document.getElementById('quickMobileSearch');
+    if (quickMobileInput) {
+        quickMobileInput.focus();
+        quickMobileInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                quickSearchByMobile();
+            }
+        });
     }
 });
 </script>

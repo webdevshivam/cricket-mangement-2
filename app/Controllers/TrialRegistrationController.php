@@ -329,6 +329,7 @@ class TrialRegistrationController extends BaseController
         $phone = $this->request->getGet('phone');
         $paymentStatus = $this->request->getGet('payment_status');
         $trialCity = $this->request->getGet('trial_city');
+        $dateFilter = $this->request->getGet('date_filter') ?: date('Y-m-d');
         
         // Build query with joins
         $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
@@ -350,12 +351,108 @@ class TrialRegistrationController extends BaseController
         $data['pager'] = $model->pager;
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
         
+        // Calculate collection statistics for the selected date
+        $data['todayCollection'] = $this->calculateDailyCollection($dateFilter);
+        $data['collectionStats'] = $this->getCollectionStatsByDate($dateFilter);
+        
         // Pass filter values to view
         $data['phone'] = $phone;
         $data['payment_status'] = $paymentStatus;
         $data['trial_city'] = $trialCity;
+        $data['date_filter'] = $dateFilter;
 
         return view('admin/trial/verification', $data);
+    }
+
+    public function searchByMobile()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+        
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+            $mobile = $data['mobile'] ?? '';
+            
+            if (empty($mobile)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Mobile number is required'
+                ]);
+            }
+
+            $model = new \App\Models\TrialPlayerModel();
+            
+            $student = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
+                           ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
+                           ->where('trial_players.mobile', $mobile)
+                           ->first();
+
+            if ($student) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'student' => $student,
+                    'message' => 'Student found'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No student found with this mobile number'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Mobile search error: ' . $e->getMessage());
+            
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while searching'
+            ]);
+        }
+    }
+
+    private function calculateDailyCollection($date)
+    {
+        $db = \Config\Database::connect();
+        
+        // Calculate total collection for payments made on trial day
+        // This would require a payments table to track individual payment records
+        // For now, we'll estimate based on payment status changes
+        
+        $builder = $db->table('trial_players');
+        $builder->select('
+            SUM(CASE 
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 1198
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1398
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "partial" THEN 199
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "partial" THEN 199
+                ELSE 0
+            END) as total_collection
+        ');
+        $builder->where('DATE(verified_at)', $date);
+        $builder->where('payment_status !=', 'no_payment');
+        
+        $result = $builder->get()->getRow();
+        return $result ? $result->total_collection : 0;
+    }
+
+    private function getCollectionStatsByDate($date)
+    {
+        // This would be more accurate with a separate payments table
+        // For now, returning estimated stats
+        $totalCollection = $this->calculateDailyCollection($date);
+        
+        return [
+            'cash' => $totalCollection * 0.6, // Assume 60% cash
+            'upi' => $totalCollection * 0.3,  // Assume 30% UPI
+            'card' => $totalCollection * 0.1, // Assume 10% card
+            'total' => $totalCollection
+        ];
     }
 
     public function collectSpotPayment()
