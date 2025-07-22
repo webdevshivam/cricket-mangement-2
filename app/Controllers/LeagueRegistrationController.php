@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -24,7 +23,7 @@ class LeagueRegistrationController extends BaseController
     public function register()
     {
         $validation = \Config\Services::validation();
-        
+
         $validation->setRules([
             'name' => 'required|min_length[3]',
             'email' => 'required|valid_email',
@@ -209,13 +208,13 @@ class LeagueRegistrationController extends BaseController
         }
 
         $filePath = WRITEPATH . 'uploads/league_documents/' . $player[$documentType];
-        
+
         if (!file_exists($filePath)) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('File not found');
         }
 
         $mimeType = mime_content_type($filePath);
-        
+
         return $this->response
             ->setHeader('Content-Type', $mimeType)
             ->setHeader('Content-Disposition', 'inline; filename="' . $player[$documentType] . '"')
@@ -256,7 +255,7 @@ class LeagueRegistrationController extends BaseController
             // Delete associated documents
             $uploadPath = WRITEPATH . 'uploads/league_documents/';
             $documentFields = ['aadhar_document', 'marksheet_document', 'dob_proof', 'photo'];
-            
+
             foreach ($documentFields as $field) {
                 if (!empty($player[$field]) && file_exists($uploadPath . $player[$field])) {
                     unlink($uploadPath . $player[$field]);
@@ -274,7 +273,6 @@ class LeagueRegistrationController extends BaseController
                     'message' => 'Failed to delete player'
                 ]);
             }
-
         } catch (Exception $e) {
             log_message('error', 'Delete league player error: ' . $e->getMessage());
 
