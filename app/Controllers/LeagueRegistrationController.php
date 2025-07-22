@@ -33,7 +33,7 @@ class LeagueRegistrationController extends BaseController
             'age_group' => 'required',
             'state' => 'required',
             'city' => 'required',
-            
+
             'aadhar_document' => 'uploaded[aadhar_document]|max_size[aadhar_document,5120]|ext_in[aadhar_document,pdf,jpg,jpeg,png]',
             'marksheet_document' => 'uploaded[marksheet_document]|max_size[marksheet_document,5120]|ext_in[marksheet_document,pdf]',
             'dob_proof' => 'uploaded[dob_proof]|max_size[dob_proof,5120]|ext_in[dob_proof,pdf,jpg,jpeg,png]',
@@ -71,7 +71,7 @@ class LeagueRegistrationController extends BaseController
             'age_group' => $this->request->getPost('age_group'),
             'state' => $this->request->getPost('state'),
             'city' => $this->request->getPost('city'),
-            
+
             'aadhar_document' => $uploadedFiles['aadhar_document'] ?? null,
             'marksheet_document' => $uploadedFiles['marksheet_document'] ?? null,
             'dob_proof' => $uploadedFiles['dob_proof'] ?? null,
@@ -109,7 +109,7 @@ class LeagueRegistrationController extends BaseController
             $builder->where('league_players.payment_status', $paymentStatus);
         }
 
-        
+
 
         if ($ageGroup) {
             $builder->where('league_players.age_group', $ageGroup);
