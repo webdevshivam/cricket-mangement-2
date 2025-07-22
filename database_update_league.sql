@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `league_players` (
   `age_group` enum('under_16','above_16') NOT NULL,
   `state` varchar(100) NOT NULL,
   `city` varchar(100) NOT NULL,
-  `trial_city_id` int(11) DEFAULT NULL,
+  
   `aadhar_document` varchar(255) DEFAULT NULL,
   `marksheet_document` varchar(255) DEFAULT NULL,
   `dob_proof` varchar(255) DEFAULT NULL,

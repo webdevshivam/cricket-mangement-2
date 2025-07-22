@@ -29,13 +29,7 @@
               <option value="full" <?= (isset($payment_status) && $payment_status == 'full') ? 'selected' : '' ?>>Full Paid</option>
             </select>
           </div>
-          <div class="col-md-2">
-            <select class="form-select bg-dark text-white" name="trial_city">
-              <option value="">All Trial Cities</option>
-              <?php foreach ($trial_cities as $city) : ?>
-                <option value="<?= $city['id'] ?>" <?= (isset($trial_city) && $trial_city == $city['id']) ? 'selected' : '' ?>>
-                  <?= esc($city['city_name']) ?>
-                </option>
+          
               <?php endforeach; ?>
             </select>
           </div>
