@@ -18,7 +18,7 @@
       <form method="GET" action="<?= base_url('admin/league-registration') ?>">
         <div class="row">
           <div class="col-md-2">
-            <input type="text" class="form-control bg-dark text-white" name="phone" 
+            <input type="text" class="form-control bg-dark text-white" name="phone"
                    placeholder="Search by phone" value="<?= esc($phone ?? '') ?>">
           </div>
           <div class="col-md-2">
@@ -29,7 +29,7 @@
               <option value="full" <?= (isset($payment_status) && $payment_status == 'full') ? 'selected' : '' ?>>Full Paid</option>
             </select>
           </div>
-          
+
               <?php endforeach; ?>
             </select>
           </div>
@@ -92,8 +92,8 @@
                   <td><span class="badge bg-primary"><?= esc(str_replace('_', ' ', ucfirst($reg['age_group']))) ?></span></td>
                   <td><span class="badge bg-success"><?= esc($reg['trial_city_name'] ?? 'N/A') ?></span></td>
                   <td>
-                    <select class="form-select form-select-sm payment-status-select bg-dark text-white" 
-                            data-player-id="<?= esc($reg['id']) ?>" 
+                    <select class="form-select form-select-sm payment-status-select bg-dark text-white"
+                            data-player-id="<?= esc($reg['id']) ?>"
                             data-player-name="<?= esc($reg['name']) ?>"
                             data-player-phone="<?= esc($reg['mobile']) ?>">
                       <option value="no_payment" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'no_payment') ? 'selected' : '' ?>>
@@ -110,28 +110,28 @@
                   <td>
                     <div class="btn-group-vertical btn-group-sm">
                       <?php if (!empty($reg['aadhar_document'])): ?>
-                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/aadhar_document') ?>" 
+                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/aadhar_document') ?>"
                            target="_blank" class="btn btn-sm btn-outline-info mb-1" title="View Aadhar">
                           <i class="fas fa-id-card"></i> Aadhar
                         </a>
                       <?php endif; ?>
-                      
+
                       <?php if (!empty($reg['marksheet_document'])): ?>
-                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/marksheet_document') ?>" 
+                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/marksheet_document') ?>"
                            target="_blank" class="btn btn-sm btn-outline-success mb-1" title="View Marksheet">
                           <i class="fas fa-graduation-cap"></i> Marksheet
                         </a>
                       <?php endif; ?>
-                      
+
                       <?php if (!empty($reg['dob_proof'])): ?>
-                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/dob_proof') ?>" 
+                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/dob_proof') ?>"
                            target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="View DOB Proof">
                           <i class="fas fa-birthday-cake"></i> DOB
                         </a>
                       <?php endif; ?>
-                      
+
                       <?php if (!empty($reg['photo'])): ?>
-                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/photo') ?>" 
+                        <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/photo') ?>"
                            target="_blank" class="btn btn-sm btn-outline-secondary mb-1" title="View Photo">
                           <i class="fas fa-camera"></i> Photo
                         </a>
@@ -249,7 +249,7 @@ function deletePlayer(playerId, playerName) {
     if (!confirm(`Are you sure you want to delete ${playerName}? This action cannot be undone!`)) {
         return;
     }
-    
+
     fetch("<?= base_url('admin/league-registration/delete') ?>", {
         method: "POST",
         headers: {
