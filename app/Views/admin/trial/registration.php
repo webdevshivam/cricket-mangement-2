@@ -23,9 +23,9 @@
         <div class="col-md-6">
           <select class="form-select bg-dark text-white" id="statusFilter" onchange="filterByStatus(this.value)">
             <option value="all">All Payment Status</option>
-            <option value="not_verified">Not Verified</option>
-            <option value="partial_paid">Partial Paid</option>
-            <option value="full_paid">Full Paid</option>
+            <option value="no_payment">No Payment</option>
+            <option value="partial">Partial Paid</option>
+            <option value="full">Full Paid</option>
           </select>
         </div>
       </div>
@@ -72,13 +72,13 @@
                             data-player-id="<?= esc($reg['id']) ?>" 
                             data-player-name="<?= esc($reg['name']) ?>"
                             data-player-phone="<?= esc($reg['mobile']) ?>">
-                      <option value="not_verified" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'not_verified') ? 'selected' : '' ?>>
-                        ❌ Not Verified
+                      <option value="no_payment" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'no_payment') ? 'selected' : '' ?>>
+                        ❌ No Payment
                       </option>
-                      <option value="partial_paid" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'partial_paid') ? 'selected' : '' ?>>
+                      <option value="partial" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'partial') ? 'selected' : '' ?>>
                         🎽 Partial Paid (₹199)
                       </option>
-                      <option value="full_paid" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'full_paid') ? 'selected' : '' ?>>
+                      <option value="full" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'full') ? 'selected' : '' ?>>
                         ✅ Full Paid
                       </option>
                     </select>
@@ -211,13 +211,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Confirm the change
             let statusText = '';
             switch(newStatus) {
-                case 'not_verified':
-                    statusText = 'Not Verified';
+                case 'no_payment':
+                    statusText = 'No Payment';
                     break;
-                case 'partial_paid':
+                case 'partial':
                     statusText = 'Partial Paid (₹199 - T-shirt only)';
                     break;
-                case 'full_paid':
+                case 'full':
                     statusText = 'Full Paid (Complete payment)';
                     break;
             }

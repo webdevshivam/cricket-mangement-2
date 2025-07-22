@@ -98,7 +98,7 @@ class TrialRegistrationController extends BaseController
             }
 
             // Validate payment status
-            $validStatuses = ['not_verified', 'partial_paid', 'full_paid'];
+            $validStatuses = ['no_payment', 'partial', 'full'];
             if (!in_array($data['payment_status'], $validStatuses)) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -121,9 +121,9 @@ class TrialRegistrationController extends BaseController
 
                         // Build email content based on payment status
                         $statusMessages = [
-                            'not_verified' => 'Your payment is pending verification. Please bring payment proof to the trial.',
-                            'partial_paid' => 'Your partial payment (₹199) has been verified. You will receive a T-shirt. Please complete full payment for trial participation.',
-                            'full_paid' => 'Your full payment has been verified! You are all set for the trial and will receive a T-shirt.'
+                            'no_payment' => 'Your payment is pending verification. Please bring payment proof to the trial.',
+                            'partial' => 'Your partial payment (₹199) has been verified. You will receive a T-shirt. Please complete full payment for trial participation.',
+                            'full' => 'Your full payment has been verified! You are all set for the trial and will receive a T-shirt.'
                         ];
 
                         $subject = "Payment Status Update - MPCL Trial";
