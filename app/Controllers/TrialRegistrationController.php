@@ -319,4 +319,155 @@ class TrialRegistrationController extends BaseController
             ]);
         }
     }
+
+    public function verification()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        $trialCitiesModel = new \App\Models\TrialcitiesModel();
+        
+        // Get search filters
+        $phone = $this->request->getGet('phone');
+        $paymentStatus = $this->request->getGet('payment_status');
+        $trialCity = $this->request->getGet('trial_city');
+        
+        // Build query with joins
+        $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
+                        ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
+        
+        if ($phone) {
+            $builder->like('trial_players.mobile', $phone);
+        }
+        
+        if ($paymentStatus && $paymentStatus !== 'all') {
+            $builder->where('trial_players.payment_status', $paymentStatus);
+        }
+        
+        if ($trialCity) {
+            $builder->where('trial_players.trial_city_id', $trialCity);
+        }
+
+        $data['registrations'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(20);
+        $data['pager'] = $model->pager;
+        $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
+        
+        // Pass filter values to view
+        $data['phone'] = $phone;
+        $data['payment_status'] = $paymentStatus;
+        $data['trial_city'] = $trialCity;
+
+        return view('admin/trial/verification', $data);
+    }
+
+    public function collectSpotPayment()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+        
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+            
+            if (empty($data['student_id']) || empty($data['amount']) || empty($data['payment_status'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing required data'
+                ]);
+            }
+
+            $model = new \App\Models\TrialPlayerModel();
+            $student = $model->find($data['student_id']);
+
+            if (!$student) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Student not found'
+                ]);
+            }
+
+            // Update payment status
+            $updateData = [
+                'payment_status' => $data['payment_status'],
+                'verified_at' => date('Y-m-d H:i:s')
+            ];
+
+            $update = $model->update($data['student_id'], $updateData);
+
+            if ($update) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Spot payment collected successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update payment status'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Spot payment collection error: ' . $e->getMessage());
+            
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while processing payment'
+            ]);
+        }
+    }
+
+    public function markTrialCompleted()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+        
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+            
+            if (empty($data['student_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing student ID'
+                ]);
+            }
+
+            $model = new \App\Models\TrialPlayerModel();
+            
+            $updateData = [
+                'trial_completed' => 1,
+                'verified_at' => date('Y-m-d H:i:s')
+            ];
+
+            $update = $model->update($data['student_id'], $updateData);
+
+            if ($update) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Trial marked as completed'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to mark trial as completed'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Trial completion error: ' . $e->getMessage());
+            
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while marking trial as completed'
+            ]);
+        }
+    }
 }

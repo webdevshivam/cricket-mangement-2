@@ -113,17 +113,30 @@
               ?>
               <?php foreach ($registrations as $reg) : ?>
                 <?php
+                // Calculate fees based on cricket type
+                $trialFees = 0;
+                $tshirtFees = 199;
+                
+                switch(strtolower($reg['cricket_type'])) {
+                  case 'bowler':
+                  case 'batsman':
+                    $trialFees = 999;
+                    break;
+                  case 'all-rounder':
+                  case 'wicket-keeper':
+                    $trialFees = 1199;
+                    break;
+                }
+                
                 // Calculate remaining amount based on payment status
                 $remainingAmount = 0;
-                $totalAmount = 999; // Assuming full amount is 999
-                $partialAmount = 199;
                 
                 switch($reg['payment_status']) {
                   case 'no_payment':
-                    $remainingAmount = $totalAmount;
+                    $remainingAmount = $tshirtFees + $trialFees;
                     break;
                   case 'partial':
-                    $remainingAmount = $totalAmount - $partialAmount;
+                    $remainingAmount = $trialFees;
                     break;
                   case 'full':
                     $remainingAmount = 0;
@@ -452,13 +465,27 @@ function updatePaymentStatus(playerId, status, selectElement) {
             
             // Update remaining amount badge
             const remainingBadge = row.querySelector('td:nth-child(10) .badge');
+            
+            // Get cricket type from the row to calculate correct fees
+            const cricketTypeBadge = row.querySelector('td:nth-child(7) .badge');
+            const cricketType = cricketTypeBadge ? cricketTypeBadge.textContent.toLowerCase() : '';
+            
+            let trialFees = 0;
+            const tshirtFees = 199;
+            
+            if (cricketType.includes('bowler') || cricketType.includes('batsman')) {
+                trialFees = 999;
+            } else if (cricketType.includes('all-rounder') || cricketType.includes('wicket-keeper')) {
+                trialFees = 1199;
+            }
+            
             let remainingAmount = 0;
             switch(status) {
                 case 'no_payment':
-                    remainingAmount = 999;
+                    remainingAmount = tshirtFees + trialFees;
                     break;
                 case 'partial':
-                    remainingAmount = 800;
+                    remainingAmount = trialFees;
                     break;
                 case 'full':
                     remainingAmount = 0;
