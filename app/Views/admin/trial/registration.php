@@ -8,165 +8,107 @@
 </div>
 
 <div class="container mt-3">
-  <form id="playerForm" method="post" action="<?= site_url('admin/players/bulk_action') ?>">
-    <div class="table-responsive">
-      <table class="table table-dark table-striped table-bordered">
-        <thead>
-          <tr>
-            <th><input class="form-check-input" type="checkbox" id="selectAll" /></th>
-            <th>#</th>
-            <th>Name</th>
-            <th>Mobile</th>
-            <th>City</th>
-            <th>Role</th>
-            <th>Payment Status</th>
-            <th>Registered On</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (!empty($registrations)) : ?>
-            <?php
-            $currentPage = $pager->getCurrentPage() ?? 1;
-            $perPage = $pager->getPerPage() ?? 10;
-            $i = 1 + ($currentPage - 1) * $perPage;
-            ?>
-            <?php foreach ($registrations as $reg) : ?>
-              <tr>
-                <td><input type="checkbox" class="form-check-input" name="ids[]" value="<?= $reg['id'] ?>" /></td>
-                <td><?= $i++ ?></td>
-                <td><?= esc($reg['name']) ?></td>
-                <td><?= esc($reg['mobile']) ?></td>
-                <td><?= esc($reg['city']) ?></td>
-                <td><?= esc($reg['cricket_type']) ?></td>
-                <td>
-                  <select name="payment_status[<?= $reg['id'] ?>]" class="form-select form-select-sm bg-dark text-white">
-                    <option value="pending">Pending</option>
-                    <option value="partial">Partial</option>
-                    <option value="full">Full</option>
-                  </select>
-                </td>
-                <td><?= date('d M Y', strtotime($reg['created_at'] ?? '')) ?></td>
-              </tr>
-            <?php endforeach; ?>
-          <?php else : ?>
-            <tr>
-              <td colspan="8" class="text-center">No registrations found.</td>
-            </tr>
-          <?php endif; ?>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="mt-3 d-flex gap-2">
-      <button type="submit" name="action" value="delete" class="btn btn-danger">Delete Selected</button>
-      <button type="submit" name="action" value="update" class="btn btn-primary">Update Payment Status</button>
-    </div>
-  </form>
-
-  <!-- Pagination Links -->
-  <div class="d-flex justify-content-center mt-4">
-    <?= $pager->links() ?>
-  </div>
-</div>
-
-<!-- Trial Registrations Table -->
-<div class="card bg-dark border-warning">
-  <div class="card-body">
-   <div class="mb-3">
-        <div class="input-group">
+  <!-- Search and Filter Section -->
+  <div class="card bg-dark border-warning mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="input-group mb-3">
             <input type="text" class="form-control bg-dark text-white" id="phoneSearch" placeholder="Search by phone number">
             <button class="btn btn-outline-warning" type="button" id="searchBtn">
-                <i class="fas fa-search"></i> Search
+              <i class="fas fa-search"></i> Search
             </button>
+          </div>
         </div>
-    </div>
-
-    <div class="mb-3">
-        <label for="statusFilter" class="form-label text-warning">Filter by Payment Status:</label>
-        <select class="form-select bg-dark text-white" id="statusFilter" onchange="filterByStatus(this.value)">
-            <option value="all">All</option>
+        <div class="col-md-6">
+          <select class="form-select bg-dark text-white" id="statusFilter" onchange="filterByStatus(this.value)">
+            <option value="all">All Payment Status</option>
             <option value="not_verified">Not Verified</option>
             <option value="partial_paid">Partial Paid</option>
             <option value="full_paid">Full Paid</option>
-        </select>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-dark table-striped" id="registrationsTable">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Age</th>
-            <th>Cricket Type</th>
-            <th>Trial City</th>
-            <th>Payment Status</th>
-            <th>Actions</th>
-            <th>Registered On</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (!empty($registrations)): ?>
-            <?php foreach ($registrations as $player): ?>
-              <tr data-phone="<?= esc($player['mobile']) ?>" data-status="<?= $player['payment_status'] ?? 'not_verified' ?>">
-                <td><?= esc($player['id']) ?></td>
-                <td>
-                  <strong><?= esc($player['name']) ?></strong>
-                </td>
-                <td>
-                  <span class="badge bg-info"><?= esc($player['mobile']) ?></span>
-                </td>
-                <td><?= esc($player['email']) ?></td>
-                <td><?= esc($player['age']) ?> years</td>
-                <td>
-                  <span class="badge bg-secondary"><?= esc($player['cricket_type']) ?></span>
-                </td>
-                <td><?= esc($player['trial_city_id']) ?></td>
-                <td>
-                  <select class="form-select form-select-sm payment-status-select" 
-                          data-player-id="<?= esc($player['id']) ?>" 
-                          data-player-name="<?= esc($player['name']) ?>"
-                          data-player-phone="<?= esc($player['mobile']) ?>">
-                    <option value="not_verified" <?= (!isset($player['payment_status']) || $player['payment_status'] == 'not_verified') ? 'selected' : '' ?>>
-                      ❌ Not Verified
-                    </option>
-                    <option value="partial_paid" <?= (isset($player['payment_status']) && $player['payment_status'] == 'partial_paid') ? 'selected' : '' ?>>
-                      🎽 Partial Paid (₹199)
-                    </option>
-                    <option value="full_paid" <?= (isset($player['payment_status']) && $player['payment_status'] == 'full_paid') ? 'selected' : '' ?>>
-                      ✅ Full Paid
-                    </option>
-                  </select>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-info" onclick="viewPlayerDetails(<?= esc($player['id']) ?>)">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-warning" onclick="markTrialCompleted(<?= esc($player['id']) ?>)">
-                    <i class="fas fa-check"></i> Trial Done
-                  </button>
-                </td>
-                <td>
-                  <small class="text-muted"><?= date('d M Y', strtotime($player['created_at'])) ?></small>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <tr>
-              <td colspan="10" class="text-center text-muted">No trial registrations found.</td>
-            </tr>
-          <?php endif; ?>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    <?php if (isset($pager)): ?>
-      <div class="d-flex justify-content-center mt-3">
-        <?= $pager->links() ?>
+          </select>
+        </div>
       </div>
-    <?php endif; ?>
+    </div>
+  </div>
+
+  <!-- Registrations Table -->
+  <div class="card bg-dark border-warning">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-dark table-striped table-bordered" id="registrationsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>Age</th>
+              <th>Cricket Type</th>
+              <th>City</th>
+              <th>Payment Status</th>
+              <th>Actions</th>
+              <th>Registered On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (!empty($registrations)) : ?>
+              <?php
+              $currentPage = $pager->getCurrentPage() ?? 1;
+              $perPage = $pager->getPerPage() ?? 10;
+              $i = 1 + ($currentPage - 1) * $perPage;
+              ?>
+              <?php foreach ($registrations as $reg) : ?>
+                <tr data-phone="<?= esc($reg['mobile']) ?>" data-status="<?= $reg['payment_status'] ?? 'not_verified' ?>">
+                  <td><?= $i++ ?></td>
+                  <td><strong><?= esc($reg['name']) ?></strong></td>
+                  <td><span class="badge bg-info"><?= esc($reg['mobile']) ?></span></td>
+                  <td><?= esc($reg['email']) ?></td>
+                  <td><?= esc($reg['age']) ?> years</td>
+                  <td><span class="badge bg-secondary"><?= esc($reg['cricket_type']) ?></span></td>
+                  <td><?= esc($reg['city']) ?></td>
+                  <td>
+                    <select class="form-select form-select-sm payment-status-select bg-dark text-white" 
+                            data-player-id="<?= esc($reg['id']) ?>" 
+                            data-player-name="<?= esc($reg['name']) ?>"
+                            data-player-phone="<?= esc($reg['mobile']) ?>">
+                      <option value="not_verified" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'not_verified') ? 'selected' : '' ?>>
+                        ❌ Not Verified
+                      </option>
+                      <option value="partial_paid" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'partial_paid') ? 'selected' : '' ?>>
+                        🎽 Partial Paid (₹199)
+                      </option>
+                      <option value="full_paid" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'full_paid') ? 'selected' : '' ?>>
+                        ✅ Full Paid
+                      </option>
+                    </select>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-info" onclick="viewPlayerDetails(<?= esc($reg['id']) ?>)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <small class="text-muted"><?= date('d M Y', strtotime($reg['created_at'])) ?></small>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else : ?>
+              <tr>
+                <td colspan="10" class="text-center text-muted">No trial registrations found.</td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <?php if (isset($pager)): ?>
+        <div class="d-flex justify-content-center mt-3">
+          <?= $pager->links() ?>
+        </div>
+      <?php endif; ?>
+    </div>
   </div>
 </div>
 
@@ -256,11 +198,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusSelects = document.querySelectorAll('.payment-status-select');
 
     statusSelects.forEach(select => {
+        // Store original value
+        const originalValue = select.value;
+
         select.addEventListener('change', function() {
             const playerId = this.getAttribute('data-player-id');
             const playerName = this.getAttribute('data-player-name');
             const playerPhone = this.getAttribute('data-player-phone');
             const newStatus = this.value;
+            const oldStatus = originalValue;
 
             // Confirm the change
             let statusText = '';
@@ -280,13 +226,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 updatePaymentStatus(playerId, newStatus, this);
             } else {
                 // Reset to previous value if cancelled
-                this.selectedIndex = 0;
+                this.value = oldStatus;
             }
         });
     });
 });
 
 function updatePaymentStatus(playerId, status, selectElement) {
+    // Show loading state
+    selectElement.disabled = true;
+
     fetch("<?= base_url('admin/trial-registration/update-payment-status') ?>", {
         method: "POST",
         headers: {
@@ -298,62 +247,41 @@ function updatePaymentStatus(playerId, status, selectElement) {
             payment_status: status
         }),
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
+        selectElement.disabled = false;
+
         if (data.success) {
             notyf.success("Payment status updated successfully!");
 
             // Update the row's data attribute
             const row = selectElement.closest('tr');
             row.setAttribute('data-status', status);
-
-            // Update statistics
-            updateStatistics();
         } else {
-            notyf.error("Failed to update payment status.");
+            notyf.error(data.message || "Failed to update payment status.");
             console.error("Error:", data.message);
+
+            // Reset select to original value on error
+            selectElement.selectedIndex = 0;
         }
     })
     .catch(error => {
-        notyf.error("Network error occurred.");
+        selectElement.disabled = false;
+        notyf.error("Network error occurred. Please check your connection.");
         console.error("Network error:", error);
+
+        // Reset select to original value on error
+        selectElement.selectedIndex = 0;
     });
-}
-
-function updateStatistics() {
-    const rows = document.querySelectorAll('#registrationsTable tbody tr');
-    let notVerified = 0, partialPaid = 0, fullPaid = 0;
-
-    rows.forEach(row => {
-        const status = row.getAttribute('data-status');
-        switch(status) {
-            case 'not_verified':
-                notVerified++;
-                break;
-            case 'partial_paid':
-                partialPaid++;
-                break;
-            case 'full_paid':
-                fullPaid++;
-                break;
-        }
-    });
-
-    document.getElementById('notVerifiedCount').textContent = notVerified;
-    document.getElementById('partialPaidCount').textContent = partialPaid;
-    document.getElementById('fullPaidCount').textContent = fullPaid;
 }
 
 function viewPlayerDetails(playerId) {
-    // You can implement this to show more detailed player information
     notyf.info('Player details feature - to be implemented');
-}
-
-function markTrialCompleted(playerId) {
-    if (confirm('Mark this player\'s trial as completed?')) {
-        // You can implement trial completion tracking here
-        notyf.success('Trial marked as completed!');
-    }
 }
 </script>
 

@@ -57,9 +57,12 @@ $routes->group('/admin/grades', ['filter' => 'role:admin'], function ($routes) {
 });
 
 //trial registration routes
-$routes->group('admin/trial-registration', ['filter' => 'role:admin'], function ($routes) {
-  $routes->get('/', 'TrialRegistrationController::adminIndex');
-  $routes->post('update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
+$routes->get('/trial-registration', 'TrialRegistrationController::index');
+$routes->post('/trial-registration-save', 'TrialRegistrationController::register');
+
+$routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
+    $routes->get('trial-registration', 'TrialRegistrationController::adminIndex');
+    $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
 });
 
 
