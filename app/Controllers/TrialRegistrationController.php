@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -8,6 +7,7 @@ use App\Models\QrCodeSettingModel;
 use App\Models\TrialcitiesModel;
 use App\Models\TrialPlayerModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use Exception;
 
 class TrialRegistrationController extends BaseController
 {
@@ -47,24 +47,24 @@ class TrialRegistrationController extends BaseController
     {
         $model = new \App\Models\TrialPlayerModel();
         $trialCitiesModel = new \App\Models\TrialcitiesModel();
-        
+
         // Get search filters
         $phone = $this->request->getGet('phone');
         $paymentStatus = $this->request->getGet('payment_status');
         $trialCity = $this->request->getGet('trial_city');
-        
+
         // Build query with joins
         $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
-                        ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
-        
+            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
+
         if ($phone) {
             $builder->like('trial_players.mobile', $phone);
         }
-        
+
         if ($paymentStatus && $paymentStatus !== 'all') {
             $builder->where('trial_players.payment_status', $paymentStatus);
         }
-        
+
         if ($trialCity) {
             $builder->where('trial_players.trial_city_id', $trialCity);
         }
@@ -72,7 +72,7 @@ class TrialRegistrationController extends BaseController
         $data['registrations'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(20);
         $data['pager'] = $model->pager;
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
-        
+
         // Pass filter values to view
         $data['phone'] = $phone;
         $data['payment_status'] = $paymentStatus;
@@ -80,12 +80,12 @@ class TrialRegistrationController extends BaseController
 
         return view('admin/trial/registration', $data);
     }
-    
+
     public function updatePaymentStatus()
     {
         // Set proper JSON response header
         $this->response->setHeader('Content-Type', 'application/json');
-        
+
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -95,7 +95,7 @@ class TrialRegistrationController extends BaseController
 
         try {
             $data = $this->request->getJSON(true);
-            
+
             // Validate input data
             if (empty($data['id']) || empty($data['payment_status'])) {
                 return $this->response->setJSON([
@@ -169,10 +169,9 @@ class TrialRegistrationController extends BaseController
                     'message' => 'Failed to update payment status'
                 ]);
             }
-
         } catch (Exception $e) {
             log_message('error', 'Payment status update error: ' . $e->getMessage());
-            
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while updating payment status'
@@ -183,7 +182,7 @@ class TrialRegistrationController extends BaseController
     public function bulkUpdatePaymentStatus()
     {
         $this->response->setHeader('Content-Type', 'application/json');
-        
+
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -193,7 +192,7 @@ class TrialRegistrationController extends BaseController
 
         try {
             $data = $this->request->getJSON(true);
-            
+
             if (empty($data['student_ids']) || empty($data['payment_status'])) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -228,10 +227,9 @@ class TrialRegistrationController extends BaseController
                 'success' => true,
                 'message' => "Successfully updated {$successCount} students"
             ]);
-
         } catch (Exception $e) {
             log_message('error', 'Bulk payment status update error: ' . $e->getMessage());
-            
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while updating payment status'
@@ -242,7 +240,7 @@ class TrialRegistrationController extends BaseController
     public function collectPayment()
     {
         $this->response->setHeader('Content-Type', 'application/json');
-        
+
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -252,7 +250,7 @@ class TrialRegistrationController extends BaseController
 
         try {
             $data = $this->request->getJSON(true);
-            
+
             if (empty($data['student_id']) || empty($data['amount']) || empty($data['payment_status'])) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -312,10 +310,9 @@ class TrialRegistrationController extends BaseController
                     'message' => 'Failed to update payment status'
                 ]);
             }
-
         } catch (Exception $e) {
             log_message('error', 'Payment collection error: ' . $e->getMessage());
-            
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while processing payment'
