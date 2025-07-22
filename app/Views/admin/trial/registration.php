@@ -68,8 +68,8 @@
                   <td><span class="badge bg-secondary"><?= esc($reg['cricket_type']) ?></span></td>
                   <td><?= esc($reg['city']) ?></td>
                   <td>
-                    <select class="form-select form-select-sm payment-status-select bg-dark text-white" 
-                            data-player-id="<?= esc($reg['id']) ?>" 
+                    <select class="form-select form-select-sm payment-status-select bg-dark text-white"
+                            data-player-id="<?= esc($reg['id']) ?>"
                             data-player-name="<?= esc($reg['name']) ?>"
                             data-player-phone="<?= esc($reg['mobile']) ?>">
                       <option value="no_payment" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'no_payment') ? 'selected' : '' ?>>
