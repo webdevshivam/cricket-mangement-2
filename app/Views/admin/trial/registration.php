@@ -76,6 +76,9 @@
           <button class="btn btn-info ms-2" onclick="bulkUpdateStatus()">
             <i class="fas fa-edit"></i> Update Selected
           </button>
+          <button class="btn btn-danger ms-2" onclick="bulkDeleteStudents()">
+            <i class="fas fa-trash"></i> Delete Selected
+          </button>
         </div>
       </div>
     </div>
@@ -185,6 +188,9 @@
                         <i class="fas fa-money-bill"></i>
                       </button>
                     <?php endif; ?>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(<?= esc($reg['id']) ?>, '<?= esc($reg['name']) ?>')" title="Delete Student">
+                      <i class="fas fa-trash"></i>
+                    </button>
                   </td>
                   <td>
                     <small class="text-muted"><?= date('d M Y', strtotime($reg['created_at'])) ?></small>
@@ -335,6 +341,46 @@ function bulkUpdateStatus() {
             setTimeout(() => location.reload(), 1500);
         } else {
             notyf.error(data.message || "Failed to update payment status.");
+        }
+    })
+    .catch(error => {
+        notyf.error("Network error occurred. Please check your connection.");
+        console.error("Network error:", error);
+    });
+}
+
+// Bulk delete students
+function bulkDeleteStudents() {
+    const selected = document.querySelectorAll('.student-checkbox:checked');
+    
+    if (selected.length === 0) {
+        notyf.error('Please select at least one student to delete');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ${selected.length} selected students? This action cannot be undone!`)) {
+        return;
+    }
+    
+    const studentIds = Array.from(selected).map(cb => cb.getAttribute('data-student-id'));
+    
+    fetch("<?= base_url('admin/trial-registration/bulk-delete') ?>", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+            student_ids: studentIds
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            notyf.success(`Deleted ${studentIds.length} students successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            notyf.error(data.message || "Failed to delete students.");
         }
     })
     .catch(error => {
@@ -515,6 +561,37 @@ function updatePaymentStatus(playerId, status, selectElement) {
 
 function viewPlayerDetails(playerId) {
     notyf.info('Student details feature - to be implemented');
+}
+
+// Individual delete student
+function deleteStudent(studentId, studentName) {
+    if (!confirm(`Are you sure you want to delete ${studentName}? This action cannot be undone!`)) {
+        return;
+    }
+    
+    fetch("<?= base_url('admin/trial-registration/delete') ?>", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+            student_id: studentId
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            notyf.success(`${studentName} deleted successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            notyf.error(data.message || "Failed to delete student.");
+        }
+    })
+    .catch(error => {
+        notyf.error("Network error occurred. Please check your connection.");
+        console.error("Network error:", error);
+    });
 }
 </script>
 

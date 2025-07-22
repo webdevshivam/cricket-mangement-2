@@ -693,4 +693,102 @@ class TrialRegistrationController extends BaseController
         
         return $counts;
     }
+
+    public function bulkDelete()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['student_ids'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No students selected for deletion'
+                ]);
+            }
+
+            $model = new \App\Models\TrialPlayerModel();
+            $successCount = 0;
+
+            foreach ($data['student_ids'] as $studentId) {
+                if ($model->delete($studentId)) {
+                    $successCount++;
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Successfully deleted {$successCount} students"
+            ]);
+
+        } catch (Exception $e) {
+            log_message('error', 'Bulk delete error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while deleting students'
+            ]);
+        }
+    }
+
+    public function deleteStudent()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['student_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Student ID is required'
+                ]);
+            }
+
+            $model = new \App\Models\TrialPlayerModel();
+            $student = $model->find($data['student_id']);
+
+            if (!$student) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Student not found'
+                ]);
+            }
+
+            if ($model->delete($data['student_id'])) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Student deleted successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to delete student'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Delete student error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while deleting student'
+            ]);
+        }
+    }
 }

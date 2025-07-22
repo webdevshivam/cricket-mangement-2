@@ -65,6 +65,8 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
     $routes->post('trial-registration/bulk-update-payment-status', 'TrialRegistrationController::bulkUpdatePaymentStatus');
     $routes->post('trial-registration/collect-payment', 'TrialRegistrationController::collectPayment');
+    $routes->post('trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete');
+    $routes->post('trial-registration/delete', 'TrialRegistrationController::deleteStudent');
 
     // Trial verification routes
     $routes->get('trial-verification', 'TrialRegistrationController::verification');
