@@ -150,20 +150,7 @@
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-12 mb-4">
-                <label for="trial_city_id" class="form-label">
-                  <i class="fas fa-star me-1"></i>Choose Trial City *
-                </label>
-                <select name="trial_city_id" class="form-select" id="trial_city_id" required>
-                  <option value="">Select Trial City</option>
-                  <?php foreach ($trial_cities as $city): ?>
-                    <option value="<?= $city['id'] ?>" <?= old('trial_city_id') == $city['id'] ? 'selected' : '' ?>><?= $city['city_name'] ?></option>
-                  <?php endforeach; ?>
-                </select>
-                <div class="invalid-feedback">Please select a trial city.</div>
-              </div>
-            </div>
+            
           </div>
 
           <!-- Step 2: Document Upload -->
