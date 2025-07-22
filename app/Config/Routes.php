@@ -60,23 +60,28 @@ $routes->group('/admin/grades', ['filter' => 'role:admin'], function ($routes) {
 $routes->get('/trial-registration', 'TrialRegistrationController::index');
 $routes->post('/trial-registration-save', 'TrialRegistrationController::register');
 
+// League Registration Routes
+$routes->get('/league-registration', 'LeagueRegistrationController::index');
+$routes->post('/league-registration-save', 'LeagueRegistrationController::register');
+
 $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('trial-registration', 'TrialRegistrationController::adminIndex');
     $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
     $routes->post('trial-registration/bulk-update-payment-status', 'TrialRegistrationController::bulkUpdatePaymentStatus');
     $routes->post('trial-registration/collect-payment', 'TrialRegistrationController::collectPayment');
+    $routes->get('trial-registration/verification', 'TrialRegistrationController::verification');
+    $routes->post('trial-registration/search-by-mobile', 'TrialRegistrationController::searchByMobile');
+    $routes->post('trial-verification/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment');
+    $routes->post('trial-verification/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted');
+    $routes->get('trial-registration/payment-tracking', 'TrialRegistrationController::paymentTracking');
     $routes->post('trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete');
     $routes->post('trial-registration/delete', 'TrialRegistrationController::deleteStudent');
 
-    // Trial verification routes
-    $routes->get('trial-verification', 'TrialRegistrationController::verification');
-    $routes->post('trial-verification/search-by-mobile', 'TrialRegistrationController::searchByMobile');
-    $routes->post('trial-verification/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment');
-    $routes->post('trial-verification/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted');
-
-    // Payment tracking routes
-    $routes->get('payment-tracking', 'TrialRegistrationController::paymentTracking');
-    $routes->post('payment-tracking/collect-payment', 'TrialRegistrationController::collectSpotPayment');
+    // League Registration Admin Routes
+    $routes->get('league-registration', 'LeagueRegistrationController::adminIndex');
+    $routes->post('league-registration/update-payment-status', 'LeagueRegistrationController::updatePaymentStatus');
+    $routes->get('league-registration/view-document/(:num)/(:segment)', 'LeagueRegistrationController::viewDocument/$1/$2');
+    $routes->post('league-registration/delete', 'LeagueRegistrationController::deletePlayer');
 });
 
 
@@ -92,3 +97,7 @@ $routes->get('/unauthorized', function () {
 // frontend routes
 $routes->get('/trial-registration', 'TrialRegistrationController::index');
 $routes->post('/trial-registration-save', 'TrialRegistrationController::register');
+
+// League Registration Routes
+$routes->get('/league-registration', 'LeagueRegistrationController::index');
+$routes->post('/league-registration-save', 'LeagueRegistrationController::register');
