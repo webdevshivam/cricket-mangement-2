@@ -1,0 +1,526 @@
+/* Custom CSS for Black and Golden Theme */
+:root {
+  --primary-black: #1a1a1a;
+  --secondary-black: #2d2d2d;
+  --golden: #d4af37;
+  --golden-light: #f4e197;
+  --golden-dark: #b8941f;
+  --text-light: #f8f9fa;
+  --text-muted: #6c757d;
+  --border-color: #404040;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(
+      135deg,
+      rgba(26, 26, 26, 0.9) 0%,
+      rgba(45, 45, 45, 0.9) 100%
+    ),
+    url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1947&q=80')
+      center/cover no-repeat;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-light);
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
+/* Form Wizard Card */
+.form-wizard-card {
+  max-width: 900px;
+  width: 95%;
+  background: rgba(45, 45, 45, 0.95);
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.form-wizard-card .card-header {
+  background: linear-gradient(
+    45deg,
+    var(--primary-black),
+    var(--secondary-black)
+  );
+  border-bottom: 2px solid var(--golden);
+  padding: 1.5rem;
+}
+
+.form-wizard-card .card-header h2 {
+  color: var(--golden);
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Progress Container */
+.progress-container {
+  padding: 2rem 2rem 0;
+  position: relative;
+}
+
+.progress {
+  height: 8px;
+  background-color: var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.progress-bar {
+  background: linear-gradient(
+    90deg,
+    var(--golden-dark),
+    var(--golden),
+    var(--golden-light)
+  );
+  transition: width 0.6s ease;
+  border-radius: 10px;
+}
+
+/* Step Indicators */
+.step-indicators {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.step-indicator i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--primary-black);
+  transition: all 0.3s ease;
+}
+
+.step-indicator span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.step-indicator.active {
+  color: var(--golden);
+}
+
+.step-indicator.active i {
+  background: linear-gradient(45deg, var(--golden-dark), var(--golden));
+  border-color: var(--golden);
+  color: var(--primary-black);
+  transform: scale(1.1);
+}
+
+.step-indicator.completed {
+  color: var(--golden-light);
+}
+
+.step-indicator.completed i {
+  background: var(--golden-dark);
+  border-color: var(--golden-dark);
+  color: var(--text-light);
+}
+
+/* Step Content */
+.step-content {
+  display: none;
+  animation: fadeIn 0.6s ease;
+}
+
+.step-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.step-title {
+  color: var(--golden);
+  margin-bottom: 2rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--golden);
+  padding-bottom: 0.5rem;
+}
+
+/* Form Controls */
+.form-label {
+  color: var(--text-light);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--primary-black);
+  border: 2px solid var(--border-color);
+  color: var(--text-light);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--primary-black);
+  border-color: var(--golden);
+  color: var(--text-light);
+  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+.form-select option {
+  background-color: var(--primary-black);
+  color: var(--text-light);
+}
+
+/* Validation States */
+.was-validated .form-control:valid,
+.form-control.is-valid {
+  border-color: #28a745;
+}
+
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.valid-feedback {
+  color: #28a745;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Buttons */
+.btn-golden {
+  background: linear-gradient(45deg, var(--golden-dark), var(--golden));
+  border: none;
+  color: var(--primary-black);
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-golden:hover {
+  background: linear-gradient(45deg, var(--golden), var(--golden-light));
+  color: var(--primary-black);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+}
+
+.btn-outline-secondary {
+  border-color: var(--border-color);
+  color: var(--text-light);
+  background: transparent;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--border-color);
+  border-color: var(--border-color);
+  color: var(--text-light);
+}
+
+/* Card Footer */
+.card-footer {
+  background: var(--primary-black);
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 2rem;
+}
+
+/* Payment Section */
+.payment-info h5 {
+  color: var(--golden);
+  font-weight: 600;
+}
+
+.qr-container {
+  background: var(--primary-black);
+  border: 2px solid var(--golden);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 300px;
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2);
+}
+
+.qr-code {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  display: inline-block;
+}
+
+.qr-svg {
+  border-radius: 5px;
+}
+
+.qr-instructions {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.payment-amount h3 {
+  color: var(--golden);
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.text-golden {
+  color: var(--golden) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Modal Customization */
+.modal-content {
+  background-color: var(--secondary-black);
+  border: 1px solid var(--border-color);
+  color: var(--text-light);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-wizard-card {
+    width: 98%;
+    margin: 1rem;
+  }
+
+  .progress-container {
+    padding: 1rem 1rem 0;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-footer {
+    padding: 1rem 1.5rem;
+  }
+
+  .step-indicator i {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .step-indicator span {
+    font-size: 0.8rem;
+  }
+
+  .qr-container {
+    padding: 1rem;
+    margin: 1rem auto;
+  }
+
+  .qr-code svg {
+    width: 150px;
+    height: 150px;
+  }
+
+  .payment-amount h3 {
+    font-size: 2rem;
+  }
+
+  .btn-golden,
+  .btn-outline-secondary {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .row .col-md-6 {
+    margin-bottom: 1rem;
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ms-auto {
+    margin-left: 0 !important;
+  }
+
+  .step-indicators {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .step-indicator {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+/* Loading Animation */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--golden);
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--golden);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--golden-dark);
+}
+
+/* Logo Styling */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo {
+  max-height: 60px;
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(212, 175, 55, 0.5);
+}
+
+/* Cricket-specific styling */
+.fas.fa-cricket::before {
+  content: '\f44e'; /* Using baseball icon as cricket icon */
+}
+
+/* Enhanced background for cricket theme */
+.container-fluid {
+  position: relative;
+}
+
+.container-fluid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(212, 175, 55, 0.1) 0%,
+    rgba(26, 26, 26, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+/* Form card enhanced styling */
+.form-wizard-card {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cricket type field styling */
+#cricketType {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d4af37' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6'/%3e%3c/svg%3e");
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .logo {
+    max-height: 50px;
+  }
+
+  body {
+    background-attachment: scroll;
+  }
+}
