@@ -4,9 +4,17 @@
 <div class="card bg-dark border-warning mb-3">
   <div class="card-body d-flex justify-content-between">
     <h5 class="text-warning">Grade List</h5>
-    <a href="<?= site_url('admin/grades/add') ?>" class="btn btn-warning">
-      <i class="fas fa-plus"></i> Add Grade
-    </a>
+    <div>
+      <a href="<?= site_url('admin/grades/assignments') ?>" class="btn btn-outline-warning me-2">
+        <i class="fas fa-users"></i> View Assignments
+      </a>
+      <a href="<?= site_url('admin/grades/assign') ?>" class="btn btn-warning me-2">
+        <i class="fas fa-user-plus"></i> Assign Grades
+      </a>
+      <a href="<?= site_url('admin/grades/add') ?>" class="btn btn-warning">
+        <i class="fas fa-plus"></i> Add Grade
+      </a>
+    </div>
   </div>
 </div>
 

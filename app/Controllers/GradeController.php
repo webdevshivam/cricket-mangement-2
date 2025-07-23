@@ -67,7 +67,7 @@ class GradeController extends BaseController
         return redirect()->to('admin/grades');
     }
 
-    public function assignSave()
+    public function assign()
     {
         $trialPlayerModel = new \App\Models\TrialPlayerModel();
         $gradeModel = new GradeModel();
@@ -87,7 +87,7 @@ class GradeController extends BaseController
         $gradeId = $this->request->getPost('grade_id');
 
         if (!$playerIds || !$gradeId) {
-            return redirect()->back()->with('error', 'Please select at least one player and a grade.');
+            return redirect()->to('admin/grades/assign')->with('error', 'Please select at least one player and a grade.');
         }
 
         $gradeAssignModel = new GradeAssignModel();
@@ -116,7 +116,51 @@ class GradeController extends BaseController
             }
         }
 
-        return redirect()->back()->with('success', 'Grades assigned/updated successfully.');
+        return redirect()->to('admin/grades/assign')->with('success', 'Grades assigned/updated successfully.');
+    }
+
+    // Admin methods for managing grade assignments
+    public function viewAssignments()
+    {
+        $gradeAssignModel = new GradeAssignModel();
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
+        $gradeModel = new GradeModel();
+
+        // Get all active grade assignments with player and grade details
+        $assignments = $gradeAssignModel->select('grade_assign.*, trial_players.name as player_name, trial_players.mobile, grades.title as grade_title')
+                                       ->join('trial_players', 'trial_players.id = grade_assign.trial_player_id')
+                                       ->join('grades', 'grades.id = grade_assign.grade_id')
+                                       ->where('grade_assign.status', 'active')
+                                       ->findAll();
+
+        $data['assignments'] = $assignments;
+        return view('admin/grades/assignments', $data);
+    }
+
+    public function updateAssignment($id)
+    {
+        $gradeId = $this->request->getPost('grade_id');
+        
+        if (!$gradeId) {
+            return redirect()->back()->with('error', 'Please select a grade.');
+        }
+
+        $gradeAssignModel = new GradeAssignModel();
+        $gradeAssignModel->update($id, [
+            'grade_id' => $gradeId,
+            'assigned_at' => date('Y-m-d H:i:s'),
+            'assigned_by' => session()->get('user_id')
+        ]);
+
+        return redirect()->back()->with('success', 'Grade assignment updated successfully.');
+    }
+
+    public function deleteAssignment($id)
+    {
+        $gradeAssignModel = new GradeAssignModel();
+        $gradeAssignModel->update($id, ['status' => 'inactive']);
+
+        return redirect()->back()->with('success', 'Grade assignment removed successfully.');
     }
 
     // Frontend methods for players to check their grades
@@ -130,7 +174,7 @@ class GradeController extends BaseController
         $mobile = $this->request->getPost('mobile');
         
         if (!$mobile) {
-            return redirect()->back()->with('error', 'Please enter your mobile number.');
+            return redirect()->to('grades/check')->with('error', 'Please enter your mobile number.');
         }
 
         $trialPlayerModel = new \App\Models\TrialPlayerModel();
@@ -141,7 +185,12 @@ class GradeController extends BaseController
         $player = $trialPlayerModel->where('mobile', $mobile)->first();
 
         if (!$player) {
-            return redirect()->back()->with('error', 'No player found with this mobile number.');
+            return redirect()->to('grades/check')->with('error', 'No player found with this mobile number. Please check your mobile number and try again.');
+        }
+
+        // Check if player is verified and has full payment
+        if ($player['payment_status'] !== 'full' || empty($player['verified_at'])) {
+            return redirect()->to('grades/check')->with('error', 'Your account is not yet verified or payment is incomplete. Please contact administration.');
         }
 
         // Get assigned grade
