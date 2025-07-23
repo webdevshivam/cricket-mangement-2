@@ -63,6 +63,7 @@
               <th>Age Group</th>
               <th>Trial City</th>
               <th>Payment Status</th>
+              <th>Assigned Grade</th>
               <th>Documents</th>
               <th>Actions</th>
               <th>Registered On</th>
@@ -99,32 +100,44 @@
                     </select>
                   </td>
                   <td>
-                    <div class="btn-group-vertical btn-group-sm">
+                    <select class="form-select form-select-sm grade-select bg-dark text-white"
+                      data-player-id="<?= esc($reg['id']) ?>"
+                      data-player-name="<?= esc($reg['name']) ?>">
+                      <option value="">Select Grade</option>
+                      <?php foreach ($grades as $grade): ?>
+                        <option value="<?= $grade['id'] ?>" <?= (isset($reg['assigned_grade_id']) && $reg['assigned_grade_id'] == $grade['id']) ? 'selected' : '' ?>>
+                          <?= esc($grade['title']) ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
                       <?php if (!empty($reg['aadhar_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/aadhar_document') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-info mb-1" title="View Aadhar">
-                          <i class="fas fa-id-card"></i> Aadhar
+                          target="_blank" class="btn btn-sm btn-outline-info" title="View Aadhar Document" data-bs-toggle="tooltip">
+                          <i class="fas fa-id-card"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['marksheet_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/marksheet_document') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-success mb-1" title="View Marksheet">
-                          <i class="fas fa-graduation-cap"></i> Marksheet
+                          target="_blank" class="btn btn-sm btn-outline-success" title="View Marksheet" data-bs-toggle="tooltip">
+                          <i class="fas fa-graduation-cap"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['dob_proof'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/dob_proof') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="View DOB Proof">
-                          <i class="fas fa-birthday-cake"></i> DOB
+                          target="_blank" class="btn btn-sm btn-outline-warning" title="View DOB Proof" data-bs-toggle="tooltip">
+                          <i class="fas fa-birthday-cake"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['photo'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/photo') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-secondary mb-1" title="View Photo">
-                          <i class="fas fa-camera"></i> Photo
+                          target="_blank" class="btn btn-sm btn-outline-secondary" title="View Photo" data-bs-toggle="tooltip">
+                          <i class="fas fa-camera"></i>
                         </a>
                       <?php endif; ?>
                     </div>
@@ -141,7 +154,7 @@
               <?php endforeach; ?>
             <?php else : ?>
               <tr>
-                <td colspan="12" class="text-center text-muted">No league registrations found.</td>
+                <td colspan="13" class="text-center text-muted">No league registrations found.</td>
               </tr>
             <?php endif; ?>
           </tbody>
@@ -163,6 +176,14 @@
 
 <script>
   const notyf = new Notyf();
+
+  // Initialize tooltips
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
 
   // Individual payment status update
   document.addEventListener('DOMContentLoaded', function() {
@@ -191,6 +212,27 @@
           updatePaymentStatus(playerId, newStatus, this);
         } else {
           this.value = originalValue;
+        }
+      });
+    });
+
+    // Grade selection handlers
+    const gradeSelects = document.querySelectorAll('.grade-select');
+    gradeSelects.forEach(select => {
+      const originalValue = select.value;
+
+      select.addEventListener('change', function() {
+        const playerId = this.getAttribute('data-player-id');
+        const playerName = this.getAttribute('data-player-name');
+        const gradeId = this.value;
+        const gradeName = this.options[this.selectedIndex].text;
+
+        if (gradeId) {
+          if (confirm(`Assign grade "${gradeName}" to ${playerName}?`)) {
+            updatePlayerGrade(playerId, gradeId, this);
+          } else {
+            this.value = originalValue;
+          }
         }
       });
     });
@@ -223,6 +265,43 @@
           notyf.success("Payment status updated successfully!");
         } else {
           notyf.error(data.message || "Failed to update payment status.");
+          selectElement.selectedIndex = 0;
+        }
+      })
+      .catch(error => {
+        selectElement.disabled = false;
+        notyf.error("Network error occurred. Please check your connection.");
+        selectElement.selectedIndex = 0;
+      });
+  }
+
+  function updatePlayerGrade(playerId, gradeId, selectElement) {
+    selectElement.disabled = true;
+
+    fetch("<?= base_url('admin/league-registration/update-grade') ?>", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+          player_id: playerId,
+          grade_id: gradeId
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        selectElement.disabled = false;
+
+        if (data.success) {
+          notyf.success("Grade updated successfully!");
+        } else {
+          notyf.error(data.message || "Failed to update grade.");
           selectElement.selectedIndex = 0;
         }
       })

@@ -103,6 +103,8 @@ class LeagueRegistrationController extends BaseController
     {
         $model = new LeaguePlayerModel();
         $trialCitiesModel = new TrialcitiesModel();
+        $gradeModel = new \App\Models\GradeModel();
+        $gradeAssignModel = new \App\Models\GradeAssignModel();
 
         // Get search filters
         $phone = $this->request->getGet('phone');
@@ -110,8 +112,9 @@ class LeagueRegistrationController extends BaseController
         $trialCity = $this->request->getGet('trial_city');
         $ageGroup = $this->request->getGet('age_group');
 
-        // Build query
-        $builder = $model->select('league_players.*');
+        // Build query with grade assignment
+        $builder = $model->select('league_players.*, ga.grade_id as assigned_grade_id')
+                        ->join('grade_assign ga', 'ga.player_id = league_players.id', 'left');
 
         if ($phone) {
             $builder->like('league_players.mobile', $phone);
@@ -121,8 +124,6 @@ class LeagueRegistrationController extends BaseController
             $builder->where('league_players.payment_status', $paymentStatus);
         }
 
-
-
         if ($ageGroup) {
             $builder->where('league_players.age_group', $ageGroup);
         }
@@ -130,6 +131,7 @@ class LeagueRegistrationController extends BaseController
         $data['registrations'] = $builder->orderBy('league_players.id', 'DESC')->paginate(20);
         $data['pager'] = $model->pager;
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
+        $data['grades'] = $gradeModel->where('status', 'active')->findAll();
 
         // Pass filter values to view
         $data['phone'] = $phone;
@@ -293,6 +295,74 @@ class LeagueRegistrationController extends BaseController
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while deleting player'
+            ]);
+        }
+    }
+
+    public function updateGrade()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['player_id']) || empty($data['grade_id'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing required data'
+                ]);
+            }
+
+            $gradeAssignModel = new \App\Models\GradeAssignModel();
+            $playerId = $data['player_id'];
+            $gradeId = $data['grade_id'];
+
+            // Check if grade assignment already exists
+            $existingAssignment = $gradeAssignModel->where('player_id', $playerId)->first();
+
+            if ($existingAssignment) {
+                // Update existing assignment
+                $update = $gradeAssignModel->update($existingAssignment['id'], [
+                    'grade_id' => $gradeId,
+                    'assigned_at' => date('Y-m-d H:i:s'),
+                    'assigned_by' => session()->get('user_id') ?? 'admin',
+                    'status' => 'active'
+                ]);
+            } else {
+                // Create new assignment
+                $update = $gradeAssignModel->insert([
+                    'player_id' => $playerId,
+                    'grade_id' => $gradeId,
+                    'assigned_at' => date('Y-m-d H:i:s'),
+                    'assigned_by' => session()->get('user_id') ?? 'admin',
+                    'status' => 'active'
+                ]);
+            }
+
+            if ($update) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Grade updated successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update grade'
+                ]);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'League grade update error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating grade'
             ]);
         }
     }
