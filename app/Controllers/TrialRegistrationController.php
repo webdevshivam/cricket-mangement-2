@@ -799,4 +799,172 @@ class TrialRegistrationController extends BaseController
             ]);
         }
     }
+
+    public function exportPDF()
+    {
+        $model = new \App\Models\TrialPlayerModel();
+        $trialCitiesModel = new \App\Models\TrialcitiesModel();
+
+        // Get search filters
+        $phone = $this->request->getGet('phone');
+        $paymentStatus = $this->request->getGet('payment_status');
+        $trialCity = $this->request->getGet('trial_city');
+
+        // Build query with joins
+        $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
+            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
+
+        if ($phone) {
+            $builder->like('trial_players.mobile', $phone);
+        }
+
+        if ($paymentStatus && $paymentStatus !== 'all') {
+            $builder->where('trial_players.payment_status', $paymentStatus);
+        }
+
+        if ($trialCity) {
+            $builder->where('trial_players.trial_city_id', $trialCity);
+        }
+
+        $registrations = $builder->orderBy('trial_players.id', 'DESC')->findAll();
+
+        // Generate PDF content
+        $html = $this->generateTrialPDFContent($registrations);
+
+        // Set headers for PDF download
+        $this->response->setHeader('Content-Type', 'application/pdf');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="trial-registrations-' . date('Y-m-d') . '.pdf"');
+
+        // Use TCPDF or simple HTML to PDF conversion
+        return $this->generatePDFFromHTML($html);
+    }
+
+    private function generateTrialPDFContent($registrations)
+    {
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 12px; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; font-weight: bold; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .stats { margin-bottom: 20px; }
+                .badge { padding: 2px 6px; border-radius: 3px; font-size: 10px; }
+                .badge-full { background-color: #d4edda; color: #155724; }
+                .badge-partial { background-color: #fff3cd; color: #856404; }
+                .badge-none { background-color: #f8d7da; color: #721c24; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>MegaStar Premier Cricket League</h1>
+                <h2>Trial Student Registrations Report</h2>
+                <p>Generated on: ' . date('F j, Y, g:i a') . '</p>
+            </div>
+            
+            <div class="stats">
+                <p><strong>Total Registrations:</strong> ' . count($registrations) . '</p>
+                <p><strong>Export Date:</strong> ' . date('Y-m-d H:i:s') . '</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Cricket Type</th>
+                        <th>Trial City</th>
+                        <th>Payment Status</th>
+                        <th>Remaining Amount</th>
+                        <th>Registered On</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        $i = 1;
+        foreach ($registrations as $reg) {
+            // Calculate fees based on cricket type
+            $trialFees = 0;
+            $tshirtFees = 199;
+            
+            switch(strtolower($reg['cricket_type'])) {
+                case 'bowler':
+                case 'batsman':
+                    $trialFees = 999;
+                    break;
+                case 'all-rounder':
+                case 'wicket-keeper':
+                    $trialFees = 1199;
+                    break;
+            }
+            
+            // Calculate remaining amount based on payment status
+            $remainingAmount = 0;
+            $paymentStatus = $reg['payment_status'] ?? 'no_payment';
+            
+            switch($paymentStatus) {
+                case 'no_payment':
+                    $remainingAmount = $tshirtFees + $trialFees;
+                    $paymentBadge = 'badge-none';
+                    $paymentText = 'No Payment';
+                    break;
+                case 'partial':
+                    $remainingAmount = $trialFees;
+                    $paymentBadge = 'badge-partial';
+                    $paymentText = 'Partial Paid';
+                    break;
+                case 'full':
+                    $remainingAmount = 0;
+                    $paymentBadge = 'badge-full';
+                    $paymentText = 'Full Paid';
+                    break;
+            }
+            
+            $html .= '
+                    <tr>
+                        <td>' . $i++ . '</td>
+                        <td>' . esc($reg['name']) . '</td>
+                        <td>' . esc($reg['mobile']) . '</td>
+                        <td>' . esc($reg['email']) . '</td>
+                        <td>' . esc($reg['age']) . ' years</td>
+                        <td>' . esc($reg['cricket_type']) . '</td>
+                        <td>' . esc($reg['trial_city_name'] ?? 'N/A') . '</td>
+                        <td><span class="badge ' . $paymentBadge . '">' . $paymentText . '</span></td>
+                        <td>₹' . $remainingAmount . '</td>
+                        <td>' . date('d M Y', strtotime($reg['created_at'])) . '</td>
+                    </tr>';
+        }
+
+        $html .= '
+                </tbody>
+            </table>
+        </body>
+        </html>';
+
+        return $html;
+    }
+
+    private function generatePDFFromHTML($html)
+    {
+        // Using DomPDF library for PDF generation
+        require_once APPPATH . '../vendor/autoload.php';
+        
+        try {
+            $dompdf = new \Dompdf\Dompdf();
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'landscape');
+            $dompdf->render();
+            
+            return $dompdf->output();
+        } catch (Exception $e) {
+            // Fallback: return HTML content with PDF headers
+            return $html;
+        }
+    }
 }

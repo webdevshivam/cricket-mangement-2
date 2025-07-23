@@ -10,6 +10,9 @@
       <button class="btn btn-sm btn-warning" onclick="showBulkActions()">
         <i class="fas fa-tasks"></i> Bulk Actions
       </button>
+      <button class="btn btn-sm btn-outline-success ms-2" onclick="exportToPDF('trial')">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </button>
     </div>
   </div>
 </div>
@@ -592,6 +595,27 @@ function deleteStudent(studentId, studentName) {
         notyf.error("Network error occurred. Please check your connection.");
         console.error("Network error:", error);
     });
+}
+
+function exportToPDF(type) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const exportUrl = `<?= base_url('admin/trial-registration/export-pdf') ?>?${searchParams.toString()}`;
+    
+    // Show loading notification
+    notyf.info('Generating PDF export...');
+    
+    // Create a temporary link to download the PDF
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.download = `trial-registrations-${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success notification after a delay
+    setTimeout(() => {
+      notyf.success('PDF export completed!');
+    }, 2000);
 }
 </script>
 

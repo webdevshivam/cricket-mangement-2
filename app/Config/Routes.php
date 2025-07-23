@@ -86,6 +86,7 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
   $routes->post('trial-registration/search-by-mobile', 'TrialRegistrationController::searchByMobile');
   $routes->post('trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete');
   $routes->post('trial-registration/delete', 'TrialRegistrationController::deleteStudent');
+  $routes->get('trial-registration/export-pdf', 'TrialRegistrationController::exportPDF');
 
   // Trial Verification Routes (separate URL pattern)
   $routes->get('trial-verification', 'TrialRegistrationController::verification');
@@ -99,6 +100,7 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
   $routes->post('league-registration/update-grade', 'LeagueRegistrationController::updateGrade');
   $routes->get('league-registration/view-document/(:num)/(:segment)', 'LeagueRegistrationController::viewDocument/$1/$2');
   $routes->post('league-registration/delete', 'LeagueRegistrationController::deletePlayer');
+  $routes->get('league-registration/export-pdf', 'LeagueRegistrationController::exportPDF');
 });
 
 

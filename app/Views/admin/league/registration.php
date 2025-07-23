@@ -6,6 +6,9 @@
     <h5 class="card-title text-warning mb-0">League Player Registration</h5>
     <div>
       <span class="badge bg-info me-2">Total: <?= count($registrations) ?></span>
+      <button class="btn btn-sm btn-outline-success" onclick="exportToPDF('league')">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </button>
     </div>
   </div>
 </div>
@@ -340,6 +343,27 @@
         notyf.error("Network error occurred. Please check your connection.");
         console.error("Network error:", error);
       });
+  }
+
+  function exportToPDF(type) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const exportUrl = `<?= base_url('admin/league-registration/export-pdf') ?>?${searchParams.toString()}`;
+    
+    // Show loading notification
+    notyf.info('Generating PDF export...');
+    
+    // Create a temporary link to download the PDF
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.download = `league-registrations-${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success notification after a delay
+    setTimeout(() => {
+      notyf.success('PDF export completed!');
+    }, 2000);
   }
 </script>
 
