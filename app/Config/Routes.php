@@ -58,6 +58,7 @@ $routes->group('/admin/grades', ['filter' => 'role:admin'], function ($routes) {
   $routes->get('delete/(:num)', 'GradeController::delete/$1');
   $routes->get('assign/(:num)', 'GradeController::assign/$1');
   $routes->get('assign', 'GradeController::assignSave');
+  $routes->post('assignGrade', 'GradeController::assignGrade');
 });
 
 //trial registration routes

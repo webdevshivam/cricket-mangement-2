@@ -29,6 +29,50 @@
       <?= csrf_field(); ?>
 
       <div class="row">
+        <!-- Player Selection Table -->
+        <div class="col-12 mb-4">
+          <label class="form-label">Select Verified Trial Players</label>
+          <div class="table-responsive">
+            <table class="table table-dark table-striped">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleAll()"></th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Email</th>
+                  <th>Age</th>
+                  <th>Payment Status</th>
+                  <th>Verified</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php if (empty($players)): ?>
+                  <tr>
+                    <td colspan="7" class="text-center">No verified trial players found</td>
+                  </tr>
+                <?php else: ?>
+                  <?php foreach ($players as $player): ?>
+                    <tr>
+                      <td>
+                        <input type="checkbox" name="selected[]" value="<?= $player['id'] ?>" class="player-checkbox">
+                      </td>
+                      <td><?= esc($player['name']) ?></td>
+                      <td><?= esc($player['mobile']) ?></td>
+                      <td><?= esc($player['email']) ?></td>
+                      <td><?= esc($player['age']) ?></td>
+                      <td>
+                        <span class="badge bg-success">Full Payment</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary">Verified</span>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         <!-- Select Players (Multiple) -->
         <div class="col-md-6 mb-3">
@@ -77,11 +121,22 @@
       function selectAll() {
         const checkboxes = document.querySelectorAll('input[name="selected[]"]');
         checkboxes.forEach(cb => cb.checked = true);
+        document.getElementById('selectAllCheckbox').checked = true;
       }
 
       function deselectAll() {
         const checkboxes = document.querySelectorAll('input[name="selected[]"]');
         checkboxes.forEach(cb => cb.checked = false);
+        document.getElementById('selectAllCheckbox').checked = false;
+      }
+
+      function toggleAll() {
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const checkboxes = document.querySelectorAll('input[name="selected[]"]');
+        
+        checkboxes.forEach(cb => {
+          cb.checked = selectAllCheckbox.checked;
+        });
       }
     </script>
 

@@ -4,82 +4,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Grade Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Your Grade Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
             min-height: 100vh;
-            padding: 20px 0;
+            font-family: 'Arial', sans-serif;
         }
-        .card {
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .grade-card {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            border-radius: 15px;
-        }
-        .player-info {
-            background: #f8f9fa;
-            border-radius: 10px;
+        
+        .grade-result-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
-        .status-badge {
-            font-size: 0.9rem;
-            padding: 8px 15px;
+        
+        .result-card {
+            background: linear-gradient(145deg, #1a1a1a, #000000);
+            border: 2px solid #ffd700;
             border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .player-info {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .player-info h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .player-detail {
+            color: #cccccc;
+            margin-bottom: 8px;
+        }
+        
+        .grade-card {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            color: #000;
+        }
+        
+        .grade-card i {
+            color: #000;
+            margin-bottom: 15px;
+        }
+        
+        .grade-card h2, .grade-card h3, .grade-card h4, .grade-card h5 {
+            color: #000;
+            margin-bottom: 10px;
+        }
+        
+        .no-grade-card {
+            background: rgba(23, 162, 184, 0.1);
+            border: 2px solid #17a2b8;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        .no-grade-card i {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .no-grade-card h5 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .no-grade-card p {
+            color: #cccccc;
+        }
+        
+        .btn-back {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-back:hover {
+            background: linear-gradient(45deg, #ffed4e, #ffd700);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+            color: #000;
+            text-decoration: none;
+        }
+        
+        .header-icon {
+            color: #ffd700;
+            font-size: 3rem;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-user-circle text-primary fa-3x mb-3"></i>
-                            <h2 class="card-title">Player Details</h2>
+    <div class="grade-result-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="result-card">
+                        <div class="header-icon">
+                            <i class="fas fa-user-graduate"></i>
                         </div>
-
+                        
                         <!-- Player Information -->
-                        <div class="player-info mb-4">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-1">Name</h6>
-                                    <p class="h5 mb-3"><?= esc($player['name']) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-1">Mobile</h6>
-                                    <p class="h5 mb-3"><?= esc($player['mobile']) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-1">Age</h6>
-                                    <p class="h5 mb-3"><?= esc($player['age']) ?> years</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-1">Cricket Type</h6>
-                                    <p class="h5 mb-3"><?= ucfirst(esc($player['cricket_type'])) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-1">Payment Status</h6>
-                                    <span class="badge <?= $player['payment_status'] == 'full' ? 'bg-success' : ($player['payment_status'] == 'partial' ? 'bg-warning' : 'bg-danger') ?> status-badge">
-                                        <?= ucfirst(str_replace('_', ' ', esc($player['payment_status']))) ?>
-                                    </span>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-1">Registration Date</h6>
-                                    <p class="h6 mb-3"><?= date('d M Y', strtotime($player['created_at'])) ?></p>
-                                </div>
+                        <div class="player-info">
+                            <h4><i class="fas fa-user me-2"></i>Player Information</h4>
+                            <div class="player-detail">
+                                <strong>Name:</strong> <?= esc($player['name']) ?>
                             </div>
+                            <div class="player-detail">
+                                <strong>Mobile:</strong> <?= esc($player['mobile']) ?>
+                            </div>
+                            <div class="player-detail">
+                                <strong>Email:</strong> <?= esc($player['email']) ?>
+                            </div>
+                            <?php if (!empty($player['age'])): ?>
+                            <div class="player-detail">
+                                <strong>Age:</strong> <?= esc($player['age']) ?> years
+                            </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Grade Information -->
                         <?php if ($grade): ?>
-                            <div class="grade-card p-4 text-center">
+                            <div class="grade-card">
                                 <i class="fas fa-trophy fa-3x mb-3"></i>
                                 <h3 class="mb-2">Congratulations!</h3>
                                 <h4 class="mb-3">You have been assigned to</h4>
@@ -88,30 +159,22 @@
                                 <h5 class="mb-0">League Fee: ₹<?= esc($grade['league_fee']) ?></h5>
                             </div>
                         <?php else: ?>
-                            <div class="alert alert-info text-center">
+                            <div class="no-grade-card">
                                 <i class="fas fa-info-circle fa-2x mb-3"></i>
                                 <h5>Grade Not Assigned Yet</h5>
                                 <p class="mb-0">Your grade will be assigned soon. Please check back later or contact the administration.</p>
                             </div>
                         <?php endif; ?>
 
-                        <!-- Action Buttons -->
-                        <div class="text-center mt-4">
-                            <a href="<?= site_url('grades/check') ?>" class="btn btn-outline-primary">
-                                <i class="fas fa-search me-2"></i>Check Another Number
-                            </a>
-                            <?php if ($grade): ?>
-                                <button class="btn btn-success ms-2" onclick="window.print()">
-                                    <i class="fas fa-print me-2"></i>Print Details
-                                </button>
-                            <?php endif; ?>
-                        </div>
+                        <a href="<?= site_url('grades/check') ?>" class="btn-back">
+                            <i class="fas fa-arrow-left me-2"></i>Check Another Number
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
