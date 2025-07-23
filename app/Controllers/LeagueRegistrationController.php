@@ -78,23 +78,23 @@ class LeagueRegistrationController extends BaseController
         ];
 
         $model = new LeaguePlayerModel();
-        
+
         // Check for existing player with same phone or email
         $existingPlayer = $model->where('mobile', $data['mobile'])
                                ->orWhere('email', $data['email'])
                                ->first();
-        
+
         if ($existingPlayer) {
             return redirect()->back()->withInput()->with('error', 'A player with this mobile number or email already exists.');
         }
-        
+
         $playerId = $model->insert($data);
         if ($playerId === false) {
             return redirect()->back()->with('error', 'Registration failed. Please try again.');
         } else {
             // Automatic grade assignment
             $this->autoAssignGrade($playerId, $data);
-            
+
             return redirect()->to('/league-registration')->with('success', 'Registration successful!');
         }
     }
@@ -194,7 +194,7 @@ class LeagueRegistrationController extends BaseController
                 if ($data['payment_status'] === 'paid') {
                     $this->sendPaymentConfirmationEmail($player['email'], $player['name']);
                 }
-                
+
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Payment status updated successfully'
@@ -372,21 +372,21 @@ class LeagueRegistrationController extends BaseController
     {
         $gradeModel = new \App\Models\GradeModel();
         $gradeAssignModel = new \App\Models\GradeAssignModel();
-        
+
         // Get available grades based on age group
         $grades = $gradeModel->where('status', 'active')->findAll();
-        
+
         if (!empty($grades)) {
             // Auto assign first available grade (you can modify this logic)
             $gradeId = $grades[0]['id'];
-            
+
             $assignData = [
                 'grade_id' => $gradeId,
                 'player_id' => $playerId,
                 'assigned_date' => date('Y-m-d H:i:s'),
                 'assigned_by' => 'auto_system'
             ];
-            
+
             $gradeAssignModel->insert($assignData);
         }
     }
@@ -399,44 +399,53 @@ class LeagueRegistrationController extends BaseController
     public function getStatus()
     {
         $mobile = $this->request->getPost('mobile');
-        
+
         if (!$mobile) {
             return redirect()->back()->with('error', 'Mobile number is required.');
         }
-        
+
         $model = new LeaguePlayerModel();
         $gradeAssignModel = new \App\Models\GradeAssignModel();
         $gradeModel = new \App\Models\GradeModel();
-        
+
         $player = $model->where('mobile', $mobile)->first();
-        
+
         if (!$player) {
             return redirect()->back()->with('error', 'No player found with this mobile number.');
         }
-        
-        // Get assigned grade
-        $gradeAssignment = $gradeAssignModel->where('player_id', $player['id'])->first();
-        $grade = null;
+
+        // Get assigned grade if exists
+        $gradeAssignModel = new \App\Models\GradeAssignModel();
+        $gradeModel = new \App\Models\GradeModel();
+
+        // Check for grade assignment using player_id (for league players)
+        $gradeAssignment = $gradeAssignModel->where('player_id', $player['id'])
+                                           ->where('status', 'active')
+                                           ->first();
+
+        $data['player'] = $player;
+        $data['grade'] = null;
+
         if ($gradeAssignment) {
-            $grade = $gradeModel->find($gradeAssignment['grade_id']);
+            $data['grade'] = $gradeModel->find($gradeAssignment['grade_id']);
         }
-        
+
         $data = [
             'player' => $player,
             'grade' => $grade
         ];
-        
+
         return view('frontend/league/status_result', $data);
     }
 
     private function sendPaymentConfirmationEmail($email, $playerName)
     {
         $emailService = \Config\Services::email();
-        
+
         $emailService->setFrom('noreply@megastarpremiercricketleague.com', 'MegaStar Premier Cricket League');
         $emailService->setTo($email);
         $emailService->setSubject('Payment Confirmation - MPCL League');
-        
+
         $message = "
         <h2>Payment Confirmation</h2>
         <p>Dear {$playerName},</p>
@@ -445,10 +454,10 @@ class LeagueRegistrationController extends BaseController
         <p>Thank you for joining MPCL!</p>
         <p>Best regards,<br>MPCL Team</p>
         ";
-        
+
         $emailService->setMessage($message);
         $emailService->setMailType('html');
-        
+
         try {
             $emailService->send();
         } catch (Exception $e) {

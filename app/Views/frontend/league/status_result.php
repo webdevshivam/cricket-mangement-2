@@ -48,6 +48,20 @@
             margin-bottom: 15px;
             border-left: 4px solid #ffd700;
         }
+        .alert {
+            border-radius: 8px;
+            border: 1px solid;
+        }
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .alert-info {
+            background-color: rgba(13, 202, 240, 0.1);
+            border-color: #0dcaf0;
+            color: #055160;
+        }
     </style>
 </head>
 <body>
@@ -92,11 +106,36 @@
 
                         <div class="info-item">
                             <h5 class="text-golden mb-3">Payment Status</h5>
-
-
-                                        <?= $player['payment_status'] == 'paid' ? 'Paid' : 'Unpaid' ?>
-
-
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-light mb-2">
+                                        <strong>Status:</strong> 
+                                        <span class="<?= $player['payment_status'] == 'paid' ? 'status-paid' : 'status-unpaid' ?>">
+                                            <?= $player['payment_status'] == 'paid' ? '✅ Paid' : '❌ Unpaid' ?>
+                                        </span>
+                                    </p>
+                                    
+                                    <?php if ($player['payment_status'] != 'paid' && $grade): ?>
+                                    <div class="alert alert-warning mt-3">
+                                        <h6 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Payment Required</h6>
+                                        <p class="mb-2">
+                                            <strong>Grade:</strong> <?= esc($grade['title']) ?><br>
+                                            <strong>League Fee:</strong> ₹<?= esc($grade['league_fee']) ?>
+                                        </p>
+                                        <p class="mb-0 small">
+                                            Please complete your payment of <strong>₹<?= esc($grade['league_fee']) ?></strong> to complete your league registration.
+                                        </p>
+                                    </div>
+                                    <?php elseif ($player['payment_status'] != 'paid' && !$grade): ?>
+                                    <div class="alert alert-info mt-3">
+                                        <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i>Grade Assignment Pending</h6>
+                                        <p class="mb-0 small">
+                                            Your grade is being assigned. Once assigned, you will see the fee details here.
+                                        </p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
 
                         <?php if ($grade): ?>
