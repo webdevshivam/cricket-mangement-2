@@ -350,7 +350,7 @@
     const exportUrl = `<?= base_url('admin/league-registration/export-pdf') ?>?${searchParams.toString()}`;
     
     // Show loading notification
-    notyf.info('Generating PDF export...');
+    notyf.success('Generating PDF export...');
     
     // Create a temporary link to download the PDF
     const link = document.createElement('a');

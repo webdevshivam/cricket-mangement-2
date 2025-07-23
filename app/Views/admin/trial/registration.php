@@ -563,7 +563,7 @@ function updatePaymentStatus(playerId, status, selectElement) {
 }
 
 function viewPlayerDetails(playerId) {
-    notyf.info('Student details feature - to be implemented');
+    notyf.success('Student details feature - to be implemented');
 }
 
 // Individual delete student
@@ -602,7 +602,7 @@ function exportToPDF(type) {
     const exportUrl = `<?= base_url('admin/trial-registration/export-pdf') ?>?${searchParams.toString()}`;
     
     // Show loading notification
-    notyf.info('Generating PDF export...');
+    notyf.success('Generating PDF export...');
     
     // Create a temporary link to download the PDF
     const link = document.createElement('a');
