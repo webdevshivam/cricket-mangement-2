@@ -49,7 +49,7 @@ $routes->group('admin/qr-code-setting', ['filter' => 'role:admin'], function ($r
 $routes->get('send-mail', 'MailTest::send');
 
 
-$routes->group('/admin/grades', ['filter' => 'role:admin'], function ($routes) {
+$routes->group('admin/grades', ['filter' => 'role:admin'], function ($routes) {
   $routes->get('/', 'GradeController::index');
   $routes->get('add', 'GradeController::create');
   $routes->post('save', 'GradeController::save');
