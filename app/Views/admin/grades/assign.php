@@ -25,22 +25,29 @@
     <?php endif; ?>
 
     <!-- Assign Form -->
-    <form action="<?= site_url('admin/grades/assignSave') ?>" method="post">
+    <form action="<?= site_url('admin/grades/assignGrade') ?>" method="post">
       <?= csrf_field(); ?>
 
       <div class="row">
 
-        <!-- Select Player -->
+        <!-- Select Players (Multiple) -->
         <div class="col-md-6 mb-3">
-          <label for="player_id" class="form-label">Select Player</label>
-          <select class="form-select" id="player_id" name="player_id" required>
-            <option value="">-- Select Player --</option>
-            <?php foreach ($players as $player): ?>
-              <option value="<?= $player['id'] ?>">
-                <?= esc($player['name']) ?> (<?= esc($player['mobile_number']) ?>)
-              </option>
-            <?php endforeach; ?>
-          </select>
+          <label class="form-label">Select Verified Trial Players</label>
+          <div class="card bg-secondary p-3" style="max-height: 300px; overflow-y: auto;">
+            <?php if (empty($players)): ?>
+              <p class="text-muted">No verified trial players found.</p>
+            <?php else: ?>
+              <?php foreach ($players as $player): ?>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" name="selected[]" value="<?= $player['id'] ?>" id="player_<?= $player['id'] ?>">
+                  <label class="form-check-label" for="player_<?= $player['id'] ?>">
+                    <?= esc($player['name']) ?> (<?= esc($player['mobile']) ?>) - <?= esc($player['cricket_type']) ?>
+                  </label>
+                </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </div>
+          <small class="text-muted">Only verified trial players with full payment are shown.</small>
         </div>
 
         <!-- Select Grade -->
@@ -58,8 +65,25 @@
 
       </div>
 
-      <button type="submit" class="btn btn-warning">Assign Grade</button>
+      <div class="mb-3">
+        <button type="button" class="btn btn-sm btn-outline-light" onclick="selectAll()">Select All</button>
+        <button type="button" class="btn btn-sm btn-outline-light" onclick="deselectAll()">Deselect All</button>
+      </div>
+
+      <button type="submit" class="btn btn-warning">Assign Grade to Selected Players</button>
     </form>
+
+    <script>
+      function selectAll() {
+        const checkboxes = document.querySelectorAll('input[name="selected[]"]');
+        checkboxes.forEach(cb => cb.checked = true);
+      }
+
+      function deselectAll() {
+        const checkboxes = document.querySelectorAll('input[name="selected[]"]');
+        checkboxes.forEach(cb => cb.checked = false);
+      }
+    </script>
 
   </div>
 </div>

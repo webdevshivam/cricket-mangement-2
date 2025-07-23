@@ -11,6 +11,7 @@ class GradeAssignModel extends Model
 
   protected $allowedFields = [
     'player_id',
+    'trial_player_id',
     'grade_id',
     'assigned_at',
     'assigned_by',

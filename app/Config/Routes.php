@@ -6,6 +6,10 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
+
+// Frontend grade check routes
+$routes->get('grades/check', 'GradeController::checkGrade');
+$routes->post('grades/check-mobile', 'GradeController::getGradeByMobile');
 $routes->get('/login', 'LoginController::index');
 $routes->post('/login', 'LoginController::login');
 $routes->get('/logout', 'LoginController::logout');

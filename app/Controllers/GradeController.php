@@ -69,11 +69,13 @@ class GradeController extends BaseController
 
     public function assignSave()
     {
-
-        $playerModel = new PlayersModel();
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
         $gradeModel = new GradeModel();
 
-        $data['players'] = $playerModel->findAll();
+        // Get only verified trial players (full payment completed)
+        $data['players'] = $trialPlayerModel->where('payment_status', 'full')
+                                           ->where('verified_at IS NOT NULL')
+                                           ->findAll();
         $data['grades'] = $gradeModel->where('status', 'active')->findAll();
 
         return view('admin/grades/assign', $data);
@@ -91,8 +93,8 @@ class GradeController extends BaseController
         $gradeAssignModel = new GradeAssignModel();
 
         foreach ($playerIds as $playerId) {
-            // Check if a grade assignment already exists for this player
-            $existing = $gradeAssignModel->where('player_id', $playerId)->first();
+            // Check if a grade assignment already exists for this trial player
+            $existing = $gradeAssignModel->where('trial_player_id', $playerId)->first();
 
             if ($existing) {
                 // Update the existing grade assignment
@@ -105,15 +107,55 @@ class GradeController extends BaseController
             } else {
                 // Insert new grade assignment
                 $gradeAssignModel->insert([
-                    'player_id'   => $playerId,
-                    'grade_id'    => $gradeId,
-                    'assigned_at' => date('Y-m-d H:i:s'),
-                    'assigned_by' => session()->get('user_id'),
-                    'status'      => 'active',
+                    'trial_player_id' => $playerId,
+                    'grade_id'        => $gradeId,
+                    'assigned_at'     => date('Y-m-d H:i:s'),
+                    'assigned_by'     => session()->get('user_id'),
+                    'status'          => 'active',
                 ]);
             }
         }
 
         return redirect()->back()->with('success', 'Grades assigned/updated successfully.');
+    }
+
+    // Frontend methods for players to check their grades
+    public function checkGrade()
+    {
+        return view('frontend/grades/check');
+    }
+
+    public function getGradeByMobile()
+    {
+        $mobile = $this->request->getPost('mobile');
+        
+        if (!$mobile) {
+            return redirect()->back()->with('error', 'Please enter your mobile number.');
+        }
+
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
+        $gradeAssignModel = new GradeAssignModel();
+        $gradeModel = new GradeModel();
+
+        // Find trial player by mobile
+        $player = $trialPlayerModel->where('mobile', $mobile)->first();
+
+        if (!$player) {
+            return redirect()->back()->with('error', 'No player found with this mobile number.');
+        }
+
+        // Get assigned grade
+        $gradeAssignment = $gradeAssignModel->where('trial_player_id', $player['id'])
+                                           ->where('status', 'active')
+                                           ->first();
+
+        $data['player'] = $player;
+        $data['grade'] = null;
+        
+        if ($gradeAssignment) {
+            $data['grade'] = $gradeModel->find($gradeAssignment['grade_id']);
+        }
+
+        return view('frontend/grades/result', $data);
     }
 }
