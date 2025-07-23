@@ -430,11 +430,6 @@ class LeagueRegistrationController extends BaseController
             $data['grade'] = $gradeModel->find($gradeAssignment['grade_id']);
         }
 
-        $data = [
-            'player' => $player,
-            'grade' => $grade
-        ];
-
         return view('frontend/league/status_result', $data);
     }
 
