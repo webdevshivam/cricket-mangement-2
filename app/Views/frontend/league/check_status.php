@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +19,8 @@
             --text-muted: #b3b3b3;
             --border-color: #333333;
             --shadow-color: rgba(212, 175, 55, 0.2);
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
         }
 
         * {
@@ -322,18 +323,18 @@
             .card-header h2 {
                 font-size: 1.75rem;
             }
-            
+
             .card-body,
             .search-section {
                 padding: 1.5rem;
             }
-            
+
             .btn-golden,
             .btn-outline-golden {
                 width: 100%;
                 margin-bottom: 1rem;
             }
-            
+
             .feature-list {
                 grid-template-columns: 1fr;
             }
@@ -343,11 +344,11 @@
             .card-header {
                 padding: 1.5rem 1rem 1rem;
             }
-            
+
             .card-header h2 {
                 font-size: 1.5rem;
             }
-            
+
             .card-body,
             .search-section {
                 padding: 1rem;
@@ -394,6 +395,35 @@
             background: var(--primary-gold);
             color: var(--primary-black);
         }
+
+        /* Alert Styling */
+        .alert-modern {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .alert-danger.alert-modern {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .alert-modern .alert-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--warning-color);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-danger.alert-modern .alert-title {
+            color: var(--danger-color);
+        }
     </style>
 </head>
 <body>
@@ -427,7 +457,7 @@
                                         required
                                     >
                                 </div>
-                                
+
                                 <div class="d-grid">
                                     <button type="submit" class="btn btn-golden">
                                         <i class="fas fa-search me-2"></i>Check Status
@@ -475,27 +505,27 @@
         document.getElementById('statusForm').addEventListener('submit', function(e) {
             const mobileInput = document.getElementById('mobile');
             const mobileValue = mobileInput.value.trim();
-            
+
             // Mobile number validation
             if (!/^[0-9]{10}$/.test(mobileValue)) {
                 e.preventDefault();
                 mobileInput.focus();
                 mobileInput.classList.add('is-invalid');
-                
+
                 // Remove invalid class after user starts typing
                 mobileInput.addEventListener('input', function() {
                     this.classList.remove('is-invalid');
                 }, { once: true });
-                
+
                 return false;
             }
-            
+
             // Add loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Checking...';
             submitBtn.disabled = true;
-            
+
             // Re-enable button after 5 seconds (failsafe)
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
@@ -507,7 +537,7 @@
         document.getElementById('mobile').addEventListener('input', function(e) {
             // Remove any non-digit characters
             this.value = this.value.replace(/\D/g, '');
-            
+
             // Limit to 10 digits
             if (this.value.length > 10) {
                 this.value = this.value.slice(0, 10);

@@ -411,7 +411,7 @@ class LeagueRegistrationController extends BaseController
         $player = $model->where('mobile', $mobile)->first();
 
         if (!$player) {
-            return redirect()->back()->with('error', 'No player found with this mobile number.');
+            return redirect()->back()->with('error', 'No registration found with mobile number ' . $mobile . '. Please check the number or register for the league first.');
         }
 
         // Get assigned grade if exists
