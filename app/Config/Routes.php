@@ -14,7 +14,8 @@ $routes->get('/login', 'LoginController::index');
 $routes->post('/login', 'LoginController::login');
 $routes->get('/logout', 'LoginController::logout');
 
-$routes->get('/admin/dashboard', 'AdminController::dashboard', ['filter' => 'role:admin']);
+$routes->get('/admin/dashboard', 'Home::dashboard', ['filter' => 'role:admin']);
+$routes->get('/admin/dashboard/stats', 'Home::dashboardStats', ['filter' => 'role:admin']);
 
 // Player routes
 

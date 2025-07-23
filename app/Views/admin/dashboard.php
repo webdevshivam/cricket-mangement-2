@@ -362,9 +362,9 @@
           <div class="col-md-6">
             <h6 class="text-warning mb-3">Registration Management</h6>
             <ul class="list-unstyled">
-              <li><a href="<?= base_url('admin/trial/registration') ?>" class="text-light text-decoration-none"><i class="fas fa-user-plus text-success"></i> Manage Trial Registrations</a></li>
-              <li><a href="<?= base_url('admin/trial/verification') ?>" class="text-light text-decoration-none"><i class="fas fa-user-check text-warning"></i> Verify Trial Students</a></li>
-              <li><a href="<?= base_url('admin/league/registration') ?>" class="text-light text-decoration-none"><i class="fas fa-trophy text-info"></i> League Registrations</a></li>
+              <li><a href="<?= base_url('admin/trial-registration') ?>" class="text-light text-decoration-none"><i class="fas fa-user-plus text-success"></i> Manage Trial Registrations</a></li>
+              <li><a href="<?= base_url('admin/trial-verification') ?>" class="text-light text-decoration-none"><i class="fas fa-user-check text-warning"></i> Verify Trial Students</a></li>
+              <li><a href="<?= base_url('admin/league-registration') ?>" class="text-light text-decoration-none"><i class="fas fa-trophy text-info"></i> League Registrations</a></li>
               <li><a href="<?= base_url('admin/grades/assign') ?>" class="text-light text-decoration-none"><i class="fas fa-graduation-cap text-primary"></i> Assign Grades</a></li>
             </ul>
           </div>
