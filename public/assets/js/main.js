@@ -642,3 +642,159 @@ window.CricketDashboard = {
   logout,
   checkAuthStatus,
 };
+
+$(document).ready(function () {
+  // Sidebar Toggle
+  $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    $('#content').toggleClass('active');
+  });
+
+  // Auto-activate sidebar based on current URL
+  function setActiveSidebarItem() {
+    var currentPath = window.location.pathname;
+    var currentUrl = window.location.href;
+
+    // Remove active classes from all items
+    $('.sidebar .nav-item').removeClass('active');
+    $('.sidebar .nav-link').removeClass('active');
+    $('.sidebar .collapse').removeClass('show');
+    $('.sidebar .dropdown-toggle').attr('aria-expanded', 'false');
+
+    // Find matching nav link
+    $('.sidebar .nav-link').each(function() {
+      var linkHref = $(this).attr('href');
+
+      if (linkHref && (currentUrl === linkHref || currentPath === linkHref.replace(window.location.origin, ''))) {
+        $(this).addClass('active');
+
+        // If this is inside a dropdown, expand the dropdown
+        var parentDropdown = $(this).closest('.collapse');
+        if (parentDropdown.length) {
+          parentDropdown.addClass('show');
+          parentDropdown.siblings('.dropdown-toggle').attr('aria-expanded', 'true');
+          parentDropdown.closest('.nav-item').addClass('active');
+        } else {
+          $(this).closest('.nav-item').addClass('active');
+        }
+
+        return false; // Break the loop
+      }
+    });
+  }
+
+  // Set active item on page load
+  setActiveSidebarItem();
+
+  // Dropdown toggle functionality
+  $('.sidebar .dropdown-toggle').on('click', function(e) {
+    e.preventDefault();
+    var target = $(this).attr('href');
+    var $collapse = $(target);
+    var isExpanded = $(this).attr('aria-expanded') === 'true';
+
+    // Close other dropdowns
+    $('.sidebar .collapse').not($collapse).removeClass('show');
+    $('.sidebar .dropdown-toggle').not(this).attr('aria-expanded', 'false');
+
+    // Toggle current dropdown
+    if (isExpanded) {
+      $collapse.removeClass('show');
+      $(this).attr('aria-expanded', 'false');
+    } else {
+      $collapse.addClass('show');
+      $(this).attr('aria-expanded', 'true');
+    }
+  });
+
+  // Handle nav link clicks
+  $('.sidebar .nav-link').on('click', function(e) {
+    var href = $(this).attr('href');
+
+    // If it's not a dropdown toggle and has a proper href
+    if (!$(this).hasClass('dropdown-toggle') && href && href !== '#' && !href.startsWith('#')) {
+      // Let the browser handle the navigation normally
+      return true;
+    }
+  });
+
+  // Tooltip initialization
+  $('[data-bs-toggle="tooltip"]').tooltip();
+
+  // Page Navigation
+  $(document).on('click', '[data-page]', function (e) {
+    e.preventDefault();
+    var page = $(this).data('page');
+    loadPage(page);
+  });
+
+  function loadPage(page) {
+    // Show loading spinner
+    $('#loading-spinner').show();
+
+    // Hide all page contents
+    $('.page-content').removeClass('active');
+
+    // Simulate loading delay
+    setTimeout(function () {
+      $('#loading-spinner').hide();
+
+      // Show specific page content
+      if ($('#' + page + '-content').length) {
+        $('#' + page + '-content').addClass('active');
+      } else {
+        // Load dynamic content
+        loadDynamicContent(page);
+      }
+    }, 500);
+  }
+
+  function loadDynamicContent(page) {
+    var content = '';
+    switch (page) {
+      case 'add-player':
+        content = getAddPlayerForm();
+        break;
+      case 'assign-grades':
+        content = getAssignGradesForm();
+        break;
+      default:
+        content = '<h2>Page Under Development</h2><p>This feature is coming soon.</p>';
+    }
+
+    $('#dynamic-content').html(content).addClass('active');
+  }
+
+  // Initialize Select2
+  if ($.fn.select2) {
+    $('.select2').select2({
+      theme: 'default'
+    });
+  }
+
+  // Initialize DataTables
+  if ($.fn.DataTable) {
+    $('.data-table').DataTable({
+      responsive: true,
+      pageLength: 10,
+      language: {
+        search: 'Search:',
+        lengthMenu: 'Show _MENU_ entries',
+        info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+        paginate: {
+          first: 'First',
+          last: 'Last',
+          next: 'Next',
+          previous: 'Previous'
+        }
+      }
+    });
+  }
+});
+
+// Logout function
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '<?= base_url() ?>/logout';
+  }
+}

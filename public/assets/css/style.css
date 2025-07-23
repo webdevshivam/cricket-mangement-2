@@ -30,25 +30,48 @@ body {
 
 /* Sidebar Styles */
 .sidebar {
-  min-width: 250px;
-  max-width: 250px;
-  min-height: 100vh;
-  background: linear-gradient(
-    180deg,
-    var(--secondary-black) 0%,
-    var(--primary-black) 100%
-  );
-  color: var(--text-light);
-  transition: all 0.3s ease;
+  width: 250px;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  height: 100vh;
+  z-index: 999;
+  background: var(--primary-black);
+  color: var(--text-light);
+  transition: all 0.3s ease;
+  margin-left: -250px;
   border-right: 2px solid var(--accent-gold);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar.active {
-  margin-left: -250px;
+  margin-left: 0;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 20px;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: var(--primary-black);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: var(--accent-gold);
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: var(--light-gold);
 }
 
 .sidebar-header {

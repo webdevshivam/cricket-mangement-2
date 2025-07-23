@@ -49,161 +49,147 @@
 
 <body>
   <!-- Sidebar -->
-  <nav id="sidebar" class="sidebar" style="overflow-y: auto;">
+  <nav id="sidebar" class="sidebar">
     <div class="sidebar-header">
       <h3><i class="fas fa-trophy text-warning"></i> Cricket Admin</h3>
     </div>
-    <ul class="list-unstyled components">
+    <div class="sidebar-content">
+      <ul class="list-unstyled components">
 
+        <li class="nav-item">
+          <a href="<?= base_url('admin/dashboard') ?>" class="nav-link">
+            <i class="fas fa-chart-pie"></i> Dashboard
+          </a>
+        </li>
 
-      <li>
-        <a href="#dashboard" data-page="dashboard">
-          <i class="fas fa-chart-pie"></i> Dashboard
-        </a>
-      </li>
+        <li class="nav-item">
+          <a href="#player-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-users"></i> Player Management</span>
+          </a>
+          <ul class="collapse list-unstyled" id="player-submenu">
+            <li><a href="<?= base_url('admin/players') ?>" class="nav-link">All Players</a></li>
+            <li><a href="<?= base_url('admin/players/add') ?>" class="nav-link">Add Player</a></li>
+            <li><a href="<?= base_url('admin/grades/assign') ?>" class="nav-link">Assign Grades</a></li>
+            <li><a href="<?= base_url('admin/performance-notes') ?>" class="nav-link">Performance Notes</a></li>
+            <li><a href="<?= base_url('admin/verify-payments') ?>" class="nav-link">Verify Payments</a></li>
+          </ul>
+        </li>
 
+        <!-- 🏟️ Trial Management -->
+        <li class="nav-item">
+          <a href="#trial-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-map-marker-alt"></i> Trial Management</span>
+          </a>
+          <ul class="collapse list-unstyled" id="trial-submenu">
+            <li><a href="<?= base_url('admin/trial-registration') ?>" class="nav-link">Manage Trial Registration</a></li>
+            <li><a href="<?= base_url('admin/trial-verification') ?>" class="nav-link">Trial Verification</a></li>
+            <li><a href="<?= base_url('admin/payment-tracking') ?>" class="nav-link">Payment Tracking</a></li>
+            <li><a href="<?= base_url('admin/schedule-trials') ?>" class="nav-link">Schedule Trials</a></li>
+            <li><a href="<?= base_url('admin/trial-attendance') ?>" class="nav-link">Trial Attendance</a></li>
+          </ul>
+        </li>
 
-      <li>
-        <a href="#player-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-users"></i> Player Management
-        </a>
-        <ul class="collapse list-unstyled" id="player-submenu">
-          <li><a href="<?= base_url('admin/players') ?>">All Players</a></li>
-          <li><a href="<?= base_url('admin/add') ?>" data-page="add-player">Add Player</a></li>
-          <li><a href="<?= base_url('admin/grades/assign') ?>" data-page="assign-grades">Assign Grades</a></li>
-          <li><a href="<?= base_url('admin/performance-notes') ?>" data-page="performance-notes">Performance Notes</a></li>
-          <li><a href="<?= base_url('admin/verify-payments') ?>" data-page="verify-payments">Verify Payments</a></li>
-        </ul>
-      </li>
+        <!-- 🎓 Grade Management -->
+        <li class="nav-item">
+          <a href="#grade-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-graduation-cap"></i> Grade Management</span>
+          </a>
+          <ul class="collapse list-unstyled" id="grade-submenu">
+            <li><a href="<?= base_url('admin/grades') ?>" class="nav-link">Create/Edit Grades</a></li>
+            <li><a href="<?= base_url('admin/grades/assignments') ?>" class="nav-link">Assign Grades to Players</a></li>
+          </ul>
+        </li>
 
-      <!-- 🏟️ Trial Management -->
-      <li>
-        <a href="#trial-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-map-marker-alt"></i> Trial Management
-        </a>
-        <ul class="collapse list-unstyled" id="trial-submenu">
-          <li>
-                  <a href="<?= base_url('admin/trial-registration') ?>" data-page="trial-cities">Manage Trial Registration</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('admin/trial-verification') ?>">
-                      <i class="fas fa-check-circle"></i> Trial Verification
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('admin/payment-tracking') ?>">
-                      <i class="fas fa-chart-line"></i> Payment Tracking
-                    </a>
-                  </li>
-          <li><a href="#schedule-trials" data-page="schedule-trials">Schedule Trials</a></li>
-          <li><a href="#trial-attendance" data-page="trial-attendance">Trial Attendance</a></li>
+        <!-- 🏏 League Management -->
+        <li class="nav-item">
+          <a href="#league-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-baseball-ball"></i> League Management</span>
+          </a>
+          <ul class="collapse list-unstyled" id="league-submenu">
+            <li><a href="<?= base_url('admin/league-registration') ?>" class="nav-link">League Registrations</a></li>
+            <li><a href="<?= base_url('admin/league-payments') ?>" class="nav-link">League Payments</a></li>
+            <li><a href="<?= base_url('admin/team-allocation') ?>" class="nav-link">Team Allocation</a></li>
+            <li><a href="<?= base_url('admin/fixture-generator') ?>" class="nav-link">Fixture Generator</a></li>
+            <li><a href="<?= base_url('admin/match-results') ?>" class="nav-link">Match Results</a></li>
+            <li><a href="<?= base_url('admin/final-winner') ?>" class="nav-link">Final Winner Declaration</a></li>
+          </ul>
+        </li>
 
-        </ul>
-      </li>
+        <!-- 💳 Payment & QR -->
+        <li class="nav-item">
+          <a href="#payment-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-qrcode"></i> Payment & QR</span>
+          </a>
+          <ul class="collapse list-unstyled" id="payment-submenu">
+            <li><a href="<?= base_url('admin/qr-code-setting') ?>" class="nav-link">QR Code Settings</a></li>
+            <li><a href="<?= base_url('admin/payment-report') ?>" class="nav-link">Payment Report</a></li>
+            <li><a href="<?= base_url('admin/partial-payment') ?>" class="nav-link">Partial/Full Payment Tracker</a></li>
+          </ul>
+        </li>
 
-      <!-- 🎓 Grade Management -->
-      <li>
-        <a href="#grade-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-graduation-cap"></i> Grade Management
-        </a>
-        <ul class="collapse list-unstyled" id="grade-submenu">
-          <li><a href="<?= base_url('admin/grades') ?>" data-page="manage-grades">Create/Edit Grades</a></li>
-          <li><a href="#assign-grades-players" data-page="assign-grades-players">Assign Grades to Players</a></li>
-        </ul>
-      </li>
+        <!-- 📈 Reports & Exports -->
+        <li class="nav-item">
+          <a href="#reports-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-file-export"></i> Reports & Exports</span>
+          </a>
+          <ul class="collapse list-unstyled" id="reports-submenu">
+            <li><a href="<?= base_url('admin/export-players') ?>" class="nav-link">Export Player List</a></li>
+            <li><a href="<?= base_url('admin/export-grades') ?>" class="nav-link">Export Grades Report</a></li>
+            <li><a href="<?= base_url('admin/export-payments') ?>" class="nav-link">Export Payment Report</a></li>
+          </ul>
+        </li>
 
-      <!-- 🏏 League Management -->
-      <li>
-        <a href="#league-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-baseball-ball"></i> League Management
-        </a>
-        <ul class="collapse list-unstyled" id="league-submenu">
-          <li><a href="#league-registrations" data-page="league-registrations">League Registrations</a></li>
-          <li><a href="#league-payments" data-page="league-payments">League Payments</a></li>
-          <li><a href="#team-allocation" data-page="team-allocation">Team Allocation</a></li>
-          <li><a href="#fixture-generator" data-page="fixture-generator">Fixture Generator</a></li>
-          <li><a href="#match-results" data-page="match-results">Match Results</a></li>
-          <li><a href="#final-winner" data-page="final-winner">Final Winner Declaration</a></li>
-        </ul>
-      </li>
+        <!-- 📢 Communication -->
+        <li class="nav-item">
+          <a href="#communication-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-bullhorn"></i> Communication</span>
+          </a>
+          <ul class="collapse list-unstyled" id="communication-submenu">
+            <li><a href="<?= base_url('admin/send-email') ?>" class="nav-link">Send Email</a></li>
+            <li><a href="<?= base_url('admin/send-sms') ?>" class="nav-link">Send SMS</a></li>
+            <li><a href="<?= base_url('admin/whatsapp-broadcast') ?>" class="nav-link">WhatsApp Broadcast</a></li>
+          </ul>
+        </li>
 
-      <!-- 💳 Payment & QR -->
-      <li>
-        <a href="#payment-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-qrcode"></i> Payment & QR
-        </a>
-        <ul class="collapse list-unstyled" id="payment-submenu">
-          <li><a href="<?= base_url('admin/qr-code-setting') ?>" data-page="qr-settings">QR Code Settings</a></li>
-          <li><a href="#payment-report" data-page="payment-report">Payment Report</a></li>
-          <li><a href="#partial-payment" data-page="partial-payment">Partial/Full Payment Tracker</a></li>
-        </ul>
-      </li>
+        <li class="nav-item">
+          <a href="#marketing-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-bullseye"></i> Marketing & Revenue</span>
+          </a>
+          <ul class="collapse list-unstyled" id="marketing-submenu">
+            <li><a href="<?= base_url('admin/sponsors') ?>" class="nav-link">Sponsors</a></li>
+            <li><a href="<?= base_url('admin/store') ?>" class="nav-link">Merchandise Store</a></li>
+            <li><a href="<?= base_url('admin/donations') ?>" class="nav-link">Fundraising & Donations</a></li>
+          </ul>
+        </li>
 
-      <!-- 📈 Reports & Exports -->
-      <li>
-        <a href="#reports-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-file-export"></i> Reports & Exports
-        </a>
-        <ul class="collapse list-unstyled" id="reports-submenu">
-          <li><a href="#export-players" data-page="export-players">Export Player List</a></li>
-          <li><a href="#export-grades" data-page="export-grades">Export Grades Report</a></li>
-          <li><a href="#export-payments" data-page="export-payments">Export Payment Report</a></li>
-        </ul>
-      </li>
+        <!-- 🧑‍💻 Admin Settings -->
+        <li class="nav-item">
+          <a href="#admin-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
+            <span><i class="fas fa-user-cog"></i> Admin Settings</span>
+          </a>
+          <ul class="collapse list-unstyled" id="admin-submenu">
+            <li><a href="<?= base_url('admin/manage-admins') ?>" class="nav-link">Manage Admins</a></li>
+            <li><a href="<?= base_url('admin/branding') ?>" class="nav-link">Site Branding</a></li>
+            <li><a href="<?= base_url('admin/api-settings') ?>" class="nav-link">API Key Settings</a></li>
+            <li><a href="<?= base_url('admin/change-password') ?>" class="nav-link">Change Password</a></li>
+          </ul>
+        </li>
 
-      <!-- 📢 Communication -->
-      <li>
-        <a href="#communication-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-bullhorn"></i> Communication
-        </a>
-        <ul class="collapse list-unstyled" id="communication-submenu">
-          <li><a href="#send-email" data-page="send-email">Send Email</a></li>
-          <li><a href="#send-sms" data-page="send-sms">Send SMS</a></li>
-          <li><a href="#whatsapp-broadcast" data-page="whatsapp-broadcast">WhatsApp Broadcast</a></li>
-        </ul>
-      </li>
+        <!-- 📬 Feedback & Support -->
+        <li class="nav-item">
+          <a href="<?= base_url('admin/feedback') ?>" class="nav-link">
+            <i class="fas fa-envelope-open-text"></i> View Contact Submissions
+          </a>
+        </li>
 
-
-      <li>
-        <a href="#marketing-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-bullseye"></i> Marketing & Revenue
-        </a>
-        <ul class="collapse list-unstyled" id="marketing-submenu">
-          <li><a href="#sponsors" data-page="sponsors">Sponsors</a></li>
-          <li><a href="#store" data-page="store">Merchandise Store</a></li>
-          <li><a href="#donations" data-page="donations">Fundraising & Donations</a></li>
-        </ul>
-      </li>
-
-      <!-- 🧑‍💻 Admin Settings -->
-      <li>
-        <a href="#admin-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100">
-          <i class="fas fa-user-cog"></i> Admin Settings
-        </a>
-        <ul class="collapse list-unstyled" id="admin-submenu">
-          <li><a href="#manage-admins" data-page="manage-admins">Manage Admins</a></li>
-          <li><a href="#branding" data-page="branding">Site Branding</a></li>
-          <li><a href="#api-settings" data-page="api-settings">API Key Settings</a></li>
-          <li><a href="#change-password" data-page="change-password">Change Password</a></li>
-        </ul>
-      </li>
-
-
-
-      <!-- 📬 Feedback & Support -->
-      <li>
-        <a href="#feedback" data-page="feedback">
-          <i class="fas fa-envelope-open-text"></i> View Contact Submissions
-        </a>
-      </li>
-
-      <!-- 🚪 Logout -->
-      <li>
-        <a href="#" onclick="logout()">
-          <i class="fas fa-sign-out-alt text-danger"></i> Logout
-        </a>
-      </li>
-    </ul>
+        <!-- 🚪 Logout -->
+        <li class="nav-item">
+          <a href="#" onclick="logout()" class="nav-link">
+            <i class="fas fa-sign-out-alt text-danger"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
   </nav>
 
 
