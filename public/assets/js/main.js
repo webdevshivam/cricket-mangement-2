@@ -709,6 +709,32 @@ $(document).ready(function () {
     }
   });
 
+  // Close all dropdowns function
+  function closeAllDropdowns() {
+    $('.sidebar .collapse').removeClass('show');
+    $('.sidebar .dropdown-toggle').attr('aria-expanded', 'false');
+  }
+
+  // Close dropdowns when clicking outside sidebar
+  $(document).on('click', function(e) {
+    if (!$(e.target).closest('.sidebar').length) {
+      closeAllDropdowns();
+    }
+  });
+
+  // Close dropdowns when pressing ESC key
+  $(document).on('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAllDropdowns();
+    }
+  });
+
+  // Optional: Add a button to manually close all dropdowns
+  $(document).on('click', '.close-all-menus', function(e) {
+    e.preventDefault();
+    closeAllDropdowns();
+  });
+
   // Handle nav link clicks
   $('.sidebar .nav-link').on('click', function(e) {
     var href = $(this).attr('href');
