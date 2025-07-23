@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `league_players` (
   `payment_status` enum('no_payment','partial','full') DEFAULT 'no_payment',
   `verified_at` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_mobile` (`mobile`),
   KEY `idx_payment_status` (`payment_status`),
