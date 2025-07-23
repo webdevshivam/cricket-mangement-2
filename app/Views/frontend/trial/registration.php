@@ -3,6 +3,10 @@ $request = \Config\Services::request();
 $session = \Config\Services::session();
 $lang = $request->getGet('lang') ?? 'en';
 $session->set('language', $lang);
+
+// Load the language file for the selected language
+$languageService = \Config\Services::language();
+$languageService->setLocale($lang);
 helper('language');
 ?>
 <!DOCTYPE html>

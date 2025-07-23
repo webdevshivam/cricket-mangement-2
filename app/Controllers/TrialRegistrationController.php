@@ -18,7 +18,13 @@ class TrialRegistrationController extends BaseController
         
         // Set language
         $lang = $this->request->getGet('lang') ?? 'en';
-        $this->request->setLocale($lang);
+        
+        // Set the locale properly
+        $languageService = \Config\Services::language();
+        $languageService->setLocale($lang);
+        
+        // Also set session language
+        session()->set('language', $lang);
         
         $model = new TrialcitiesModel();
         $qrCodeSetting = new QrCodeSettingModel();
