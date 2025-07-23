@@ -1,6 +1,8 @@
 <?php
-$lang = $this->request->getGet('lang') ?? 'en';
-$this->session->set('language', $lang);
+$request = \Config\Services::request();
+$session = \Config\Services::session();
+$lang = $request->getGet('lang') ?? 'en';
+$session->set('language', $lang);
 helper('language');
 ?>
 <!DOCTYPE html>
