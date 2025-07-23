@@ -74,7 +74,7 @@ class LeagueRegistrationController extends BaseController
             'marksheet_document' => $uploadedFiles['marksheet_document'] ?? null,
             'dob_proof' => $uploadedFiles['dob_proof'] ?? null,
             'photo' => $uploadedFiles['photo'] ?? null,
-            'payment_status' => 'no_payment'
+            'payment_status' => 'unpaid'
         ];
 
         $model = new LeaguePlayerModel();

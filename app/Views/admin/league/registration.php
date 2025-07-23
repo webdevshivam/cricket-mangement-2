@@ -23,9 +23,8 @@
           <div class="col-md-2">
             <select class="form-select bg-dark text-white" name="payment_status">
               <option value="">All Payment Status</option>
-              <option value="no_payment" <?= (isset($payment_status) && $payment_status == 'no_payment') ? 'selected' : '' ?>>No Payment</option>
-              <option value="partial" <?= (isset($payment_status) && $payment_status == 'partial') ? 'selected' : '' ?>>Partial Paid</option>
-              <option value="full" <?= (isset($payment_status) && $payment_status == 'full') ? 'selected' : '' ?>>Full Paid</option>
+              <option value="unpaid" <?= (isset($payment_status) && $payment_status == 'unpaid') ? 'selected' : '' ?>>Unpaid</option>
+              <option value="paid" <?= (isset($payment_status) && $payment_status == 'paid') ? 'selected' : '' ?>>Paid</option>
             </select>
           </div>
           <div class="col-md-2">
@@ -91,14 +90,11 @@
                       data-player-id="<?= esc($reg['id']) ?>"
                       data-player-name="<?= esc($reg['name']) ?>"
                       data-player-phone="<?= esc($reg['mobile']) ?>">
-                      <option value="no_payment" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'no_payment') ? 'selected' : '' ?>>
-                        ❌ No Payment
+                      <option value="unpaid" <?= (!isset($reg['payment_status']) || $reg['payment_status'] == 'unpaid') ? 'selected' : '' ?>>
+                        ❌ Unpaid
                       </option>
-                      <option value="partial" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'partial') ? 'selected' : '' ?>>
-                        🎽 Partial Paid
-                      </option>
-                      <option value="full" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'full') ? 'selected' : '' ?>>
-                        ✅ Full Paid
+                      <option value="paid" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'paid') ? 'selected' : '' ?>>
+                        ✅ Paid
                       </option>
                     </select>
                   </td>
@@ -183,14 +179,11 @@
 
         let statusText = '';
         switch (newStatus) {
-          case 'no_payment':
-            statusText = 'No Payment';
+          case 'unpaid':
+            statusText = 'Unpaid';
             break;
-          case 'partial':
-            statusText = 'Partial Paid';
-            break;
-          case 'full':
-            statusText = 'Full Paid';
+          case 'paid':
+            statusText = 'Paid';
             break;
         }
 
