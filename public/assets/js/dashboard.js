@@ -351,16 +351,75 @@ function updateRecentActivities() {
 }
 
 /**
- * Get statistics data
+ * Get statistics data from DOM or API
  * @returns {object} Statistics data
  */
 function getStatsData() {
     return {
-        totalPlayers: 150,
-        totalTeams: 12,
-        totalMatches: 85,
-        activeTournaments: 3
+        totalPlayers: parseInt($('#total-players').text()) || 0,
+        trialStudents: parseInt($('#trial-students').text()) || 0,
+        leaguePlayers: parseInt($('#league-players').text()) || 0,
+        totalRevenue: parseFloat($('#total-revenue').text().replace(/[₹,]/g, '')) || 0
     };
+}
+
+/**
+ * Load real dashboard statistics from server
+ */
+function loadRealDashboardStats() {
+    // If we want to update stats via AJAX
+    fetch('/admin/dashboard/stats', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update counters with real data
+            animateCounter('#total-players', data.totalPlayers);
+            animateCounter('#trial-students', data.trialStudents);
+            animateCounter('#league-players', data.leaguePlayers);
+            $('#total-revenue').text('₹' + formatNumber(data.totalRevenue));
+        }
+    })
+    .catch(error => {
+        console.error('Error loading stats:', error);
+    });
+}
+
+/**
+ * Initialize dashboard with real data
+ */
+function initializeRealDashboard() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Load charts if containers exist
+    if (document.getElementById('matchChart')) {
+        initializeMatchChart();
+    }
+    
+    if (document.getElementById('teamChart')) {
+        initializeTeamChart();
+    }
+
+    // Start real-time updates
+    startDashboardUpdates();
+    
+    console.log('Real Dashboard initialized');
+}
+
+/**
+ * Format number with comma separation
+ */
+function formatNumber(num) {
+    return new Intl.NumberFormat('en-IN').format(num);
 }
 
 /**

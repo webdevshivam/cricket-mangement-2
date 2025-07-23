@@ -232,11 +232,101 @@ body {
 .stats-card:hover {
   border-color: var(--light-gold);
   box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+  transform: translateY(-2px);
 }
 
 .stats-icon {
   font-size: 2.5rem;
   opacity: 0.7;
+}
+
+/* Clickable Card Styles */
+.clickable-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clickable-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Activity Feed Styles */
+.activity-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  background-color: rgba(255, 215, 0, 0.05);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent-gold);
+}
+
+/* Task Item Styles */
+.task-item {
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.task-item:hover {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Quick Stats Styles */
+.quick-stats .stat-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.quick-stats .stat-item:last-child {
+  border-bottom: none;
+}
+
+/* System Health Styles */
+.system-health .health-item {
+  padding: 5px 0;
+}
+
+/* Quick Actions Styles */
+.btn-outline-info:hover,
+.btn-outline-success:hover,
+.btn-outline-warning:hover,
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-light:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive Dashboard */
+@media (max-width: 768px) {
+  .stats-card {
+    margin-bottom: 15px;
+  }
+  
+  .clickable-card:hover {
+    transform: none;
+  }
+  
+  .activity-feed,
+  .pending-tasks,
+  .quick-stats {
+    max-height: 200px;
+    overflow-y: auto;
+  }
 }
 
 /* Button Styles */
