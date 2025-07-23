@@ -120,3 +120,17 @@ $routes->get('/league-registration', 'LeagueRegistrationController::index');
 $routes->post('/league-registration-save', 'LeagueRegistrationController::register');
 $routes->get('league-status', 'LeagueRegistrationController::checkStatus');
 $routes->post('league-status-check', 'LeagueRegistrationController::getStatus');
+
+$routes->get('admin/dashboard', 'Home::dashboard', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->get('admin/trial-players', 'Home::trialPlayers', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->get('admin/trial-registration', 'TrialRegistrationController::adminIndex', ['filter' => 'roleFilter:admin,manager']);
+$routes->get('admin/trial-registration/verification', 'TrialRegistrationController::verification', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->get('admin/trial-registration/payment-tracking', 'TrialRegistrationController::paymentTracking', ['filter' => 'roleFilter:admin,manager']);
+$routes->post('admin/trial-registration/update-payment', 'TrialRegistrationController::updatePaymentStatus', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->post('admin/trial-registration/bulk-update-payment', 'TrialRegistrationController::bulkUpdatePaymentStatus', ['filter' => 'roleFilter:admin,manager']);
+$routes->post('admin/trial-registration/collect-payment', 'TrialRegistrationController::collectPayment', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->post('admin/trial-registration/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->post('admin/trial-registration/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->post('admin/trial-registration/search-mobile', 'TrialRegistrationController::searchByMobile', ['filter' => 'roleFilter:admin,manager,coach']);
+$routes->post('admin/trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete', ['filter' => 'roleFilter:admin']);
+$routes->post('admin/trial-registration/delete', 'TrialRegistrationController::deleteStudent', ['filter' => 'roleFilter:admin']);

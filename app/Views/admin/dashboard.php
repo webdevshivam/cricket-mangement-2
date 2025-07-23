@@ -1,3 +1,7 @@
+The code adds a link to trial players on the dashboard.
+```
+
+```php
 <?= $this->extend('layouts/admin'); ?>
 <?= $this->section('content'); ?>
 
@@ -426,7 +430,7 @@
 $(document).ready(function() {
     // Initialize dashboard
     initializeRealDashboard();
-    
+
     // Auto-refresh every 5 minutes
     setInterval(function() {
         loadRealDashboardStats();
@@ -434,3 +438,20 @@ $(document).ready(function() {
 });
 </script>
 <?= $this->endSection(); ?>
+<div class="col-md-3 mb-3">
+            <div class="quick-action-card" onclick="window.location.href='<?= base_url('admin/trial-registration') ?>'">
+              <div class="icon-container">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <h6>Trial Registration</h6>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="quick-action-card" onclick="window.location.href='<?= base_url('admin/trial-players') ?>'">
+              <div class="icon-container">
+                <i class="fas fa-users"></i>
+              </div>
+              <h6>Players</h6>
+            </div>
+          </div>
+</replit_final_file>

@@ -1,5 +1,10 @@
+<?php
+$lang = $this->request->getGet('lang') ?? 'en';
+$this->session->set('language', $lang);
+helper('language');
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $lang ?>">
 
 <head>
   <meta charset="UTF-8">
@@ -23,7 +28,17 @@
         <div class="logo-container mb-3">
           <img src="https://megastarpremiercricketleague.com/registration/mccl/images/logo.png" alt="Cricket Logo" class="logo">
         </div>
-        <h2 class="mb-0"><i class="fas fa-cricket me-2"></i>MPCL Trial Registration</h2>
+        <h2 class="mb-0"><i class="fas fa-cricket me-2"></i><?= lang('Frontend.trial_registration') ?></h2>
+        
+        <!-- Language Selector -->
+        <div class="language-selector mt-3">
+          <select class="form-select form-select-sm" onchange="changeLanguage(this.value)" style="width: auto; display: inline-block;">
+            <option value="en" <?= $lang === 'en' ? 'selected' : '' ?>>English</option>
+            <option value="hi" <?= $lang === 'hi' ? 'selected' : '' ?>>हिंदी</option>
+            <option value="te" <?= $lang === 'te' ? 'selected' : '' ?>>తెలుగు</option>
+            <option value="ta" <?= $lang === 'ta' ? 'selected' : '' ?>>தமிழ்</option>
+          </select>
+        </div>
       </div>
 
       <!-- Progress Bar -->
@@ -34,11 +49,11 @@
         <div class="step-indicators">
           <div class="step-indicator active" data-step="1">
             <i class="fas fa-user"></i>
-            <span>Basic Info</span>
+            <span><?= lang('Frontend.basic_information') ?></span>
           </div>
           <div class="step-indicator" data-step="2">
             <i class="fas fa-credit-card"></i>
-            <span>Payment</span>
+            <span><?= lang('Frontend.payment_information') ?></span>
           </div>
         </div>
       </div>
@@ -47,17 +62,17 @@
         <!-- Step 1: Basic Information -->
         <div class="step-content active" id="step1">
           <h4 class="step-title">
-            <i class="fas fa-user me-2"></i>Basic Information
+            <i class="fas fa-user me-2"></i><?= lang('Frontend.basic_information') ?>
           </h4>
 
           <!-- Payment Information Notice -->
           <div class="alert alert-info mb-4">
-            <h6><i class="fas fa-info-circle me-2"></i>Payment Information</h6>
-            <p class="mb-2">After registration, you will receive a QR code for payment:</p>
+            <h6><i class="fas fa-info-circle me-2"></i><?= lang('Frontend.payment_info_title') ?></h6>
+            <p class="mb-2"><?= lang('Frontend.payment_info_desc') ?></p>
             <ul class="mb-0">
-              <li><strong>Partial Payment (₹199):</strong> T-shirt only</li>
-              <li><strong>Full Payment:</strong> T-shirt + Trial participation</li>
-              <li><strong>Note:</strong> Payment verification will be done manually by admin on trial day</li>
+              <li><strong><?= lang('Frontend.partial_payment') ?></strong></li>
+              <li><strong><?= lang('Frontend.full_payment') ?></strong></li>
+              <li><strong><?= lang('Frontend.payment_note') ?></strong></li>
             </ul>
           </div>
 
@@ -65,85 +80,85 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="name" class="form-label">
-                  <i class="fas fa-user me-1"></i>Full Name *
+                  <i class="fas fa-user me-1"></i><?= lang('Frontend.full_name') ?> *
                 </label>
                 <input name="name" type="text" class="form-control" id="name" required>
-                <div class="invalid-feedback">Please provide a valid name.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.provide_valid_name') ?></div>
               </div>
 
               <div class="col-md-6 mb-3">
                 <label for="age" class="form-label">
-                  <i class="fas fa-calendar me-1"></i>Age *
+                  <i class="fas fa-calendar me-1"></i><?= lang('Frontend.age') ?> *
                 </label>
                 <input name="age" type="number" class="form-control" id="age" min="8" max="100" required>
-                <div class="invalid-feedback">Please provide a valid age (18-100).</div>
+                <div class="invalid-feedback"><?= lang('Frontend.provide_valid_age') ?></div>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="mobile" class="form-label">
-                  <i class="fas fa-phone me-1"></i>Mobile Number *
+                  <i class="fas fa-phone me-1"></i><?= lang('Frontend.mobile') ?> *
                 </label>
                 <input name="phone" type="tel" class="form-control" id="mobile" pattern="[0-9]{10}" required>
-                <div class="invalid-feedback">Please provide a valid 10-digit mobile number.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.provide_valid_mobile') ?></div>
               </div>
 
               <div class="col-md-6 mb-3">
                 <label for="email" class="form-label">
-                  <i class="fas fa-envelope me-1"></i>Email Address *
+                  <i class="fas fa-envelope me-1"></i><?= lang('Frontend.email') ?> *
                 </label>
                 <input name="email" type="email" class="form-control" id="email" required>
-                <div class="invalid-feedback">Please provide a valid email address.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.provide_valid_email') ?></div>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="state" class="form-label">
-                  <i class="fas fa-map-marker-alt me-1"></i>State *
+                  <i class="fas fa-map-marker-alt me-1"></i><?= lang('Frontend.state') ?> *
                 </label>
                 <select name="state" class="form-select" id="state" required>
-                  <option value="">Select State</option>
+                  <option value=""><?= lang('Frontend.select_state') ?></option>
                 </select>
-                <div class="invalid-feedback">Please select a state.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.select_state') ?></div>
               </div>
 
               <div class="col-md-6 mb-3">
                 <label for="city" class="form-label">
-                  <i class="fas fa-building me-1"></i>City *
+                  <i class="fas fa-building me-1"></i><?= lang('Frontend.city') ?> *
                 </label>
                 <input name="city" type="text" class="form-control" id="city" required>
-                <div class="invalid-feedback">Please provide your city name.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.provide_city_name') ?></div>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-4">
                 <label for="trialCity" class="form-label">
-                  <i class="fas fa-star me-1"></i>Choose Trial City *
+                  <i class="fas fa-star me-1"></i><?= lang('Frontend.trial_city') ?> *
                 </label>
                 <select name="trialCity" class="form-select" id="trialCity" required>
-                  <option value="">Select Trial City</option>
+                  <option value=""><?= lang('Frontend.select_trial_city') ?></option>
                   <?php foreach ($trial_cities as $city): ?>
                     <option value="<?= $city['id'] ?>"><?= $city['city_name'] ?></option>
                   <?php endforeach; ?>
                 </select>
-                <div class="invalid-feedback">Please select a trial city.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.select_trial_city') ?></div>
               </div>
 
               <div class="col-md-6 mb-4">
                 <label for="cricketType" class="form-label">
-                  <i class="fas fa-baseball-ball me-1"></i>Cricket Type *
+                  <i class="fas fa-baseball-ball me-1"></i><?= lang('Frontend.cricket_type') ?> *
                 </label>
                 <select name="cricket_type" class="form-select" id="cricketType" onchange="showFees(this.value)" required>
-                  <option value="">Select Cricket Type</option>
-                  <option value="bowler">Bowler</option>
-                  <option value="batsman">Batsman</option>
-                  <option value="wicket-keeper">Wicket Keeper</option>
-                  <option value="all-rounder">All Rounder</option>
+                  <option value=""><?= lang('Frontend.select_cricket_type') ?></option>
+                  <option value="bowler"><?= lang('Frontend.bowler') ?></option>
+                  <option value="batsman"><?= lang('Frontend.batsman') ?></option>
+                  <option value="wicket-keeper"><?= lang('Frontend.wicket_keeper') ?></option>
+                  <option value="all-rounder"><?= lang('Frontend.all_rounder') ?></option>
                 </select>
-                <div class="invalid-feedback">Please select a cricket type.</div>
+                <div class="invalid-feedback"><?= lang('Frontend.select_cricket_type') ?></div>
               </div>
             </div>
           </form>
@@ -152,13 +167,13 @@
         <!-- Step 2: Payment -->
         <div class="step-content" id="step2">
           <h4 class="step-title">
-            <i class="fas fa-credit-card me-2"></i>Process to Payment
+            <i class="fas fa-credit-card me-2"></i><?= lang('Frontend.process_to_payment') ?>
           </h4>
 
           <div class="text-center">
             <div class="payment-info mb-4">
-              <h5 class="text-golden">Complete Your Payment</h5>
-              <p class="text-muted">Scan the QR code below to proceed with payment</p>
+              <h5 class="text-golden"><?= lang('Frontend.complete_payment') ?></h5>
+              <p class="text-muted"><?= lang('Frontend.scan_qr_code') ?></p>
             </div>
 
             <div class="qr-container">
@@ -168,13 +183,13 @@
               </div>
               <p class="qr-instructions mt-3">
                 <i class="fas fa-mobile-alt me-2"></i>
-                Use any UPI app to scan and pay
+                <?= lang('Frontend.use_upi_app') ?>
               </p>
             </div>
 
             <div class="payment-amount">
               <h3 class="text-golden" id="registration-fees">₹0</h3>
-              <p class="text-muted">Registration Fee</p>
+              <p class="text-muted"><?= lang('Frontend.registration_fee') ?></p>
             </div>
           </div>
         </div>
@@ -184,15 +199,15 @@
       <div class="card-footer">
         <div class="d-flex justify-content-between">
           <button type="button" class="btn btn-outline-secondary" id="prevBtn" style="display: none;">
-            <i class="fas fa-arrow-left me-2"></i>Previous
+            <i class="fas fa-arrow-left me-2"></i><?= lang('Frontend.previous') ?>
           </button>
 
           <div class="ms-auto">
             <button type="button" class="btn btn-golden" id="nextBtn">
-              Process to Payment<i class="fas fa-arrow-right ms-2"></i>
+              <?= lang('Frontend.process_to_payment') ?><i class="fas fa-arrow-right ms-2"></i>
             </button>
             <button type="submit" class="btn btn-golden" id="submitBtn" style="display: none;">
-              <i class="fas fa-check me-2"></i>Submit Registration
+              <i class="fas fa-check me-2"></i><?= lang('Frontend.submit_registration') ?>
             </button>
           </div>
         </div>
@@ -206,16 +221,16 @@
       <div class="modal-content">
         <div class="modal-header border-0">
           <h5 class="modal-title text-golden">
-            <i class="fas fa-check-circle me-2"></i>Registration Successful!
+            <i class="fas fa-check-circle me-2"></i><?= lang('Frontend.registration_successful') ?>
           </h5>
         </div>
         <div class="modal-body text-center">
           <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
-          <h4 class="mt-3">Thank You!</h4>
-          <p class="text-muted">Your registration has been submitted successfully. You will receive a confirmation email shortly.</p>
+          <h4 class="mt-3"><?= lang('Frontend.thank_you') ?></h4>
+          <p class="text-muted"><?= lang('Frontend.registration_success_msg') ?></p>
         </div>
         <div class="modal-footer border-0 justify-content-center">
-          <button type="button" class="btn btn-golden" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-golden" data-bs-dismiss="modal"><?= lang('Frontend.close') ?></button>
         </div>
       </div>
     </div>
@@ -226,6 +241,15 @@
 
   <!-- Custom JS -->
   <script src="<?= base_url('assets-frontend/trial/') ?>trial.js"></script>
+  
+  <script>
+  function changeLanguage(lang) {
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.location = url;
+  }
+  </script>
+  
   <?php if (session()->get('success')): ?>
     <script>
       document.addEventListener("DOMContentLoaded", function() {

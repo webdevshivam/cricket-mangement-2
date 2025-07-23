@@ -15,7 +15,11 @@ class TrialRegistrationController extends BaseController
     {
         // Load the view for trial registration
         //all trial city_name
-
+        
+        // Set language
+        $lang = $this->request->getGet('lang') ?? 'en';
+        $this->request->setLocale($lang);
+        
         $model = new TrialcitiesModel();
         $qrCodeSetting = new QrCodeSettingModel();
         $data['qr_code_setting'] = $qrCodeSetting->first();

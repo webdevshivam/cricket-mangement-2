@@ -8,13 +8,13 @@ class Home extends BaseController
     {
         return view('welcome_message');
     }
-    
+
     public function dashboardStats()
     {
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['error' => 'Invalid request']);
         }
-        
+
         $data = [
             'success' => true,
             'totalPlayers' => 0,
@@ -23,99 +23,123 @@ class Home extends BaseController
             'totalRevenue' => 0,
             'todayRevenue' => 0
         ];
-        
+
         try {
             $playersModel = new \App\Models\PlayersModel();
             $trialPlayerModel = new \App\Models\TrialPlayerModel();
             $leaguePlayerModel = new \App\Models\LeaguePlayerModel();
-            
+
             $data['totalPlayers'] = $playersModel->countAll() ?: 0;
             $data['trialStudents'] = $trialPlayerModel->countAll() ?: 0;
             $data['leaguePlayers'] = $leaguePlayerModel->countAll() ?: 0;
             $data['totalRevenue'] = $this->calculateTotalRevenue();
             $data['todayRevenue'] = $this->calculateTodayRevenue();
-            
+
         } catch (\Exception $e) {
             $data['success'] = false;
             $data['error'] = $e->getMessage();
         }
-        
+
         return $this->response->setJSON($data);
     }
-    
-    public function dashboard(): string
-    {
-        $db = \Config\Database::connect();
-        
-        // Initialize all data with defaults
-        $data = [
-            'totalPlayers' => 0,
-            'trialStudents' => 0,
-            'leaguePlayers' => 0,
-            'totalGrades' => 0,
-            'totalCities' => 0,
-            'totalRevenue' => 0,
-            'todayRevenue' => 0,
-            'paidStudents' => 0,
-            'unpaidStudents' => 0,
-            'verifiedPlayers' => 0,
-            'pendingVerifications' => 0,
-            'pendingTrials' => 0,
-            'newPlayersThisWeek' => 0,
-            'recentActivities' => [],
-            'pendingTasks' => []
-        ];
 
-        try {
-            // Load models safely
-            $playersModel = new \App\Models\PlayersModel();
-            $trialPlayerModel = new \App\Models\TrialPlayerModel();
-            $leaguePlayerModel = new \App\Models\LeaguePlayerModel();
-            
-            // Get basic counts
-            $data['totalPlayers'] = $playersModel->countAll() ?: 0;
-            $data['trialStudents'] = $trialPlayerModel->countAll() ?: 0;
-            $data['leaguePlayers'] = $leaguePlayerModel->countAll() ?: 0;
-            
-            // Get grades count
-            $gradeQuery = $db->query("SELECT COUNT(*) as count FROM grades");
-            $gradeResult = $gradeQuery->getRow();
-            $data['totalGrades'] = $gradeResult ? $gradeResult->count : 0;
-            
-            // Get cities count
-            $cityQuery = $db->query("SELECT COUNT(*) as count FROM trial_cities");
-            $cityResult = $cityQuery->getRow();
-            $data['totalCities'] = $cityResult ? $cityResult->count : 0;
-            
-            // Payment statistics
-            $data['totalRevenue'] = $this->calculateTotalRevenue();
-            $data['todayRevenue'] = $this->calculateTodayRevenue();
-            $data['paidStudents'] = $this->getPaidStudentsCount();
-            $data['unpaidStudents'] = $this->getUnpaidStudentsCount();
-            
-            // Status counts
-            $data['verifiedPlayers'] = $this->getVerifiedPlayersCount();
-            $data['pendingVerifications'] = $this->getPendingVerificationsCount();
-            $data['pendingTrials'] = $this->getPendingTrialsCount();
-            $data['newPlayersThisWeek'] = $this->getNewPlayersThisWeek();
-            
-            // Activities and tasks
-            $data['recentActivities'] = $this->getRecentActivities();
-            $data['pendingTasks'] = $this->getPendingTasks();
-            
-        } catch (\Exception $e) {
-            log_message('error', 'Dashboard error: ' . $e->getMessage());
-            // Return default data if there's an error
-        }
+    public function dashboard()
+    {
+        // Get statistics for dashboard
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
+        $leaguePlayerModel = new \App\Models\LeaguePlayerModel();
+        $gradeModel = new \App\Models\GradeModel();
+        $trialCitiesModel = new \App\Models\TrialcitiesModel();
+
+        // Trial statistics
+        $data['total_trial_players'] = $trialPlayerModel->countAll();
+        $data['trial_pending'] = $trialPlayerModel->where('payment_status', 'no_payment')->countAllResults();
+        $data['trial_verified'] = $trialPlayerModel->where('payment_status', 'full')->countAllResults();
+        $data['trial_partial'] = $trialPlayerModel->where('payment_status', 'partial')->countAllResults();
+
+        // League statistics
+        $data['total_league_players'] = $leaguePlayerModel->countAll();
+        $data['league_pending'] = $leaguePlayerModel->where('payment_status', 'pending')->countAllResults();
+        $data['league_verified'] = $leaguePlayerModel->where('payment_status', 'verified')->countAllResults();
+
+        // Revenue calculation (excluding T-shirt fees for partial payments)
+        $totalRevenue = $trialPlayerModel->select('
+            SUM(CASE 
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
+                WHEN payment_status = "partial" THEN 0
+                ELSE 0
+            END) as total_trial_revenue
+        ')->first();
+
+        $todayRevenue = $trialPlayerModel->select('
+            SUM(CASE 
+                WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
+                WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
+                WHEN payment_status = "partial" THEN 0
+                ELSE 0
+            END) as today_trial_revenue
+        ')->where('DATE(verified_at)', date('Y-m-d'))
+          ->where('payment_status !=', 'no_payment')
+          ->first();
+
+        $data['total_revenue'] = $totalRevenue['total_trial_revenue'] ?? 0;
+        $data['today_revenue'] = $todayRevenue['today_trial_revenue'] ?? 0;
+
+        // Other statistics
+        $data['total_cities'] = $trialCitiesModel->countAll();
+        $data['total_grades'] = $gradeModel->countAll();
 
         return view('admin/dashboard', $data);
+    }
+
+    public function trialPlayers()
+    {
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
+        $trialCitiesModel = new \App\Models\TrialcitiesModel();
+
+        // Get search filters
+        $search = $this->request->getGet('search');
+        $paymentStatus = $this->request->getGet('payment_status');
+        $trialCity = $this->request->getGet('trial_city');
+
+        // Build query with joins
+        $builder = $trialPlayerModel->select('trial_players.*, trial_cities.city_name as trial_city_name')
+            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
+
+        if ($search) {
+            $builder->groupStart()
+                    ->like('trial_players.name', $search)
+                    ->orLike('trial_players.mobile', $search)
+                    ->orLike('trial_players.email', $search)
+                    ->groupEnd();
+        }
+
+        if ($paymentStatus && $paymentStatus !== 'all') {
+            $builder->where('trial_players.payment_status', $paymentStatus);
+        }
+
+        if ($trialCity) {
+            $builder->where('trial_players.trial_city_id', $trialCity);
+        }
+
+        $data['players'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(20);
+        $data['pager'] = $trialPlayerModel->pager;
+        $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
+
+        // Pass filter values to view
+        $data['search'] = $search;
+        $data['payment_status'] = $paymentStatus;
+        $data['trial_city'] = $trialCity;
+
+        return view('admin/trial/players', $data);
     }
 
     private function calculateTotalRevenue()
     {
         try {
             $db = \Config\Database::connect();
-            
+
             // Try multiple table possibilities
             $queries = [
                 "SELECT COALESCE(SUM(CASE 
@@ -124,18 +148,18 @@ class Home extends BaseController
                     ELSE 0 
                 END), 0) as total 
                 FROM trial_players",
-                
+
                 "SELECT COALESCE(SUM(CASE 
                     WHEN payment_status = 'paid' THEN 1000 
                     ELSE 0 
                 END), 0) as total 
                 FROM league_players",
-                
+
                 "SELECT COALESCE(COUNT(*) * 500, 0) as total 
                 FROM players 
                 WHERE payment_status = 'paid'"
             ];
-            
+
             $totalRevenue = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -149,7 +173,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $totalRevenue;
         } catch (\Exception $e) {
             return 0;
@@ -160,20 +184,20 @@ class Home extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            
+
             // Get today's revenue from multiple sources
             $queries = [
                 "SELECT COALESCE(COUNT(*) * 500, 0) as total 
                 FROM trial_players 
                 WHERE DATE(created_at) = CURDATE() 
                 AND payment_status = 'paid'",
-                
+
                 "SELECT COALESCE(COUNT(*) * 1000, 0) as total 
                 FROM league_players 
                 WHERE DATE(created_at) = CURDATE() 
                 AND payment_status = 'paid'"
             ];
-            
+
             $todayRevenue = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -186,7 +210,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $todayRevenue;
         } catch (\Exception $e) {
             return 0;
@@ -197,13 +221,13 @@ class Home extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            
+
             $queries = [
                 "SELECT COUNT(*) as count FROM trial_players WHERE payment_status = 'paid'",
                 "SELECT COUNT(*) as count FROM league_players WHERE payment_status = 'paid'",
                 "SELECT COUNT(*) as count FROM players WHERE payment_status = 'paid'"
             ];
-            
+
             $totalPaid = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -216,7 +240,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $totalPaid;
         } catch (\Exception $e) {
             return 0;
@@ -227,13 +251,13 @@ class Home extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            
+
             $queries = [
                 "SELECT COUNT(*) as count FROM trial_players WHERE payment_status = 'no_payment' OR payment_status = 'pending'",
                 "SELECT COUNT(*) as count FROM league_players WHERE payment_status = 'unpaid'",
                 "SELECT COUNT(*) as count FROM players WHERE payment_status = 'pending' OR payment_status IS NULL"
             ];
-            
+
             $totalUnpaid = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -246,7 +270,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $totalUnpaid;
         } catch (\Exception $e) {
             return 0;
@@ -257,13 +281,13 @@ class Home extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            
+
             $queries = [
                 "SELECT COUNT(*) as count FROM trial_players WHERE verified_at IS NOT NULL",
                 "SELECT COUNT(*) as count FROM league_players WHERE verified_at IS NOT NULL",
                 "SELECT COUNT(*) as count FROM players WHERE status = 'verified'"
             ];
-            
+
             $totalVerified = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -276,7 +300,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $totalVerified;
         } catch (\Exception $e) {
             return 0;
@@ -287,13 +311,13 @@ class Home extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            
+
             $queries = [
                 "SELECT COUNT(*) as count FROM trial_players WHERE verified_at IS NULL",
                 "SELECT COUNT(*) as count FROM league_players WHERE verified_at IS NULL",
                 "SELECT COUNT(*) as count FROM players WHERE status = 'pending' OR status IS NULL"
             ];
-            
+
             $totalPending = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -306,7 +330,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $totalPending;
         } catch (\Exception $e) {
             return 0;
@@ -329,13 +353,13 @@ class Home extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            
+
             $queries = [
                 "SELECT COUNT(*) as count FROM trial_players WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
                 "SELECT COUNT(*) as count FROM league_players WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
                 "SELECT COUNT(*) as count FROM players WHERE date >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
             ];
-            
+
             $totalNew = 0;
             foreach ($queries as $queryStr) {
                 try {
@@ -348,7 +372,7 @@ class Home extends BaseController
                     continue;
                 }
             }
-            
+
             return $totalNew;
         } catch (\Exception $e) {
             return 0;
@@ -360,7 +384,7 @@ class Home extends BaseController
         try {
             $db = \Config\Database::connect();
             $activities = [];
-            
+
             // Get recent trial registrations
             try {
                 $query = $db->query("
@@ -378,7 +402,7 @@ class Home extends BaseController
             } catch (\Exception $e) {
                 // Continue if this query fails
             }
-            
+
             // Get recent league registrations
             try {
                 $query = $db->query("
@@ -396,7 +420,7 @@ class Home extends BaseController
             } catch (\Exception $e) {
                 // Continue if this query fails
             }
-            
+
             // Get recent payments
             try {
                 $query = $db->query("
@@ -415,14 +439,14 @@ class Home extends BaseController
             } catch (\Exception $e) {
                 // Continue if this query fails
             }
-            
+
             // Sort all activities by date and limit
             usort($activities, function($a, $b) {
                 return strtotime($b['created_at']) - strtotime($a['created_at']);
             });
-            
+
             return array_slice($activities, 0, 10);
-            
+
         } catch (\Exception $e) {
             return [
                 [
@@ -487,7 +511,7 @@ class Home extends BaseController
                     AND ga.id IS NULL
                 ");
                 $unassignedGrades = $query->getRow()->count ?? 0;
-                
+
                 if ($unassignedGrades > 0) {
                     $tasks[] = [
                         'title' => 'Grade Assignments',
