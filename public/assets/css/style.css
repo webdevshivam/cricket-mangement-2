@@ -39,15 +39,15 @@ body {
   background: var(--primary-black);
   color: var(--text-light);
   transition: all 0.3s ease;
-  margin-left: -250px;
+  margin-left: 0;
   border-right: 2px solid var(--accent-gold);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
 }
 
-.sidebar.active {
-  margin-left: 0;
+.sidebar.hidden {
+  margin-left: -250px;
 }
 
 .sidebar-content {

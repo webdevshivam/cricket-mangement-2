@@ -646,7 +646,7 @@ window.CricketDashboard = {
 $(document).ready(function () {
   // Sidebar Toggle
   $('#sidebarCollapse').on('click', function () {
-    $('#sidebar').toggleClass('active');
+    $('#sidebar').toggleClass('hidden');
     $('#content').toggleClass('active');
   });
 
