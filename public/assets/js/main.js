@@ -666,15 +666,17 @@ $(document).ready(function () {
       var linkHref = $(this).attr('href');
 
       if (linkHref && (currentUrl === linkHref || currentPath === linkHref.replace(window.location.origin, ''))) {
+        // Only add active class to the specific link
         $(this).addClass('active');
 
-        // If this is inside a dropdown, expand the dropdown
+        // If this is inside a dropdown, expand the dropdown but don't add active class to parent
         var parentDropdown = $(this).closest('.collapse');
         if (parentDropdown.length) {
           parentDropdown.addClass('show');
           parentDropdown.siblings('.dropdown-toggle').attr('aria-expanded', 'true');
-          parentDropdown.closest('.nav-item').addClass('active');
+          // Don't add active class to parent nav-item for submenu links
         } else {
+          // Only add active class to parent nav-item for top-level links
           $(this).closest('.nav-item').addClass('active');
         }
 

@@ -105,7 +105,7 @@ body {
 }
 
 .sidebar ul li a:hover,
-.sidebar ul li.active a {
+.sidebar ul li a.active {
   color: var(--accent-gold);
   background-color: rgba(255, 215, 0, 0.1);
   border-left-color: var(--accent-gold);
