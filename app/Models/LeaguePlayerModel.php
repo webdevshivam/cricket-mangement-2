@@ -1,5 +1,6 @@
 <?php
 
+// Adding payment status validation to LeaguePlayerModel.
 namespace App\Models;
 
 use CodeIgniter\Model;
@@ -8,43 +9,49 @@ class LeaguePlayerModel extends Model
 {
     protected $table            = 'league_players';
     protected $primaryKey       = 'id';
-
+    protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
+    protected $useSoftDeletes   = false;
+    protected $protectFields    = true;
     protected $allowedFields    = [
-        'name',
-        'age',
-        'mobile',
-        'email',
-        'cricketer_type',
-        'age_group',
-        'state',
-        'city',
-        'trial_city_id',
-        'aadhar_document',
-        'marksheet_document',
-        'dob_proof',
-        'photo',
-        'payment_status',
-        'verified_at',
-        'created_at',
+        'name', 'email', 'mobile', 'age', 'cricketer_type', 'age_group', 
+        'state', 'city', 'aadhar_document', 'marksheet_document', 
+        'dob_proof', 'photo', 'payment_status', 'verified_at'
     ];
 
-    // Set default values
-    protected $beforeInsert = ['setDefaults'];
+    protected bool $allowEmptyInserts = false;
+    protected bool $updateOnlyChanged = true;
 
-    protected function setDefaults(array $data)
-    {
-        if (!isset($data['data']['payment_status'])) {
-            $data['data']['payment_status'] = 'unpaid';
-        }
-        return $data;
-    }
+    protected array $casts = [];
+    protected array $castHandlers = [];
 
-    protected $useTimestamps    = true;
-    protected $createdField     = 'created_at';
-    protected $updatedField     = '';
+    // Dates
+    protected $useTimestamps = true;
+    protected $dateFormat    = 'datetime';
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
 
-    protected $returnType       = 'array';
+    // Validation
+    protected $validationRules = [
+        'payment_status' => 'in_list[unpaid,paid]'
+    ];
+    protected $validationMessages   = [
+        'payment_status' => [
+            'in_list' => 'Payment status must be either unpaid or paid'
+        ]
+    ];
+    protected $skipValidation       = false;
+    protected $cleanValidationRules = true;
 
-    // No validation applied
-    protected $skipValidation   = true;
+    // Callbacks
+    protected $allowCallbacks = true;
+    protected $beforeInsert   = [];
+    protected $afterInsert    = [];
+    protected $beforeUpdate   = [];
+    protected $afterUpdate    = [];
+    protected $beforeFind     = [];
+    protected $afterFind      = [];
+    protected $beforeDelete   = [];
+    protected $afterDelete    = [];
 }

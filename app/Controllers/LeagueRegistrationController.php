@@ -177,7 +177,7 @@ class LeagueRegistrationController extends BaseController
             if (!in_array($data['payment_status'], $validStatuses)) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Invalid payment status'
+                    'message' => 'Invalid payment status. Valid statuses are: unpaid, paid'
                 ]);
             }
 
