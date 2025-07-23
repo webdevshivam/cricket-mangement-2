@@ -56,7 +56,7 @@ $routes->group('/admin/grades', ['filter' => 'role:admin'], function ($routes) {
   $routes->get('edit/(:num)', 'GradeController::edit/$1');
   $routes->post('update/(:num)', 'GradeController::update/$1');
   $routes->get('delete/(:num)', 'GradeController::delete/$1');
-  $routes->get('assign/(:num)', 'GradeController::assign/$1');
+  $routes->get('assign', 'GradeController::assign');
   $routes->post('assignGrade', 'GradeController::assignGrade');
   $routes->get('assignments', 'GradeController::viewAssignments');
   $routes->post('updateAssignment/(:num)', 'GradeController::updateAssignment/$1');
