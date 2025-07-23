@@ -68,8 +68,10 @@ $routes->get('/trial-registration', 'TrialRegistrationController::index');
 $routes->post('/trial-registration-save', 'TrialRegistrationController::register');
 
 // League Registration Routes
-$routes->get('/league-registration', 'LeagueRegistrationController::index');
-$routes->post('/league-registration-save', 'LeagueRegistrationController::register');
+$routes->get('league-registration', 'LeagueRegistrationController::index');
+$routes->post('league-registration-save', 'LeagueRegistrationController::register');
+$routes->get('league-status', 'LeagueRegistrationController::checkStatus');
+$routes->post('league-status-check', 'LeagueRegistrationController::getStatus');
 
 $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
 
@@ -123,3 +125,5 @@ $routes->post('/trial-registration-save', 'TrialRegistrationController::register
 // League Registration Routes
 $routes->get('/league-registration', 'LeagueRegistrationController::index');
 $routes->post('/league-registration-save', 'LeagueRegistrationController::register');
+$routes->get('league-status', 'LeagueRegistrationController::checkStatus');
+$routes->post('league-status-check', 'LeagueRegistrationController::getStatus');

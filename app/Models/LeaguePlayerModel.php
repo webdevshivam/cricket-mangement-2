@@ -34,7 +34,7 @@ class LeaguePlayerModel extends Model
     protected function setDefaults(array $data)
     {
         if (!isset($data['data']['payment_status'])) {
-            $data['data']['payment_status'] = 'no_payment';
+            $data['data']['payment_status'] = 'unpaid';
         }
         return $data;
     }

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,7 +29,7 @@
       <!-- Progress Bar -->
       <div class="progress-container">
         <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: 33%"></div>
+          <div class="progress-bar" role="progressbar" style="width: 50%"></div>
         </div>
         <div class="step-indicators">
           <div class="step-indicator active" data-step="1">
@@ -40,10 +39,6 @@
           <div class="step-indicator" data-step="2">
             <i class="fas fa-file-upload"></i>
             <span>Documents</span>
-          </div>
-          <div class="step-indicator" data-step="3">
-            <i class="fas fa-credit-card"></i>
-            <span>Payment</span>
           </div>
         </div>
       </div>
@@ -107,7 +102,7 @@
                 <label for="cricketer_type" class="form-label">
                   <i class="fas fa-baseball-ball me-1"></i>Cricketer Type *
                 </label>
-                <select name="cricketer_type" class="form-select" id="cricketer_type" onchange="showFees(this.value)" required>
+                <select name="cricketer_type" class="form-select" id="cricketer_type" required>
                   <option value="">Select Cricketer Type</option>
                   <option value="bowler" <?= old('cricketer_type') == 'bowler' ? 'selected' : '' ?>>Bowler</option>
                   <option value="batsman" <?= old('cricketer_type') == 'batsman' ? 'selected' : '' ?>>Batsman</option>
@@ -149,8 +144,6 @@
                 <div class="invalid-feedback">Please provide your city name.</div>
               </div>
             </div>
-
-            
           </div>
 
           <!-- Step 2: Document Upload -->
@@ -205,35 +198,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Step 3: Payment -->
-          <div class="step-content" id="step3">
-            <h4 class="step-title">
-              <i class="fas fa-credit-card me-2"></i>Process to Payment
-            </h4>
-
-            <div class="text-center">
-              <div class="payment-info mb-4">
-                <h5 class="text-golden">Complete Your Payment</h5>
-                <p class="text-muted">Scan the QR code below to proceed with payment</p>
-              </div>
-
-              <div class="qr-container">
-                <div class="qr-code">
-                  <img src="<?= base_url('uploads/qr_codes/' . $qr_code_setting['qr_code']) ?>" alt="QR Code" class="img-fluid">
-                </div>
-                <p class="qr-instructions mt-3">
-                  <i class="fas fa-mobile-alt me-2"></i>
-                  Use any UPI app to scan and pay
-                </p>
-              </div>
-
-              <div class="payment-amount">
-                <h3 class="text-golden" id="registration-fees">₹0</h3>
-                <p class="text-muted">Registration Fee</p>
-              </div>
-            </div>
-          </div>
         </form>
       </div>
 
@@ -269,7 +233,7 @@
         <div class="modal-body text-center">
           <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
           <h4 class="mt-3">Thank You!</h4>
-          <p class="text-muted">Your league registration has been submitted successfully. You will receive a confirmation email shortly.</p>
+          <p class="text-muted">Your league registration has been submitted successfully. You can check your status using your mobile number.</p>
         </div>
         <div class="modal-footer border-0 justify-content-center">
           <button type="button" class="btn btn-golden" data-bs-dismiss="modal">Close</button>
