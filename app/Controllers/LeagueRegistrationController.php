@@ -163,6 +163,7 @@ class LeagueRegistrationController extends BaseController
                 ]);
             }
 
+            $validStatuses = ['unpaid', 'paid'];
             $model = new LeaguePlayerModel();
             $player = $model->find($data['id']);
 
