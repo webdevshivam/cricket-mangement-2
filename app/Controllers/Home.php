@@ -579,4 +579,3 @@ class Home extends BaseController
         return $tasks;
     }
 }
-</replit_final_file>
