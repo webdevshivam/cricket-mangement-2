@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -14,7 +13,13 @@ class TeamPlayerModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'team_id', 'player_id', 'player_type', 'position', 'jersey_number', 'is_captain', 'is_vice_captain'
+        'team_id',
+        'player_id',
+        'player_type',
+        'position',
+        'jersey_number',
+        'is_captain',
+        'is_vice_captain'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -54,24 +59,24 @@ class TeamPlayerModel extends Model
 
     public function getTeamPlayers($teamId)
     {
-        return $this->select('team_players.*, 
-                             league_players.name as league_name, 
+        return $this->select('team_players.*,
+                             league_players.name as league_name,
                              league_players.email as league_email,
                              league_players.mobile as league_mobile,
                              league_players.cricketer_type as league_type')
-                    ->join('league_players', 'league_players.id = team_players.player_id', 'left')
-                    ->where('team_players.team_id', $teamId)
-                    ->where('team_players.player_type', 'league')
-                    ->orderBy('team_players.jersey_number', 'ASC')
-                    ->findAll();
+            ->join('league_players', 'league_players.id = team_players.player_id', 'left')
+            ->where('team_players.team_id', $teamId)
+            ->where('team_players.player_type', 'league')
+            ->orderBy('team_players.jersey_number', 'ASC')
+            ->findAll();
     }
 
     public function getAvailablePlayers($teamId = null)
     {
         $assignedPlayerIds = $this->select('player_id')
-                                 ->where('player_type', 'league')
-                                 ->findAll();
-        
+            ->where('player_type', 'league')
+            ->findAll();
+
         $assignedLeague = array_column($assignedPlayerIds, 'player_id');
 
         $leagueModel = new \App\Models\LeaguePlayerModel();

@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -17,11 +16,11 @@ class TeamController extends BaseController
     {
         $teamModel = new TeamModel();
         $data['teams'] = $teamModel->getAllTeamsWithPlayerCount();
-        
+
         // Ensure we have exactly 16 teams
         $this->ensureSixteenTeams();
         $data['teams'] = $teamModel->getAllTeamsWithPlayerCount();
-        
+
         return view('admin/teams/index', $data);
     }
 
@@ -29,22 +28,22 @@ class TeamController extends BaseController
     {
         $teamModel = new TeamModel();
         $teamPlayerModel = new TeamPlayerModel();
-        
+
         $data['team'] = $teamModel->find($teamId);
         if (!$data['team']) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Team not found');
         }
-        
+
         $data['teamPlayers'] = $teamPlayerModel->getTeamPlayers($teamId);
         $data['availablePlayers'] = $teamPlayerModel->getAvailablePlayers($teamId);
-        
+
         return view('admin/teams/manage', $data);
     }
 
     public function updateTeam($teamId)
     {
         $teamModel = new TeamModel();
-        
+
         $validation = \Config\Services::validation();
         $validation->setRules([
             'name' => 'required|min_length[3]|max_length[50]',
@@ -97,8 +96,8 @@ class TeamController extends BaseController
 
             // Check if player is already assigned to another team
             $existingAssignment = $teamPlayerModel->where('player_id', $data['player_id'])
-                                                  ->where('player_type', 'league')
-                                                  ->first();
+                ->where('player_type', 'league')
+                ->first();
             if ($existingAssignment) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -187,8 +186,8 @@ class TeamController extends BaseController
 
             // Remove current captain status from all players in the team
             $teamPlayerModel->where('team_id', $data['team_id'])
-                           ->set(['is_captain' => 0])
-                           ->update();
+                ->set(['is_captain' => 0])
+                ->update();
 
             // Set new captain
             $teamPlayerModel->update($data['assignment_id'], ['is_captain' => 1]);
@@ -214,7 +213,7 @@ class TeamController extends BaseController
     {
         $teamModel = new TeamModel();
         $currentTeams = $teamModel->countAllResults();
-        
+
         if ($currentTeams < 16) {
             for ($i = $currentTeams + 1; $i <= 16; $i++) {
                 $teamModel->insert([

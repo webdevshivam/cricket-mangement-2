@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -14,7 +13,12 @@ class TeamModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'name', 'captain_id', 'coach_name', 'status', 'logo', 'description'
+        'name',
+        'captain_id',
+        'coach_name',
+        'status',
+        'logo',
+        'description'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -52,21 +56,21 @@ class TeamModel extends Model
 
     public function getTeamWithPlayers($teamId)
     {
-        return $this->select('teams.*, 
+        return $this->select('teams.*,
                              COUNT(team_players.id) as player_count')
-                    ->join('team_players', 'team_players.team_id = teams.id', 'left')
-                    ->where('teams.id', $teamId)
-                    ->groupBy('teams.id')
-                    ->first();
+            ->join('team_players', 'team_players.team_id = teams.id', 'left')
+            ->where('teams.id', $teamId)
+            ->groupBy('teams.id')
+            ->first();
     }
 
     public function getAllTeamsWithPlayerCount()
     {
-        return $this->select('teams.*, 
+        return $this->select('teams.*,
                              COUNT(team_players.id) as player_count')
-                    ->join('team_players', 'team_players.team_id = teams.id', 'left')
-                    ->groupBy('teams.id')
-                    ->orderBy('teams.id', 'ASC')
-                    ->findAll();
+            ->join('team_players', 'team_players.team_id = teams.id', 'left')
+            ->groupBy('teams.id')
+            ->orderBy('teams.id', 'ASC')
+            ->findAll();
     }
 }
