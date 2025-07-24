@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\QrCodeSettingModel;
 use App\Models\TrialcitiesModel;
 use App\Models\LeaguePlayerModel;
+use App\Models\OtpSettingModel;
+use App\Models\OtpVerificationModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use Exception;
 
@@ -41,6 +43,10 @@ class LeagueRegistrationController extends BaseController
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
+
+        // Check OTP settings
+        $otpSettingModel = new OtpSettingModel();
+        $otpSettings = $otpSettingModel->getSettings();
 
         // Handle file uploads
         $uploadPath = WRITEPATH . 'uploads/league_documents/';
@@ -88,14 +94,39 @@ class LeagueRegistrationController extends BaseController
             return redirect()->back()->withInput()->with('error', 'A player with this mobile number or email already exists.');
         }
 
-        $playerId = $model->insert($data);
-        if ($playerId === false) {
-            return redirect()->back()->with('error', 'Registration failed. Please try again.');
-        } else {
-            // Automatic grade assignment
-            $this->autoAssignGrade($playerId, $data);
+        // Check if OTP verification is enabled for league registration
+        if ($otpSettings['league_otp_enabled']) {
+            // Store uploaded files temporarily and generate OTP
+            $tempData = $data;
+            $tempData['uploaded_files'] = $uploadedFiles;
+            
+            $otpModel = new OtpVerificationModel();
+            $otp = $otpModel->generateOTP($data['email'], 'league', $tempData);
 
-            return redirect()->to('/league-registration')->with('success', 'Registration successful!');
+            // Send OTP email
+            if ($this->sendOTPEmail($data['email'], $data['name'], $otp, 'league')) {
+                session()->setTempdata('league_registration_email', $data['email'], 300); // 5 minutes
+                return redirect()->to('/league-otp-verification')->with('success', 'OTP has been sent to your email. Please verify to complete registration.');
+            } else {
+                // Clean up uploaded files if email fails
+                foreach ($uploadedFiles as $file) {
+                    if (file_exists($uploadPath . $file)) {
+                        unlink($uploadPath . $file);
+                    }
+                }
+                return redirect()->back()->withInput()->with('error', 'Failed to send OTP email. Please try again.');
+            }
+        } else {
+            // Direct registration without OTP
+            $playerId = $model->insert($data);
+            if ($playerId === false) {
+                return redirect()->back()->with('error', 'Registration failed. Please try again.');
+            } else {
+                // Automatic grade assignment
+                $this->autoAssignGrade($playerId, $data);
+
+                return redirect()->to('/league-registration')->with('success', 'Registration successful!');
+            }
         }
     }
 
@@ -592,5 +623,134 @@ class LeagueRegistrationController extends BaseController
             // Fallback: return HTML content with PDF headers
             return $html;
         }
+    }
+
+    public function otpVerification()
+    {
+        $email = session()->getTempdata('league_registration_email');
+        if (!$email) {
+            return redirect()->to('/league-registration')->with('error', 'OTP verification session expired. Please register again.');
+        }
+        
+        $data['email'] = $email;
+        return view('frontend/league/otp_verification', $data);
+    }
+
+    public function verifyOTP()
+    {
+        $email = session()->getTempdata('league_registration_email');
+        $otp = $this->request->getPost('otp');
+
+        if (!$email || !$otp) {
+            return redirect()->back()->with('error', 'Invalid OTP verification request.');
+        }
+
+        $otpModel = new OtpVerificationModel();
+        $registrationData = $otpModel->verifyOTP($email, $otp, 'league');
+
+        if ($registrationData) {
+            // OTP verified, complete registration
+            $model = new LeaguePlayerModel();
+            
+            // Extract uploaded files data
+            $uploadedFiles = $registrationData['uploaded_files'] ?? [];
+            unset($registrationData['uploaded_files']);
+            
+            $playerId = $model->insert($registrationData);
+            if ($playerId !== false) {
+                // Automatic grade assignment
+                $this->autoAssignGrade($playerId, $registrationData);
+                
+                session()->removeTempdata('league_registration_email');
+                return redirect()->to('/league-registration')->with('success', 'Email verified and registration completed successfully!');
+            } else {
+                return redirect()->back()->with('error', 'Failed to complete registration. Please try again.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Invalid or expired OTP. Please try again.');
+        }
+    }
+
+    public function resendOTP()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $email = session()->getTempdata('league_registration_email');
+        if (!$email) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'OTP verification session expired.'
+            ]);
+        }
+
+        // Get registration data from existing OTP record
+        $otpModel = new OtpVerificationModel();
+        $existingRecord = $otpModel->where('email', $email)
+                                  ->where('registration_type', 'league')
+                                  ->orderBy('created_at', 'DESC')
+                                  ->first();
+
+        if ($existingRecord) {
+            $registrationData = json_decode($existingRecord['registration_data'], true);
+            $otp = $otpModel->generateOTP($email, 'league', $registrationData);
+
+            if ($this->sendOTPEmail($email, $registrationData['name'], $otp, 'league')) {
+                session()->setTempdata('league_registration_email', $email, 300); // Extend session
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'OTP has been resent to your email.'
+                ]);
+            }
+        }
+
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Failed to resend OTP. Please try again.'
+        ]);
+    }
+
+    private function sendOTPEmail($email, $name, $otp, $type)
+    {
+        helper('email');
+        
+        $subject = "OTP Verification - MPCL " . ucfirst($type) . " Registration";
+        $message = "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+            <div style='text-align: center; margin-bottom: 30px;'>
+                <img src='https://megastarpremiercricketleague.com/registration/mccl/images/logo.png' alt='MPCL Logo' style='height: 60px;'>
+                <h2 style='color: #ff6b35; margin: 10px 0;'>Email Verification</h2>
+            </div>
+            
+            <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;'>
+                <h3 style='color: #333; margin-top: 0;'>Hello {$name},</h3>
+                <p style='color: #666; line-height: 1.6;'>
+                    Thank you for registering for the MegaStar Premier Cricket League " . ucfirst($type) . ".
+                    To complete your registration, please verify your email address using the OTP below:
+                </p>
+            </div>
+            
+            <div style='text-align: center; margin: 30px 0;'>
+                <div style='background-color: #ff6b35; color: white; padding: 15px 30px; border-radius: 5px; display: inline-block; font-size: 24px; font-weight: bold; letter-spacing: 3px;'>
+                    {$otp}
+                </div>
+            </div>
+            
+            <div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;'>
+                <p style='color: #856404; margin: 0; font-size: 14px;'>
+                    <strong>Important:</strong> This OTP will expire in 10 minutes. Do not share this code with anyone.
+                </p>
+            </div>
+            
+            <div style='text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;'>
+                <p style='color: #999; font-size: 12px; margin: 0;'>
+                    Best regards,<br>
+                    MegaStar Premier Cricket League Team<br>
+                    <a href='https://megastarpremiercricketleague.com' style='color: #ff6b35;'>www.megastarpremiercricketleague.com</a>
+                </p>
+            </div>
+        </div>
+        ";
+
+        return sendCustomMail($email, $subject, $message);
     }
 }

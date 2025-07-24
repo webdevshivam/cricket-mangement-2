@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\QrCodeSettingModel;
 use App\Models\TrialcitiesModel;
 use App\Models\TrialPlayerModel;
+use App\Models\OtpSettingModel;
+use App\Models\OtpVerificationModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use Exception;
 
@@ -34,7 +36,11 @@ class TrialRegistrationController extends BaseController
     }
     public function register()
     {
-        //get form data
+        // Check OTP settings
+        $otpSettingModel = new OtpSettingModel();
+        $otpSettings = $otpSettingModel->getSettings();
+
+        // Get form data
         $data = [
             'name' => $this->request->getPost('name'),
             'email' => $this->request->getPost('email'),
@@ -45,11 +51,42 @@ class TrialRegistrationController extends BaseController
             'trial_city_id' => $this->request->getPost('trialCity'),
             'cricket_type' => $this->request->getPost('cricket_type'),
         ];
-        $model = new TrialPlayerModel();
-        if ($model->insert($data) === false) {
-            echo "Error: " . $model->errors();
+
+        // Validate required fields
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'name' => 'required|min_length[3]',
+            'email' => 'required|valid_email',
+            'phone' => 'required|min_length[10]|max_length[15]',
+            'age' => 'required|integer|greater_than[7]',
+            'cricket_type' => 'required',
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+
+        // Check if OTP verification is enabled for trial registration
+        if ($otpSettings['trial_otp_enabled']) {
+            // Generate and send OTP
+            $otpModel = new OtpVerificationModel();
+            $otp = $otpModel->generateOTP($data['email'], 'trial', $data);
+
+            // Send OTP email
+            if ($this->sendOTPEmail($data['email'], $data['name'], $otp, 'trial')) {
+                session()->setTempdata('trial_registration_email', $data['email'], 300); // 5 minutes
+                return redirect()->to('/trial-otp-verification')->with('success', 'OTP has been sent to your email. Please verify to complete registration.');
+            } else {
+                return redirect()->back()->withInput()->with('error', 'Failed to send OTP email. Please try again.');
+            }
         } else {
-            return redirect()->to('/trial-registration')->with('success', 'Registration successful!');
+            // Direct registration without OTP
+            $model = new TrialPlayerModel();
+            if ($model->insert($data) === false) {
+                return redirect()->back()->withInput()->with('error', 'Registration failed. Please try again.');
+            } else {
+                return redirect()->to('/trial-registration')->with('success', 'Registration successful!');
+            }
         }
     }
 
@@ -966,5 +1003,125 @@ class TrialRegistrationController extends BaseController
             // Fallback: return HTML content with PDF headers
             return $html;
         }
+    }
+
+    public function otpVerification()
+    {
+        $email = session()->getTempdata('trial_registration_email');
+        if (!$email) {
+            return redirect()->to('/trial-registration')->with('error', 'OTP verification session expired. Please register again.');
+        }
+        
+        $data['email'] = $email;
+        return view('frontend/trial/otp_verification', $data);
+    }
+
+    public function verifyOTP()
+    {
+        $email = session()->getTempdata('trial_registration_email');
+        $otp = $this->request->getPost('otp');
+
+        if (!$email || !$otp) {
+            return redirect()->back()->with('error', 'Invalid OTP verification request.');
+        }
+
+        $otpModel = new OtpVerificationModel();
+        $registrationData = $otpModel->verifyOTP($email, $otp, 'trial');
+
+        if ($registrationData) {
+            // OTP verified, complete registration
+            $model = new TrialPlayerModel();
+            if ($model->insert($registrationData) !== false) {
+                session()->removeTempdata('trial_registration_email');
+                return redirect()->to('/trial-registration')->with('success', 'Email verified and registration completed successfully!');
+            } else {
+                return redirect()->back()->with('error', 'Failed to complete registration. Please try again.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Invalid or expired OTP. Please try again.');
+        }
+    }
+
+    public function resendOTP()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        $email = session()->getTempdata('trial_registration_email');
+        if (!$email) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'OTP verification session expired.'
+            ]);
+        }
+
+        // Get registration data from existing OTP record
+        $otpModel = new OtpVerificationModel();
+        $existingRecord = $otpModel->where('email', $email)
+                                  ->where('registration_type', 'trial')
+                                  ->orderBy('created_at', 'DESC')
+                                  ->first();
+
+        if ($existingRecord) {
+            $registrationData = json_decode($existingRecord['registration_data'], true);
+            $otp = $otpModel->generateOTP($email, 'trial', $registrationData);
+
+            if ($this->sendOTPEmail($email, $registrationData['name'], $otp, 'trial')) {
+                session()->setTempdata('trial_registration_email', $email, 300); // Extend session
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'OTP has been resent to your email.'
+                ]);
+            }
+        }
+
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Failed to resend OTP. Please try again.'
+        ]);
+    }
+
+    private function sendOTPEmail($email, $name, $otp, $type)
+    {
+        helper('email');
+        
+        $subject = "OTP Verification - MPCL " . ucfirst($type) . " Registration";
+        $message = "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+            <div style='text-align: center; margin-bottom: 30px;'>
+                <img src='https://megastarpremiercricketleague.com/registration/mccl/images/logo.png' alt='MPCL Logo' style='height: 60px;'>
+                <h2 style='color: #ff6b35; margin: 10px 0;'>Email Verification</h2>
+            </div>
+            
+            <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;'>
+                <h3 style='color: #333; margin-top: 0;'>Hello {$name},</h3>
+                <p style='color: #666; line-height: 1.6;'>
+                    Thank you for registering for the MegaStar Premier Cricket League " . ucfirst($type) . ".
+                    To complete your registration, please verify your email address using the OTP below:
+                </p>
+            </div>
+            
+            <div style='text-align: center; margin: 30px 0;'>
+                <div style='background-color: #ff6b35; color: white; padding: 15px 30px; border-radius: 5px; display: inline-block; font-size: 24px; font-weight: bold; letter-spacing: 3px;'>
+                    {$otp}
+                </div>
+            </div>
+            
+            <div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;'>
+                <p style='color: #856404; margin: 0; font-size: 14px;'>
+                    <strong>Important:</strong> This OTP will expire in 10 minutes. Do not share this code with anyone.
+                </p>
+            </div>
+            
+            <div style='text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;'>
+                <p style='color: #999; font-size: 12px; margin: 0;'>
+                    Best regards,<br>
+                    MegaStar Premier Cricket League Team<br>
+                    <a href='https://megastarpremiercricketleague.com' style='color: #ff6b35;'>www.megastarpremiercricketleague.com</a>
+                </p>
+            </div>
+        </div>
+        ";
+
+        return sendCustomMail($email, $subject, $message);
     }
 }

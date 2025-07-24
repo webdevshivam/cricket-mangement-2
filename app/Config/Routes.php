@@ -7,6 +7,19 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+// Trial Registration Routes
+$routes->get('/trial-registration', 'TrialRegistrationController::index');
+$routes->post('/trial-registration-save', 'TrialRegistrationController::register');
+$routes->get('/trial-otp-verification', 'TrialRegistrationController::otpVerification');
+$routes->post('/trial-verify-otp', 'TrialRegistrationController::verifyOTP');
+$routes->post('/trial-resend-otp', 'TrialRegistrationController::resendOTP');
+
+// League Registration Routes
+$routes->get('/league-registration', 'LeagueRegistrationController::index');
+$routes->post('/league-registration-save', 'LeagueRegistrationController::register');
+$routes->get('/league-otp-verification', 'LeagueRegistrationController::otpVerification');
+$routes->post('/league-verify-otp', 'LeagueRegistrationController::verifyOTP');
+$routes->post('/league-resend-otp', 'LeagueRegistrationController::resendOTP');
 // Frontend grade check routes
 $routes->get('grades/check', 'GradeController::checkGrade');
 $routes->post('grades/check-mobile', 'GradeController::getGradeByMobile');
@@ -75,9 +88,13 @@ $routes->get('league-status', 'LeagueRegistrationController::checkStatus');
 $routes->post('league-status-check', 'LeagueRegistrationController::getStatus');
 
 $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
+    $routes->get('dashboard', 'AdminController::index');
+    $routes->get('trial-registration', 'TrialRegistrationController::adminIndex');
 
+    // OTP Settings
+    $routes->get('otp-settings', 'OtpSettingController::index');
+    $routes->post('otp-settings/update', 'OtpSettingController::update');
   // Trial Registration Routes
-  $routes->get('trial-registration', 'TrialRegistrationController::adminIndex');
   $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
   $routes->post('trial-registration/bulk-update-payment-status', 'TrialRegistrationController::bulkUpdatePaymentStatus');
   $routes->post('trial-registration/collect-payment', 'TrialRegistrationController::collectPayment');

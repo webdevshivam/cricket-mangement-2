@@ -27,6 +27,9 @@ The code adds a link to trial players on the dashboard.
       <button class="btn btn-outline-warning btn-sm" onclick="exportDashboardData('pdf')">
         <i class="fas fa-download"></i> Export
       </button>
+      <a href="<?= base_url('admin/otp-settings') ?>" class="btn btn-outline-warning btn-sm">
+        <i class="fas fa-shield-alt"></i> OTP Settings
+      </a>
     </div>
   </div>
 </div>
