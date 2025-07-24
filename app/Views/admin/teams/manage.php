@@ -186,28 +186,79 @@
                     <!-- League Players -->
                     <div class="col-md-12">
                         <h6 class="text-success mb-3">
-                            <i class="fas fa-trophy me-2"></i>League Players
+                            <i class="fas fa-trophy me-2"></i>League Players (Paid Only)
                         </h6>
+                        
+                        <!-- Search Filter -->
+                        <?php if (!empty($availablePlayers['league'])): ?>
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-secondary border-secondary">
+                                        <i class="fas fa-search text-white"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="playerSearch" 
+                                           placeholder="Search by name, mobile, or cricket type..." 
+                                           onkeyup="filterPlayers()">
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Only paid league players are shown here
+                                </small>
+                            </div>
+                        <?php endif; ?>
+                        
                         <div class="available-players-list" style="max-height: 400px; overflow-y: auto;">
                             <?php if (empty($availablePlayers['league'])): ?>
-                                <p class="text-muted">No available league players</p>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-users fa-3x text-white mb-3"></i>
+                                    <p class="text-white mb-2">No available league players</p>
+                                    <small class="text-muted">
+                                        Only paid league players who are not assigned to any team will appear here
+                                    </small>
+                                </div>
                             <?php else: ?>
-                                <?php foreach ($availablePlayers['league'] as $player): ?>
-                                    <div class="player-card mb-2 p-2 border border-secondary rounded">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong><?= esc($player['name']) ?></strong><br>
-                                                <small class="text-muted">
-                                                    <?= esc($player['mobile']) ?> | <?= esc($player['cricketer_type']) ?>
-                                                </small>
+                                <div id="playersContainer">
+                                    <?php foreach ($availablePlayers['league'] as $player): ?>
+                                        <div class="player-card mb-2 p-3 border border-secondary rounded" 
+                                             data-name="<?= strtolower(esc($player['name'])) ?>"
+                                             data-mobile="<?= esc($player['mobile']) ?>"
+                                             data-type="<?= strtolower(esc($player['cricketer_type'])) ?>">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center mb-1">
+                                                        <strong class="text-white me-2"><?= esc($player['name']) ?></strong>
+                                                        <span class="badge bg-success">PAID</span>
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-phone me-1"></i><?= esc($player['mobile']) ?>
+                                                        </small>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-cricket-ball me-1"></i><?= esc($player['cricketer_type']) ?>
+                                                        </small>
+                                                        <?php if (!empty($player['age'])): ?>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-calendar me-1"></i><?= esc($player['age']) ?> years
+                                                            </small>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-success btn-sm" 
+                                                        onclick="addPlayerToTeam(<?= $team['id'] ?>, <?= $player['id'] ?>, 'league', '<?= esc($player['name']) ?>')"
+                                                        title="Add to team">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
                                             </div>
-                                            <button class="btn btn-success btn-sm" 
-                                                    onclick="addPlayerToTeam(<?= $team['id'] ?>, <?= $player['id'] ?>, 'league', '<?= esc($player['name']) ?>')">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
                                         </div>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                                
+                                <!-- No results message (initially hidden) -->
+                                <div id="noResultsMessage" class="text-center py-4" style="display: none;">
+                                    <i class="fas fa-search fa-2x text-white mb-2"></i>
+                                    <p class="text-white mb-0">No players match your search</p>
+                                    <small class="text-muted">Try adjusting your search terms</small>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -220,6 +271,37 @@
 </div>
 
 <script>
+function filterPlayers() {
+    const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
+    const playerCards = document.querySelectorAll('.player-card');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    let visibleCount = 0;
+
+    playerCards.forEach(card => {
+        const name = card.dataset.name || '';
+        const mobile = card.dataset.mobile || '';
+        const type = card.dataset.type || '';
+        
+        const isVisible = name.includes(searchTerm) || 
+                         mobile.includes(searchTerm) || 
+                         type.includes(searchTerm);
+        
+        if (isVisible) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Show/hide no results message
+    if (visibleCount === 0 && searchTerm !== '') {
+        noResultsMessage.style.display = 'block';
+    } else {
+        noResultsMessage.style.display = 'none';
+    }
+}
+
 function addPlayerToTeam(teamId, playerId, playerType, playerName) {
     if (confirm(`Add ${playerName} to the team?`)) {
         fetch('<?= base_url('admin/teams/add-player') ?>', {
@@ -307,17 +389,46 @@ function setCaptain(teamId, assignmentId) {
 
 <style>
 .player-card {
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    background-color: rgba(255,255,255,0.02);
 }
 
 .player-card:hover {
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255,255,255,0.08);
+    border-color: #ffc107 !important;
+    transform: translateY(-1px);
 }
 
 .available-players-list {
     border: 1px solid #6c757d;
     border-radius: 0.375rem;
     padding: 0.5rem;
+    background-color: rgba(0,0,0,0.2);
+}
+
+#playerSearch {
+    background-color: #2d3748;
+    border-color: #6c757d;
+    color: white;
+}
+
+#playerSearch::placeholder {
+    color: #9ca3af;
+}
+
+#playerSearch:focus {
+    background-color: #374151;
+    border-color: #ffc107;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.input-group-text {
+    color: white;
+}
+
+.fas.fa-cricket-ball:before {
+    content: "\f1e3"; /* Using baseball icon as cricket ball alternative */
 }
 </style>
 
