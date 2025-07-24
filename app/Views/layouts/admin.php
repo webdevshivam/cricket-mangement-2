@@ -11,9 +11,9 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet" />
 
-  <!-- Font Awesome Icons -->
+  <!-- Google Material Icons -->
   <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
     rel="stylesheet" />
 
   <!-- Bootstrap Icons -->
@@ -51,34 +51,21 @@
   <!-- Sidebar -->
   <nav id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <h3><i class="fas fa-trophy text-warning"></i> Cricket Admin</h3>
+      <h3><i class="material-icons text-warning">emoji_events</i> Cricket Admin</h3>
     </div>
     <div class="sidebar-content">
       <ul class="list-unstyled components">
 
         <li class="nav-item">
           <a href="<?= base_url('admin/dashboard') ?>" class="nav-link">
-            <i class="fas fa-chart-pie"></i> Dashboard
+            <i class="material-icons">dashboard</i> Dashboard
           </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="#player-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-users"></i> Player Management
-          </a>
-          <ul class="collapse list-unstyled" id="player-submenu">
-            <li><a href="<?= base_url('admin/players') ?>" class="nav-link">All Players</a></li>
-            <li><a href="<?= base_url('admin/players/add') ?>" class="nav-link">Add Player</a></li>
-            <li><a href="<?= base_url('admin/grades/assign') ?>" class="nav-link">Assign Grades</a></li>
-            <li><a href="<?= base_url('admin/performance-notes') ?>" class="nav-link">Performance Notes</a></li>
-            <li><a href="<?= base_url('admin/verify-payments') ?>" class="nav-link">Verify Payments</a></li>
-          </ul>
         </li>
 
         <!-- 🏟️ Trial Management -->
         <li class="nav-item">
           <a href="#trial-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-map-marker-alt"></i> Trial Management
+            <i class="material-icons">location_on</i> Trial Management
           </a>
           <ul class="collapse list-unstyled" id="trial-submenu">
             <li><a href="<?= base_url('admin/trial-registration') ?>" class="nav-link">Manage Trial Registration</a></li>
@@ -92,7 +79,7 @@
         <!-- 🎓 Grade Management -->
         <li class="nav-item">
           <a href="#grade-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-graduation-cap"></i> Grade Management
+            <i class="material-icons">school</i> Grade Management
           </a>
           <ul class="collapse list-unstyled" id="grade-submenu">
             <li><a href="<?= base_url('admin/grades') ?>" class="nav-link">Create/Edit Grades</a></li>
@@ -103,7 +90,7 @@
         <!-- 🏏 League Management -->
         <li class="nav-item">
           <a href="#league-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-baseball-ball"></i> League Management
+            <i class="material-icons">sports_cricket</i> League Management
           </a>
           <ul class="collapse list-unstyled" id="league-submenu">
             <li><a href="<?= base_url('admin/league-registration') ?>" class="nav-link">League Registrations</a></li>
@@ -118,7 +105,7 @@
         <!-- 💳 Payment & QR -->
         <li class="nav-item">
           <a href="#payment-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-qrcode"></i> Payment & QR
+            <i class="material-icons">qr_code</i> Payment & QR
           </a>
           <ul class="collapse list-unstyled" id="payment-submenu">
             <li><a href="<?= base_url('admin/qr-code-setting') ?>" class="nav-link">QR Code Settings</a></li>
@@ -130,7 +117,7 @@
         <!-- 📈 Reports & Exports -->
         <li class="nav-item">
           <a href="#reports-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-file-export"></i> Reports & Exports
+            <i class="material-icons">file_download</i> Reports & Exports
           </a>
           <ul class="collapse list-unstyled" id="reports-submenu">
             <li><a href="<?= base_url('admin/export-players') ?>" class="nav-link">Export Player List</a></li>
@@ -142,7 +129,7 @@
         <!-- 📢 Communication -->
         <li class="nav-item">
           <a href="#communication-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-bullhorn"></i> Communication
+            <i class="material-icons">campaign</i> Communication
           </a>
           <ul class="collapse list-unstyled" id="communication-submenu">
             <li><a href="<?= base_url('admin/send-email') ?>" class="nav-link">Send Email</a></li>
@@ -153,7 +140,7 @@
 
         <li class="nav-item">
           <a href="#marketing-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-bullseye"></i> Marketing & Revenue
+            <i class="material-icons">trending_up</i> Marketing & Revenue
           </a>
           <ul class="collapse list-unstyled" id="marketing-submenu">
             <li><a href="<?= base_url('admin/sponsors') ?>" class="nav-link">Sponsors</a></li>
@@ -165,7 +152,7 @@
         <!-- 🧑‍💻 Admin Settings -->
         <li class="nav-item">
           <a href="#admin-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-user-cog"></i> Admin Settings
+            <i class="material-icons">settings</i> Admin Settings
           </a>
           <ul class="collapse list-unstyled" id="admin-submenu">
             <li><a href="<?= base_url('admin/manage-admins') ?>" class="nav-link">Manage Admins</a></li>
@@ -178,7 +165,7 @@
         </li>
             <li class="nav-item">
               <a class="nav-link" href="<?= base_url('admin/teams') ?>">
-                <i class="fas fa-users nav-icon"></i>
+                <i class="material-icons">groups</i>
                 <p>Team Management</p>
               </a>
             </li>
@@ -186,14 +173,14 @@
         <!-- 📬 Feedback & Support -->
         <li class="nav-item">
           <a href="<?= base_url('admin/feedback') ?>" class="nav-link">
-            <i class="fas fa-envelope-open-text"></i> View Contact Submissions
+            <i class="material-icons">feedback</i> View Contact Submissions
           </a>
         </li>
 
         <!-- 🚪 Logout -->
         <li class="nav-item">
           <a href="#" onclick="logout()" class="nav-link">
-            <i class="fas fa-sign-out-alt text-danger"></i> Logout
+            <i class="material-icons text-danger">logout</i> Logout
           </a>
         </li>
       </ul>
@@ -210,7 +197,7 @@
           type="button"
           id="sidebarCollapse"
           class="btn btn-outline-warning">
-          <i class="fas fa-bars"></i>
+          <i class="material-icons">menu</i>
         </button>
 
         <div class="navbar-nav ms-auto">
@@ -220,20 +207,20 @@
               href="#"
               role="button"
               data-bs-toggle="dropdown">
-              <i class="fas fa-user-circle"></i> Admin
+              <i class="material-icons">account_circle</i> Admin
             </a>
             <ul class="dropdown-menu dropdown-menu-dark">
               <li>
-                <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Profile</a>
+                <a class="dropdown-item" href="#"><i class="material-icons">person</i> Profile</a>
               </li>
               <li>
-                <a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a>
+                <a class="dropdown-item" href="#"><i class="material-icons">settings</i> Settings</a>
               </li>
               <li>
                 <hr class="dropdown-divider" />
               </li>
               <li>
-                <a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a class="dropdown-item" href="#" onclick="logout()"><i class="material-icons">logout</i> Logout</a>
               </li>
             </ul>
           </div>
