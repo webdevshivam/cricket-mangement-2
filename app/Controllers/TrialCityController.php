@@ -10,10 +10,9 @@ class TrialCityController extends BaseController
 {
     public function index()
     {
-
-
         $model = new TrialcitiesModel();
-        $data['cities'] = $model->paginate(10);
+        $data['cities'] = $model->findAll(); // Get all cities for calendar
+        $data['paginatedCities'] = $model->paginate(10); // Paginated cities for table
         $data['pager']  = $model->pager;
 
         return view('admin/trial_cities/index', $data);
