@@ -62,18 +62,7 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="#player-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
-            <i class="fas fa-users"></i> Player Management
-          </a>
-          <ul class="collapse list-unstyled" id="player-submenu">
-            <li><a href="<?= base_url('admin/players') ?>" class="nav-link">All Players</a></li>
-            <li><a href="<?= base_url('admin/players/add') ?>" class="nav-link">Add Player</a></li>
-            <li><a href="<?= base_url('admin/grades/assign') ?>" class="nav-link">Assign Grades</a></li>
-            <li><a href="<?= base_url('admin/performance-notes') ?>" class="nav-link">Performance Notes</a></li>
-            <li><a href="<?= base_url('admin/verify-payments') ?>" class="nav-link">Verify Payments</a></li>
-          </ul>
-        </li>
+
 
         <!-- 🏟️ Trial Management -->
         <li class="nav-item">
@@ -176,12 +165,12 @@
             <li><a href="<?= base_url('admin/change-password') ?>" class="nav-link">Change Password</a></li>
           </ul>
         </li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= base_url('admin/teams') ?>">
-                <i class="fas fa-users nav-icon"></i>
-                <p>Team Management</p>
-              </a>
-            </li>
+        <li class="nav-item">
+          <a class="nav-link" href="<?= base_url('admin/teams') ?>">
+            <i class="fas fa-users nav-icon"></i>
+            Team Management
+          </a>
+        </li>
 
         <!-- 📬 Feedback & Support -->
         <li class="nav-item">
