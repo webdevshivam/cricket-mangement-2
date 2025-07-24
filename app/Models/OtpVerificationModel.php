@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -32,11 +31,11 @@ class OtpVerificationModel extends Model
     {
         // Generate 6-digit OTP
         $otp = sprintf("%06d", mt_rand(1, 999999));
-        
+
         // Delete any existing OTP for this email and registration type
         $this->where('email', $email)
-             ->where('registration_type', $registrationType)
-             ->delete();
+            ->where('registration_type', $registrationType)
+            ->delete();
 
         // Create new OTP record
         $data = [
@@ -55,11 +54,11 @@ class OtpVerificationModel extends Model
     public function verifyOTP($email, $otp, $registrationType)
     {
         $record = $this->where('email', $email)
-                       ->where('otp_code', $otp)
-                       ->where('registration_type', $registrationType)
-                       ->where('is_verified', 0)
-                       ->where('expires_at >', date('Y-m-d H:i:s'))
-                       ->first();
+            ->where('otp_code', $otp)
+            ->where('registration_type', $registrationType)
+            ->where('is_verified', 0)
+            ->where('expires_at >', date('Y-m-d H:i:s'))
+            ->first();
 
         if ($record) {
             // Mark as verified

@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -18,7 +17,7 @@ class OtpSettingController extends BaseController
     public function update()
     {
         $model = new OtpSettingModel();
-        
+
         $data = [
             'trial_otp_enabled' => $this->request->getPost('trial_otp_enabled') ? 1 : 0,
             'league_otp_enabled' => $this->request->getPost('league_otp_enabled') ? 1 : 0,
