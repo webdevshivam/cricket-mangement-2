@@ -39,8 +39,9 @@ class Session extends BaseConfig
      *
      * The number of SECONDS you want the session to last.
      * Setting to 0 (zero) means expire when the browser is closed.
+     * 2592000 = 30 days for persistent login
      */
-    public int $expiration = 7200;
+    public int $expiration = 2592000;
 
     /**
      * --------------------------------------------------------------------------
@@ -77,8 +78,9 @@ class Session extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * How many seconds between CI regenerating the session ID.
+     * Extended to 24 hours for persistent sessions
      */
-    public int $timeToUpdate = 300;
+    public int $timeToUpdate = 86400;
 
     /**
      * --------------------------------------------------------------------------

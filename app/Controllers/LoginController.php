@@ -51,13 +51,28 @@ class LoginController extends BaseController
         }
 
         if ($user && password_verify($password, $user['password'])) {
-            // Set session
-            $session->set([
+            // Set session with extended expiration for admin users
+            $sessionData = [
                 'user_id' => $user['id'],
                 'name'    => $user['name'],
                 'role'    => $user['role'],
-                'isLoggedIn' => true
-            ]);
+                'isLoggedIn' => true,
+                'login_time' => time(),
+                'last_activity' => time()
+            ];
+            
+            // For admin users, set persistent session
+            if ($user['role'] === 'admin') {
+                $sessionData['persistent_login'] = true;
+                $sessionData['remember_until'] = time() + (30 * 24 * 60 * 60); // 30 days
+            }
+            
+            $session->set($sessionData);
+            
+            // Set remember me cookie for admin users
+            if ($user['role'] === 'admin') {
+                $this->setRememberCookie($user['id']);
+            }
 
             // Redirect based on role
             switch ($user['role']) {
@@ -78,7 +93,32 @@ class LoginController extends BaseController
     }
     public function logout()
     {
+        // Remove remember cookie if it exists
+        delete_cookie('admin_remember');
         session()->destroy();
         return redirect()->to('/login');
+    }
+    
+    private function setRememberCookie($userId)
+    {
+        $expires = time() + (30 * 24 * 60 * 60); // 30 days
+        $token = bin2hex(random_bytes(32));
+        
+        $cookieData = [
+            'user_id' => $userId,
+            'token' => $token,
+            'expires' => $expires
+        ];
+        
+        $cookieValue = base64_encode(json_encode($cookieData));
+        
+        set_cookie([
+            'name' => 'admin_remember',
+            'value' => $cookieValue,
+            'expire' => $expires,
+            'secure' => false, // Set to true in production with HTTPS
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]);
     }
 }
