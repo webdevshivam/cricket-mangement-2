@@ -413,35 +413,7 @@ class Home extends BaseController
         }
     }
 
-    private function getNewPlayersThisWeek()
-    {
-        try {
-            $db = \Config\Database::connect();
-
-            $queries = [
-                "SELECT COUNT(*) as count FROM trial_players WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
-                "SELECT COUNT(*) as count FROM league_players WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
-                "SELECT COUNT(*) as count FROM players WHERE date >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
-            ];
-
-            $totalNew = 0;
-            foreach ($queries as $queryStr) {
-                try {
-                    $query = $db->query($queryStr);
-                    $result = $query->getRow();
-                    if ($result && isset($result->count)) {
-                        $totalNew += $result->count;
-                    }
-                } catch (\Exception $e) {
-                    continue;
-                }
-            }
-
-            return $totalNew;
-        } catch (\Exception $e) {
-            return 0;
-        }
-    }
+    
 
     private function getRecentActivities()
     {
