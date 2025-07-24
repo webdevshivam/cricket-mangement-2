@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -12,6 +11,14 @@ use Exception;
 
 class TournamentController extends BaseController
 {
+    public function __construct()
+    {
+        $this->tournamentModel = new TournamentModel();
+        $this->tournamentMatchModel = new TournamentMatchModel();
+        $this->teamModel = new TeamModel();
+        helper('form');
+    }
+
     public function index()
     {
         $tournamentModel = new TournamentModel();
@@ -43,7 +50,7 @@ class TournamentController extends BaseController
         }
 
         $tournamentModel = new TournamentModel();
-        
+
         $data = [
             'name' => $this->request->getPost('name'),
             'description' => $this->request->getPost('description'),
@@ -55,7 +62,7 @@ class TournamentController extends BaseController
 
         if ($tournamentModel->insert($data)) {
             $tournamentId = $tournamentModel->getInsertID();
-            
+
             // If it's a knockout tournament, generate initial matches
             if ($this->request->getPost('type') === 'knockout') {
                 $this->generateKnockoutMatches($tournamentId);
@@ -145,7 +152,7 @@ class TournamentController extends BaseController
 
         // Get all active teams (16 teams)
         $teams = $teamModel->where('status !=', 'inactive')->findAll(16);
-        
+
         if (count($teams) < 16) {
             return false;
         }
@@ -188,7 +195,7 @@ class TournamentController extends BaseController
         if (count($completedMatches) === count($currentRoundMatches)) {
             // Get winners for next round
             $winners = $tournamentMatchModel->getRoundWinners($tournamentId, $currentRound);
-            
+
             if (count($winners) === 1) {
                 // Tournament is complete
                 $tournamentModel->update($tournamentId, [
