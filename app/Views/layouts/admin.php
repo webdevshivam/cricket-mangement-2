@@ -169,6 +169,7 @@
           </a>
           <ul class="collapse list-unstyled" id="admin-submenu">
             <li><a href="<?= base_url('admin/manage-admins') ?>" class="nav-link">Manage Admins</a></li>
+            <li><a href="<?= base_url('admin/otp-settings') ?>" class="nav-link">OTP Settings</a></li>
             <li><a href="<?= base_url('admin/branding') ?>" class="nav-link">Site Branding</a></li>
             <li><a href="<?= base_url('admin/api-settings') ?>" class="nav-link">API Key Settings</a></li>
             <li><a href="<?= base_url('admin/change-password') ?>" class="nav-link">Change Password</a></li>
