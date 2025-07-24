@@ -175,6 +175,12 @@
             <li><a href="<?= base_url('admin/change-password') ?>" class="nav-link">Change Password</a></li>
           </ul>
         </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= base_url('admin/teams') ?>">
+                <i class="fas fa-users nav-icon"></i>
+                <p>Team Management</p>
+              </a>
+            </li>
 
         <!-- 📬 Feedback & Support -->
         <li class="nav-item">

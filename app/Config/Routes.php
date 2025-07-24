@@ -94,6 +94,14 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     // OTP Settings
     $routes->get('otp-settings', 'OtpSettingController::index');
     $routes->post('otp-settings/update', 'OtpSettingController::update');
+
+    // Team Management Routes
+    $routes->get('teams', 'TeamController::index');
+    $routes->get('teams/manage/(:num)', 'TeamController::manageTeam/$1');
+    $routes->post('teams/update/(:num)', 'TeamController::updateTeam/$1');
+    $routes->post('teams/add-player', 'TeamController::addPlayer');
+    $routes->post('teams/remove-player', 'TeamController::removePlayer');
+    $routes->post('teams/set-captain', 'TeamController::setCaptain');
   // Trial Registration Routes
   $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
   $routes->post('trial-registration/bulk-update-payment-status', 'TrialRegistrationController::bulkUpdatePaymentStatus');
