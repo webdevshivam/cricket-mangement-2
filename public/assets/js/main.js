@@ -691,20 +691,29 @@ $(document).ready(function () {
   // Dropdown toggle functionality
   $('.sidebar .dropdown-toggle').on('click', function(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
     var target = $(this).attr('href');
     var $collapse = $(target);
+    var $parentLi = $(this).closest('.nav-item');
     var isExpanded = $(this).attr('aria-expanded') === 'true';
 
-    // Close other dropdowns
-    $('.sidebar .collapse').not($collapse).removeClass('show');
+    // Close other dropdowns smoothly
+    $('.sidebar .collapse').not($collapse).each(function() {
+      $(this).slideUp(200, function() {
+        $(this).removeClass('show');
+      });
+    });
     $('.sidebar .dropdown-toggle').not(this).attr('aria-expanded', 'false');
 
-    // Toggle current dropdown
+    // Toggle current dropdown with smooth animation
     if (isExpanded) {
-      $collapse.removeClass('show');
+      $collapse.slideUp(200, function() {
+        $(this).removeClass('show');
+      });
       $(this).attr('aria-expanded', 'false');
     } else {
-      $collapse.addClass('show');
+      $collapse.addClass('show').hide().slideDown(200);
       $(this).attr('aria-expanded', 'true');
     }
   });

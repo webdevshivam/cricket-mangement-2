@@ -118,35 +118,87 @@ body {
 }
 
 /* Sidebar Dropdown Styles */
+.sidebar .collapse {
+  transition: none;
+  overflow: hidden;
+}
+
+.sidebar .collapse.show {
+  display: block;
+}
+
 .sidebar ul li ul {
-  padding-left: 20px;
+  padding-left: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-left: 2px solid var(--accent-gold);
+  margin-left: 15px;
+}
+
+.sidebar ul li ul li {
+  border-bottom: none;
 }
 
 .sidebar ul li ul li a {
-  padding: 10px 20px;
-  font-size: 14px;
-  margin-bottom: 4px;
+  padding: 8px 15px 8px 25px;
+  font-size: 13px;
+  margin-bottom: 0;
+  border-left: none;
+  color: rgba(255, 255, 255, 0.7);
+  position: relative;
 }
 
-.sidebar ul li .dropdown-toggle::after {
+.sidebar ul li ul li a:hover {
+  color: var(--accent-gold);
+  background-color: rgba(255, 215, 0, 0.05);
+  border-left: none;
+}
+
+.sidebar ul li ul li a.active {
+  color: var(--accent-gold);
+  background-color: rgba(255, 215, 0, 0.1);
+  border-left: none;
+}
+
+.sidebar ul li ul li a::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+}
+
+.sidebar ul li ul li a:hover::before,
+.sidebar ul li ul li a.active::before {
+  background-color: var(--accent-gold);
+}
+
+.sidebar .dropdown-toggle {
+  position: relative;
+  cursor: pointer;
+}
+
+.sidebar .dropdown-toggle::after {
   content: '\f105';
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
-  float: right;
-  margin-top: 2px;
-  transition: transform 0.3s ease;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+  font-size: 12px;
 }
 
-.sidebar ul li .dropdown-toggle[aria-expanded='true']::after {
-  transform: rotate(90deg);
+.sidebar .dropdown-toggle[aria-expanded='true']::after {
+  transform: translateY(-50%) rotate(90deg);
 }
 
-.sidebar ul li.dropdown-item > a {
-  border-left: 3px solid transparent;
-}
-
-.sidebar ul li.dropdown-item > a:hover {
-  border-left-color: var(--accent-gold);
+.sidebar .dropdown-toggle:hover::after {
+  color: var(--accent-gold);
 }
 
 .sidebar-footer {

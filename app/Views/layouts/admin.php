@@ -63,8 +63,8 @@
         </li>
 
         <li class="nav-item">
-          <a href="#player-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-users"></i> Player Management</span>
+          <a href="#player-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-users"></i> Player Management
           </a>
           <ul class="collapse list-unstyled" id="player-submenu">
             <li><a href="<?= base_url('admin/players') ?>" class="nav-link">All Players</a></li>
@@ -77,8 +77,8 @@
 
         <!-- 🏟️ Trial Management -->
         <li class="nav-item">
-          <a href="#trial-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-map-marker-alt"></i> Trial Management</span>
+          <a href="#trial-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-map-marker-alt"></i> Trial Management
           </a>
           <ul class="collapse list-unstyled" id="trial-submenu">
             <li><a href="<?= base_url('admin/trial-registration') ?>" class="nav-link">Manage Trial Registration</a></li>
@@ -91,8 +91,8 @@
 
         <!-- 🎓 Grade Management -->
         <li class="nav-item">
-          <a href="#grade-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-graduation-cap"></i> Grade Management</span>
+          <a href="#grade-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-graduation-cap"></i> Grade Management
           </a>
           <ul class="collapse list-unstyled" id="grade-submenu">
             <li><a href="<?= base_url('admin/grades') ?>" class="nav-link">Create/Edit Grades</a></li>
@@ -102,8 +102,8 @@
 
         <!-- 🏏 League Management -->
         <li class="nav-item">
-          <a href="#league-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-baseball-ball"></i> League Management</span>
+          <a href="#league-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-baseball-ball"></i> League Management
           </a>
           <ul class="collapse list-unstyled" id="league-submenu">
             <li><a href="<?= base_url('admin/league-registration') ?>" class="nav-link">League Registrations</a></li>
@@ -117,8 +117,8 @@
 
         <!-- 💳 Payment & QR -->
         <li class="nav-item">
-          <a href="#payment-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-qrcode"></i> Payment & QR</span>
+          <a href="#payment-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-qrcode"></i> Payment & QR
           </a>
           <ul class="collapse list-unstyled" id="payment-submenu">
             <li><a href="<?= base_url('admin/qr-code-setting') ?>" class="nav-link">QR Code Settings</a></li>
@@ -129,8 +129,8 @@
 
         <!-- 📈 Reports & Exports -->
         <li class="nav-item">
-          <a href="#reports-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-file-export"></i> Reports & Exports</span>
+          <a href="#reports-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-file-export"></i> Reports & Exports
           </a>
           <ul class="collapse list-unstyled" id="reports-submenu">
             <li><a href="<?= base_url('admin/export-players') ?>" class="nav-link">Export Player List</a></li>
@@ -141,8 +141,8 @@
 
         <!-- 📢 Communication -->
         <li class="nav-item">
-          <a href="#communication-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-bullhorn"></i> Communication</span>
+          <a href="#communication-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-bullhorn"></i> Communication
           </a>
           <ul class="collapse list-unstyled" id="communication-submenu">
             <li><a href="<?= base_url('admin/send-email') ?>" class="nav-link">Send Email</a></li>
@@ -152,8 +152,8 @@
         </li>
 
         <li class="nav-item">
-          <a href="#marketing-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-bullseye"></i> Marketing & Revenue</span>
+          <a href="#marketing-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-bullseye"></i> Marketing & Revenue
           </a>
           <ul class="collapse list-unstyled" id="marketing-submenu">
             <li><a href="<?= base_url('admin/sponsors') ?>" class="nav-link">Sponsors</a></li>
@@ -164,20 +164,13 @@
 
         <!-- 🧑‍💻 Admin Settings -->
         <li class="nav-item">
-          <a href="#admin-submenu" data-bs-toggle="collapse" class="dropdown-toggle d-flex align-items-center justify-content-between w-100" aria-expanded="false">
-            <span><i class="fas fa-user-cog"></i> Admin Settings</span>
+          <a href="#admin-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-user-cog"></i> Admin Settings
           </a>
           <ul class="collapse list-unstyled" id="admin-submenu">
             <li><a href="<?= base_url('admin/manage-admins') ?>" class="nav-link">Manage Admins</a></li>
-            <li><a class="nav-link" href="<?= base_url('admin/otp-settings') ?>">
-                            <i class="fas fa-shield-alt me-2"></i>OTP Settings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('admin/tournaments') ?>">
-                            <i class="fas fa-trophy me-2"></i>Tournaments
-                        </a>
-                    </li>
+            <li><a href="<?= base_url('admin/otp-settings') ?>" class="nav-link">OTP Settings</a></li>
+            <li><a href="<?= base_url('admin/tournaments') ?>" class="nav-link">Tournaments</a></li>
             <li><a href="<?= base_url('admin/branding') ?>" class="nav-link">Site Branding</a></li>
             <li><a href="<?= base_url('admin/api-settings') ?>" class="nav-link">API Key Settings</a></li>
             <li><a href="<?= base_url('admin/change-password') ?>" class="nav-link">Change Password</a></li>
