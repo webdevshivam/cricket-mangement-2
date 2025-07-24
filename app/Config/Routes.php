@@ -110,6 +110,8 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('tournaments/manage/(:num)', 'TournamentController::manage/$1');
     $routes->get('tournaments/bracket/(:num)', 'TournamentController::bracket/$1');
     $routes->post('tournaments/update-match', 'TournamentController::updateMatch');
+    $routes->post('tournaments/create-match', 'TournamentController::createMatch');
+    $routes->post('tournaments/delete-match', 'TournamentController::deleteMatch');
   // Trial Registration Routes
   $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
   $routes->post('trial-registration/bulk-update-payment-status', 'TrialRegistrationController::bulkUpdatePaymentStatus');

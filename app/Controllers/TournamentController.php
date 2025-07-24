@@ -86,7 +86,8 @@ class TournamentController extends BaseController
         }
 
         $data['matches'] = $tournamentMatchModel->getTournamentMatches($tournamentId);
-        $data['teams'] = $teamModel->findAll();
+        $data['teams'] = $teamModel->where('status !=', 'inactive')->findAll();
+        $data['availableTeams'] = $teamModel->where('status !=', 'inactive')->findAll();
 
         // Group matches by round
         $data['rounds'] = [];
@@ -226,6 +227,111 @@ class TournamentController extends BaseController
                 // Update tournament current round
                 $tournamentModel->update($tournamentId, ['current_round' => $nextRound]);
             }
+        }
+    }
+
+    public function createMatch()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+            $tournamentMatchModel = new TournamentMatchModel();
+
+            // Validate teams are different
+            if ($data['team1_id'] === $data['team2_id']) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'A team cannot play against itself'
+                ]);
+            }
+
+            // Get next match number for the round
+            $existingMatches = $tournamentMatchModel->where('tournament_id', $data['tournament_id'])
+                ->where('round_number', $data['round_number'])
+                ->findAll();
+            
+            $nextMatchNumber = count($existingMatches) + 1;
+
+            $matchData = [
+                'tournament_id' => $data['tournament_id'],
+                'round_number' => $data['round_number'],
+                'match_number' => $nextMatchNumber,
+                'team1_id' => $data['team1_id'],
+                'team2_id' => $data['team2_id'],
+                'status' => 'scheduled',
+                'match_date' => $data['match_date'] ?? null
+            ];
+
+            if ($tournamentMatchModel->insert($matchData)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Match created successfully',
+                    'match_id' => $tournamentMatchModel->getInsertID()
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to create match'
+                ]);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Create match error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while creating match'
+            ]);
+        }
+    }
+
+    public function deleteMatch()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+            $tournamentMatchModel = new TournamentMatchModel();
+
+            // Check if match is completed
+            $match = $tournamentMatchModel->find($data['match_id']);
+            if ($match && $match['status'] === 'completed') {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Cannot delete completed matches'
+                ]);
+            }
+
+            if ($tournamentMatchModel->delete($data['match_id'])) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Match deleted successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to delete match'
+                ]);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Delete match error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while deleting match'
+            ]);
         }
     }
 

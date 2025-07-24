@@ -19,7 +19,7 @@
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card bg-dark border-info">
             <div class="card-body text-center">
                 <h6 class="text-info">Status</h6>
@@ -29,7 +29,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card bg-dark border-warning">
             <div class="card-body text-center">
                 <h6 class="text-warning">Current Round</h6>
@@ -37,11 +37,20 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card bg-dark border-success">
             <div class="card-body text-center">
                 <h6 class="text-success">Type</h6>
                 <span class="text-light"><?= ucfirst($tournament['type']) ?></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark border-primary">
+            <div class="card-body text-center">
+                <button type="button" class="btn btn-primary btn-sm" onclick="openCreateMatchModal()">
+                    <i class="fas fa-plus me-1"></i>Add Match
+                </button>
             </div>
         </div>
     </div>
@@ -125,10 +134,16 @@
                                     
                                     <?php if ($match['status'] !== 'completed'): ?>
                                         <div class="text-center mt-3">
-                                            <button type="button" class="btn btn-warning btn-sm" 
-                                                    onclick="openMatchModal(<?= htmlspecialchars(json_encode($match)) ?>)">
-                                                <i class="fas fa-edit me-1"></i>Set Result
-                                            </button>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-warning btn-sm" 
+                                                        onclick="openMatchModal(<?= htmlspecialchars(json_encode($match)) ?>)">
+                                                    <i class="fas fa-edit me-1"></i>Set Result
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-sm" 
+                                                        onclick="deleteMatch(<?= $match['id'] ?>)">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </div>
                                         </div>
                                     <?php else: ?>
                                         <div class="text-center mt-2">
@@ -154,6 +169,61 @@
         </div>
     </div>
 <?php endif; ?>
+
+<!-- Create Match Modal -->
+<div class="modal fade" id="createMatchModal" tabindex="-1" aria-labelledby="createMatchModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border-primary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-primary" id="createMatchModalLabel">Create New Match</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createMatchForm">
+                    <input type="hidden" id="tournamentId" name="tournament_id" value="<?= $tournament['id'] ?>">
+                    
+                    <div class="mb-3">
+                        <label for="roundNumber" class="form-label text-light">Round Number</label>
+                        <input type="number" class="form-control bg-dark text-light border-secondary" 
+                               id="roundNumber" name="round_number" min="1" value="<?= $tournament['current_round'] ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="team1Select" class="form-label text-light">Team 1</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="team1Select" name="team1_id" required>
+                            <option value="">Select Team 1</option>
+                            <?php foreach ($availableTeams as $team): ?>
+                                <option value="<?= $team['id'] ?>"><?= esc($team['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="team2Select" class="form-label text-light">Team 2</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="team2Select" name="team2_id" required>
+                            <option value="">Select Team 2</option>
+                            <?php foreach ($availableTeams as $team): ?>
+                                <option value="<?= $team['id'] ?>"><?= esc($team['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="matchDate" class="form-label text-light">Match Date (Optional)</label>
+                        <input type="datetime-local" class="form-control bg-dark text-light border-secondary" 
+                               id="matchDate" name="match_date">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createMatch()">
+                    <i class="fas fa-plus me-1"></i>Create Match
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Match Result Modal -->
 <div class="modal fade" id="matchModal" tabindex="-1" aria-labelledby="matchModalLabel" aria-hidden="true">
@@ -317,6 +387,92 @@ function saveMatchResult() {
 function showSuccess(message) {
     // You can implement toast notifications here
     alert('Success: ' + message);
+}
+
+function openCreateMatchModal() {
+    new bootstrap.Modal(document.getElementById('createMatchModal')).show();
+}
+
+function createMatch() {
+    const form = document.getElementById('createMatchForm');
+    const formData = new FormData(form);
+    
+    const team1Id = formData.get('team1_id');
+    const team2Id = formData.get('team2_id');
+    
+    if (!team1Id || !team2Id) {
+        showError('Please select both teams');
+        return;
+    }
+    
+    if (team1Id === team2Id) {
+        showError('A team cannot play against itself');
+        return;
+    }
+    
+    const data = {
+        tournament_id: formData.get('tournament_id'),
+        round_number: parseInt(formData.get('round_number')),
+        team1_id: parseInt(team1Id),
+        team2_id: parseInt(team2Id),
+        match_date: formData.get('match_date') || null
+    };
+    
+    fetch('<?= base_url('admin/tournaments/create-match') ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess(data.message);
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showError(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('An error occurred while creating the match');
+    });
+    
+    bootstrap.Modal.getInstance(document.getElementById('createMatchModal')).hide();
+}
+
+function deleteMatch(matchId) {
+    if (!confirm('Are you sure you want to delete this match?')) {
+        return;
+    }
+    
+    fetch('<?= base_url('admin/tournaments/delete-match') ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ match_id: matchId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess(data.message);
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showError(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('An error occurred while deleting the match');
+    });
 }
 
 function showError(message) {
