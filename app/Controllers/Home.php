@@ -1,3 +1,7 @@
+The code is updated to include methods for calculating new players this week, recent activities, and pending tasks, and these data are passed to the dashboard view.
+```
+
+```php
 <?php
 
 namespace App\Controllers;
@@ -87,10 +91,70 @@ class Home extends BaseController
         $data['today_revenue'] = $todayRevenue['today_trial_revenue'] ?? 0;
 
         // Other statistics
-        $data['total_cities'] = $trialCitiesModel->countAll();
-        $data['total_grades'] = $gradeModel->countAll();
+        $data['totalGrades'] = $gradeModel->countAll();
+        $data['totalCities'] = $trialCitiesModel->countAll();
+
+        // Calculate revenue
+        $data['totalRevenue'] = $this->calculateTotalRevenue();
+        $data['todayRevenue'] = $this->calculateTodayRevenue();
+
+        // Recent activities and pending tasks (dummy data for now)
+        $data['recentActivities'] = $this->getRecentActivities();
+        $data['pendingTasks'] = $this->getPendingTasks();
 
         return view('admin/dashboard', $data);
+    }
+
+    private function getNewPlayersThisWeek()
+    {
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
+        $leaguePlayerModel = new \App\Models\LeaguePlayerModel();
+
+        $weekAgo = date('Y-m-d', strtotime('-7 days'));
+
+        $trialCount = $trialPlayerModel->where('DATE(created_at) >=', $weekAgo)->countAllResults();
+        $leagueCount = $leaguePlayerModel->where('DATE(created_at) >=', $weekAgo)->countAllResults();
+
+        return $trialCount + $leagueCount;
+    }
+
+    private function getRecentActivities()
+    {
+        return [
+            [
+                'description' => 'New trial registration - John Doe',
+                'icon' => 'fas fa-user-plus',
+                'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours'))
+            ],
+            [
+                'description' => 'Payment received - ₹500',
+                'icon' => 'fas fa-money-bill-wave',
+                'created_at' => date('Y-m-d H:i:s', strtotime('-3 hours'))
+            ],
+            [
+                'description' => 'League registration completed',
+                'icon' => 'fas fa-trophy',
+                'created_at' => date('Y-m-d H:i:s', strtotime('-5 hours'))
+            ]
+        ];
+    }
+
+    private function getPendingTasks()
+    {
+        return [
+            [
+                'title' => 'Verify Trial Players',
+                'description' => 'Review pending trial registrations',
+                'priority' => 'high',
+                'action_url' => base_url('admin/trial-registration')
+            ],
+            [
+                'title' => 'Process Payments',
+                'description' => 'Update payment statuses',
+                'priority' => 'medium',
+                'action_url' => base_url('admin/trial-registration/payment-tracking')
+            ]
+        ];
     }
 
     public function trialPlayers()
@@ -543,3 +607,4 @@ class Home extends BaseController
         return $tasks;
     }
 }
+</replit_final_file>

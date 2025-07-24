@@ -368,11 +368,11 @@ body {
   .stats-card {
     margin-bottom: 15px;
   }
-  
+
   .clickable-card:hover {
     transform: none;
   }
-  
+
   .activity-feed,
   .pending-tasks,
   .quick-stats {
@@ -1077,4 +1077,44 @@ ul.pagination {
 .pagination li.active a {
   background-color: var(--accent-gold) !important;
   color: var(--primary-black) !important;
+}
+
+.sidebar ul li a {
+  padding: 15px 20px;
+  font-size: 1rem;
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.sidebar ul li ul li a {
+  padding: 8px 15px 8px 25px;
+  font-size: 13px;
+  margin-bottom: 0;
+  border-left: none;
+  color: rgba(255, 255, 255, 0.7);
+  position: relative;
+}
+
+/* Sidebar Styles */
+.sidebar .nav-link {
+    color: #adb5bd;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    position: relative;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.sidebar .dropdown-menu .dropdown-item {
+    color: #6c757d;
+    padding: 0.5rem 2rem;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-weight: 400;
 }

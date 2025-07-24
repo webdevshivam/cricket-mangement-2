@@ -42,17 +42,17 @@ The code adds a link to trial players on the dashboard.
         <h6 class="text-warning mb-3"><i class="fas fa-bolt"></i> Quick Actions</h6>
         <div class="row">
           <div class="col-md-2 col-sm-4 col-6 mb-2">
-            <a href="<?= base_url('admin/trial/registration') ?>" class="btn btn-outline-info btn-sm w-100">
+            <a href="<?= base_url('admin/trial-registration') ?>" class="btn btn-outline-info btn-sm w-100">
               <i class="fas fa-user-plus"></i><br>Trial Registration
             </a>
           </div>
           <div class="col-md-2 col-sm-4 col-6 mb-2">
-            <a href="<?= base_url('admin/league/registration') ?>" class="btn btn-outline-success btn-sm w-100">
+            <a href="<?= base_url('admin/league-registration') ?>" class="btn btn-outline-success btn-sm w-100">
               <i class="fas fa-trophy"></i><br>League Registration
             </a>
           </div>
           <div class="col-md-2 col-sm-4 col-6 mb-2">
-            <a href="<?= base_url('admin/trial/payment-tracking') ?>" class="btn btn-outline-warning btn-sm w-100">
+            <a href="<?= base_url('admin/trial-registration/payment-tracking') ?>" class="btn btn-outline-warning btn-sm w-100">
               <i class="fas fa-credit-card"></i><br>Payment Tracking
             </a>
           </div>
@@ -62,8 +62,8 @@ The code adds a link to trial players on the dashboard.
             </a>
           </div>
           <div class="col-md-2 col-sm-4 col-6 mb-2">
-            <a href="<?= base_url('admin/players') ?>" class="btn btn-outline-secondary btn-sm w-100">
-              <i class="fas fa-users"></i><br>Players
+            <a href="<?= base_url('admin/teams') ?>" class="btn btn-outline-secondary btn-sm w-100">
+              <i class="fas fa-users"></i><br>Teams
             </a>
           </div>
           <div class="col-md-2 col-sm-4 col-6 mb-2">
@@ -369,19 +369,19 @@ The code adds a link to trial players on the dashboard.
           <div class="col-md-6">
             <h6 class="text-warning mb-3">Registration Management</h6>
             <ul class="list-unstyled">
-              <li><a href="<?= base_url('admin/trial-registration') ?>" class="text-light text-decoration-none"><i class="fas fa-user-plus text-success"></i> Manage Trial Registrations</a></li>
-              <li><a href="<?= base_url('admin/trial-verification') ?>" class="text-light text-decoration-none"><i class="fas fa-user-check text-warning"></i> Verify Trial Students</a></li>
-              <li><a href="<?= base_url('admin/league-registration') ?>" class="text-light text-decoration-none"><i class="fas fa-trophy text-info"></i> League Registrations</a></li>
-              <li><a href="<?= base_url('admin/grades/assign') ?>" class="text-light text-decoration-none"><i class="fas fa-graduation-cap text-primary"></i> Assign Grades</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/trial-registration') ?>" class="text-light text-decoration-none"><i class="fas fa-user-plus text-success"></i> Manage Trial Registrations</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/trial-registration/verification') ?>" class="text-light text-decoration-none"><i class="fas fa-user-check text-warning"></i> Verify Trial Students</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/league-registration') ?>" class="text-light text-decoration-none"><i class="fas fa-trophy text-info"></i> League Registrations</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/grades/assign') ?>" class="text-light text-decoration-none"><i class="fas fa-graduation-cap text-primary"></i> Assign Grades</a></li>
             </ul>
           </div>
           <div class="col-md-6">
             <h6 class="text-warning mb-3">Financial Management</h6>
             <ul class="list-unstyled">
-              <li><a href="<?= base_url('admin/trial/payment-tracking') ?>" class="text-light text-decoration-none"><i class="fas fa-credit-card text-success"></i> Payment Tracking</a></li>
-              <li><a href="<?= base_url('admin/payments/collections') ?>" class="text-light text-decoration-none"><i class="fas fa-money-bill-wave text-warning"></i> Collections Report</a></li>
-              <li><a href="<?= base_url('admin/payments/pending') ?>" class="text-light text-decoration-none"><i class="fas fa-exclamation-triangle text-danger"></i> Pending Payments</a></li>
-              <li><a href="<?= base_url('admin/financial/reports') ?>" class="text-light text-decoration-none"><i class="fas fa-chart-bar text-info"></i> Financial Reports</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/trial-registration/payment-tracking') ?>" class="text-light text-decoration-none"><i class="fas fa-credit-card text-success"></i> Payment Tracking</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/teams') ?>" class="text-light text-decoration-none"><i class="fas fa-users text-warning"></i> Team Management</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/tournaments') ?>" class="text-light text-decoration-none"><i class="fas fa-trophy text-danger"></i> Tournament Management</a></li>
+              <li class="mb-2"><a href="<?= base_url('admin/otp-settings') ?>" class="text-light text-decoration-none"><i class="fas fa-shield-alt text-info"></i> OTP Settings</a></li>
             </ul>
           </div>
         </div>
