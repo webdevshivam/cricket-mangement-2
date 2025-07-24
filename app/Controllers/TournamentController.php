@@ -11,6 +11,14 @@ use Exception;
 
 class TournamentController extends BaseController
 {
+    public function __construct()
+    {
+        $this->tournamentModel = new TournamentModel();
+        $this->tournamentMatchModel = new TournamentMatchModel();
+        $this->teamModel = new TeamModel();
+        helper('form');
+    }
+
     public function index()
     {
         $tournamentModel = new TournamentModel();
