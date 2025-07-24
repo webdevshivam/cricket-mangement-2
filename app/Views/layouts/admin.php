@@ -169,7 +169,15 @@
           </a>
           <ul class="collapse list-unstyled" id="admin-submenu">
             <li><a href="<?= base_url('admin/manage-admins') ?>" class="nav-link">Manage Admins</a></li>
-            <li><a href="<?= base_url('admin/otp-settings') ?>" class="nav-link">OTP Settings</a></li>
+            <li><a class="nav-link" href="<?= base_url('admin/otp-settings') ?>">
+                            <i class="fas fa-shield-alt me-2"></i>OTP Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= base_url('admin/tournaments') ?>">
+                            <i class="fas fa-trophy me-2"></i>Tournaments
+                        </a>
+                    </li>
             <li><a href="<?= base_url('admin/branding') ?>" class="nav-link">Site Branding</a></li>
             <li><a href="<?= base_url('admin/api-settings') ?>" class="nav-link">API Key Settings</a></li>
             <li><a href="<?= base_url('admin/change-password') ?>" class="nav-link">Change Password</a></li>

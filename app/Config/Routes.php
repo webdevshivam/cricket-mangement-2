@@ -102,6 +102,14 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->post('teams/add-player', 'TeamController::addPlayer');
     $routes->post('teams/remove-player', 'TeamController::removePlayer');
     $routes->post('teams/set-captain', 'TeamController::setCaptain');
+
+    // Tournament Management Routes
+    $routes->get('tournaments', 'TournamentController::index');
+    $routes->get('tournaments/create', 'TournamentController::create');
+    $routes->post('tournaments/store', 'TournamentController::store');
+    $routes->get('tournaments/manage/(:num)', 'TournamentController::manage/$1');
+    $routes->get('tournaments/bracket/(:num)', 'TournamentController::bracket/$1');
+    $routes->post('tournaments/update-match', 'TournamentController::updateMatch');
   // Trial Registration Routes
   $routes->post('trial-registration/update-payment-status', 'TrialRegistrationController::updatePaymentStatus');
   $routes->post('trial-registration/bulk-update-payment-status', 'TrialRegistrationController::bulkUpdatePaymentStatus');
