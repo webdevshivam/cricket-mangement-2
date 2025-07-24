@@ -20,23 +20,35 @@ class LoginController extends BaseController
 
         // Validate input
         $rules = [
-            'identity' => 'required',
-            'password' => 'required'
+            'identity' => 'required|min_length[3]',
+            'password' => 'required|min_length[6]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'All fields are required.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = implode(' ', $errors);
+            return redirect()->to('/login')->withInput()->with('error', $errorMessage);
         }
 
-        $identity = $this->request->getPost('identity');
+        $identity = trim($this->request->getPost('identity'));
         $password = $this->request->getPost('password');
+
+        // Basic input sanitization
+        if (empty($identity) || empty($password)) {
+            return redirect()->to('/login')->withInput()->with('error', 'Please enter both email/mobile and password.');
+        }
 
         $userModel = new UserModel();
 
-        // Search by email or mobile
-        $user = $userModel->where('email', $identity)
-            ->orWhere('mobile', $identity)
-            ->first();
+        try {
+            // Search by email or mobile
+            $user = $userModel->where('email', $identity)
+                ->orWhere('mobile', $identity)
+                ->first();
+        } catch (\Exception $e) {
+            log_message('error', 'Database error during login: ' . $e->getMessage());
+            return redirect()->to('/login')->with('error', 'System error. Please try again later.');
+        }
 
         if ($user && password_verify($password, $user['password'])) {
             // Set session
@@ -61,7 +73,7 @@ class LoginController extends BaseController
                     return redirect()->to('/');
             }
         } else {
-            return redirect()->back()->with('error', 'Invalid credentials.');
+            return redirect()->to('/login')->withInput()->with('error', 'Invalid email/mobile or password. Please try again.');
         }
     }
     public function logout()

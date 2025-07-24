@@ -39,9 +39,9 @@
               <p class="text-muted">Sign in to your dashboard</p>
             </div>
             <?php if (session()->getFlashdata('error')): ?>
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-times-circle me-2"></i>
-                <strong>Error!</strong> <?= esc(session()->getFlashdata('error')) ?>
+              <div class="alert alert-danger alert-dismissible fade show animate__animated animate__shakeX" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Login Failed!</strong> <?= esc(session()->getFlashdata('error')) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
             <?php endif; ?>
