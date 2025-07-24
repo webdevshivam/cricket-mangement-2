@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -35,7 +34,6 @@ class Home extends BaseController
             $data['leaguePlayers'] = $leaguePlayerModel->countAll() ?: 0;
             $data['totalRevenue'] = $this->calculateTotalRevenue();
             $data['todayRevenue'] = $this->calculateTodayRevenue();
-
         } catch (\Exception $e) {
             $data['success'] = false;
             $data['error'] = $e->getMessage();
@@ -65,7 +63,7 @@ class Home extends BaseController
 
         // Revenue calculation (excluding T-shirt fees for partial payments)
         $totalRevenue = $trialPlayerModel->select('
-            SUM(CASE 
+            SUM(CASE
                 WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
                 WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
                 WHEN payment_status = "partial" THEN 0
@@ -74,15 +72,15 @@ class Home extends BaseController
         ')->first();
 
         $todayRevenue = $trialPlayerModel->select('
-            SUM(CASE 
+            SUM(CASE
                 WHEN cricket_type IN ("bowler", "batsman") AND payment_status = "full" THEN 999
                 WHEN cricket_type IN ("all-rounder", "wicket-keeper") AND payment_status = "full" THEN 1199
                 WHEN payment_status = "partial" THEN 0
                 ELSE 0
             END) as today_trial_revenue
         ')->where('DATE(verified_at)', date('Y-m-d'))
-          ->where('payment_status !=', 'no_payment')
-          ->first();
+            ->where('payment_status !=', 'no_payment')
+            ->first();
 
         $data['total_revenue'] = $totalRevenue['total_trial_revenue'] ?? 0;
         $data['today_revenue'] = $todayRevenue['today_trial_revenue'] ?? 0;
@@ -118,10 +116,10 @@ class Home extends BaseController
 
         if ($search) {
             $builder->groupStart()
-                    ->like('trial_players.name', $search)
-                    ->orLike('trial_players.mobile', $search)
-                    ->orLike('trial_players.email', $search)
-                    ->groupEnd();
+                ->like('trial_players.name', $search)
+                ->orLike('trial_players.mobile', $search)
+                ->orLike('trial_players.email', $search)
+                ->groupEnd();
         }
 
         if ($paymentStatus && $paymentStatus !== 'all') {
@@ -164,21 +162,21 @@ class Home extends BaseController
 
             // Try multiple table possibilities
             $queries = [
-                "SELECT COALESCE(SUM(CASE 
-                    WHEN payment_status = 'paid' OR payment_status = 'full' THEN 500 
-                    WHEN payment_status = 'partial' THEN 250 
-                    ELSE 0 
-                END), 0) as total 
+                "SELECT COALESCE(SUM(CASE
+                    WHEN payment_status = 'paid' OR payment_status = 'full' THEN 500
+                    WHEN payment_status = 'partial' THEN 250
+                    ELSE 0
+                END), 0) as total
                 FROM trial_players",
 
-                "SELECT COALESCE(SUM(CASE 
-                    WHEN payment_status = 'paid' THEN 1000 
-                    ELSE 0 
-                END), 0) as total 
+                "SELECT COALESCE(SUM(CASE
+                    WHEN payment_status = 'paid' THEN 1000
+                    ELSE 0
+                END), 0) as total
                 FROM league_players",
 
-                "SELECT COALESCE(COUNT(*) * 500, 0) as total 
-                FROM players 
+                "SELECT COALESCE(COUNT(*) * 500, 0) as total
+                FROM players
                 WHERE payment_status = 'paid'"
             ];
 
@@ -209,14 +207,14 @@ class Home extends BaseController
 
             // Get today's revenue from multiple sources
             $queries = [
-                "SELECT COALESCE(COUNT(*) * 500, 0) as total 
-                FROM trial_players 
-                WHERE DATE(created_at) = CURDATE() 
+                "SELECT COALESCE(COUNT(*) * 500, 0) as total
+                FROM trial_players
+                WHERE DATE(created_at) = CURDATE()
                 AND payment_status = 'paid'",
 
-                "SELECT COALESCE(COUNT(*) * 1000, 0) as total 
-                FROM league_players 
-                WHERE DATE(created_at) = CURDATE() 
+                "SELECT COALESCE(COUNT(*) * 1000, 0) as total
+                FROM league_players
+                WHERE DATE(created_at) = CURDATE()
                 AND payment_status = 'paid'"
             ];
 
@@ -380,14 +378,14 @@ class Home extends BaseController
             // Get recent trial registrations
             try {
                 $query = $db->query("
-                    SELECT 
+                    SELECT
                         CONCAT('New trial registration: ', name) as description,
                         'fas fa-user-plus' as icon,
                         created_at,
                         'success' as type
-                    FROM trial_players 
+                    FROM trial_players
                     WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-                    ORDER BY created_at DESC 
+                    ORDER BY created_at DESC
                     LIMIT 5
                 ");
                 $activities = array_merge($activities, $query->getResultArray());
@@ -398,14 +396,14 @@ class Home extends BaseController
             // Get recent league registrations
             try {
                 $query = $db->query("
-                    SELECT 
+                    SELECT
                         CONCAT('League registration: ', name) as description,
                         'fas fa-trophy' as icon,
                         created_at,
                         'info' as type
-                    FROM league_players 
+                    FROM league_players
                     WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-                    ORDER BY created_at DESC 
+                    ORDER BY created_at DESC
                     LIMIT 5
                 ");
                 $activities = array_merge($activities, $query->getResultArray());
@@ -416,15 +414,15 @@ class Home extends BaseController
             // Get recent payments
             try {
                 $query = $db->query("
-                    SELECT 
+                    SELECT
                         'Payment received' as description,
                         'fas fa-credit-card' as icon,
                         updated_at as created_at,
                         'warning' as type
-                    FROM trial_players 
-                    WHERE payment_status = 'paid' 
+                    FROM trial_players
+                    WHERE payment_status = 'paid'
                     AND updated_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-                    ORDER BY updated_at DESC 
+                    ORDER BY updated_at DESC
                     LIMIT 3
                 ");
                 $activities = array_merge($activities, $query->getResultArray());
@@ -433,12 +431,11 @@ class Home extends BaseController
             }
 
             // Sort all activities by date and limit
-            usort($activities, function($a, $b) {
+            usort($activities, function ($a, $b) {
                 return strtotime($b['created_at']) - strtotime($a['created_at']);
             });
 
             return array_slice($activities, 0, 10);
-
         } catch (\Exception $e) {
             return [
                 [
@@ -496,10 +493,10 @@ class Home extends BaseController
             try {
                 $db = \Config\Database::connect();
                 $query = $db->query("
-                    SELECT COUNT(*) as count 
+                    SELECT COUNT(*) as count
                     FROM trial_players tp
                     LEFT JOIN grade_assignments ga ON tp.id = ga.student_id
-                    WHERE tp.verified_at IS NOT NULL 
+                    WHERE tp.verified_at IS NOT NULL
                     AND ga.id IS NULL
                 ");
                 $unassignedGrades = $query->getRow()->count ?? 0;
@@ -527,7 +524,6 @@ class Home extends BaseController
                     'icon' => 'fas fa-check-circle'
                 ];
             }
-
         } catch (\Exception $e) {
             log_message('error', 'Error getting pending tasks: ' . $e->getMessage());
         }
