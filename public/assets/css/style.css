@@ -778,6 +778,11 @@ body {
   color: var(--danger-color);
 }
 
+/* Text Styles for Dark Backgrounds */
+p {
+  color: #ffffff;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
