@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Controllers;
@@ -94,44 +95,11 @@ class Home extends BaseController
         $data['totalRevenue'] = $this->calculateTotalRevenue();
         $data['todayRevenue'] = $this->calculateTodayRevenue();
 
-        // Recent activities and pending tasks (dummy data for now)
+        // Recent activities and pending tasks
         $data['recentActivities'] = $this->getRecentActivities();
         $data['pendingTasks'] = $this->getPendingTasks();
 
         return view('admin/dashboard', $data);
-    }
-
-    private function getNewPlayersThisWeek()
-    {
-        $trialPlayerModel = new \App\Models\TrialPlayerModel();
-        $leaguePlayerModel = new \App\Models\LeaguePlayerModel();
-
-        $weekAgo = date('Y-m-d', strtotime('-7 days'));
-
-        $trialCount = $trialPlayerModel->where('DATE(created_at) >=', $weekAgo)->countAllResults();
-        $leagueCount = $leaguePlayerModel->where('DATE(created_at) >=', $weekAgo)->countAllResults();
-
-        return $trialCount + $leagueCount;
-    }
-
-    
-
-    private function getPendingTasks()
-    {
-        return [
-            [
-                'title' => 'Verify Trial Players',
-                'description' => 'Review pending trial registrations',
-                'priority' => 'high',
-                'action_url' => base_url('admin/trial-registration')
-            ],
-            [
-                'title' => 'Process Payments',
-                'description' => 'Update payment statuses',
-                'priority' => 'medium',
-                'action_url' => base_url('admin/trial-registration/payment-tracking')
-            ]
-        ];
     }
 
     public function trialPlayers()
@@ -174,6 +142,19 @@ class Home extends BaseController
         $data['trial_city'] = $trialCity;
 
         return view('admin/trial/players', $data);
+    }
+
+    private function getNewPlayersThisWeek()
+    {
+        $trialPlayerModel = new \App\Models\TrialPlayerModel();
+        $leaguePlayerModel = new \App\Models\LeaguePlayerModel();
+
+        $weekAgo = date('Y-m-d', strtotime('-7 days'));
+
+        $trialCount = $trialPlayerModel->where('DATE(created_at) >=', $weekAgo)->countAllResults();
+        $leagueCount = $leaguePlayerModel->where('DATE(created_at) >=', $weekAgo)->countAllResults();
+
+        return $trialCount + $leagueCount;
     }
 
     private function calculateTotalRevenue()
@@ -389,8 +370,6 @@ class Home extends BaseController
             return 0;
         }
     }
-
-    
 
     private function getRecentActivities()
     {
