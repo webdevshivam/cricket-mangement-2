@@ -1,7 +1,3 @@
-The code is updated to include methods for calculating new players this week, recent activities, and pending tasks, and these data are passed to the dashboard view.
-```
-
-```php
 <?php
 
 namespace App\Controllers;
