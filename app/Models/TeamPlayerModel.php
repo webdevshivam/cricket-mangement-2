@@ -34,7 +34,7 @@ class TeamPlayerModel extends Model
     protected $validationRules = [
         'team_id' => 'required|integer',
         'player_id' => 'required|integer',
-        'player_type' => 'in_list[league,trial]',
+        'player_type' => 'in_list[league]',
         'jersey_number' => 'permit_empty|integer|greater_than[0]|less_than[100]'
     ];
     protected $validationMessages   = [];
@@ -58,35 +58,23 @@ class TeamPlayerModel extends Model
                              league_players.name as league_name, 
                              league_players.email as league_email,
                              league_players.mobile as league_mobile,
-                             league_players.cricketer_type as league_type,
-                             trial_players.name as trial_name,
-                             trial_players.email as trial_email,
-                             trial_players.mobile as trial_mobile,
-                             trial_players.cricketer_type as trial_type')
-                    ->join('league_players', 'league_players.id = team_players.player_id AND team_players.player_type = "league"', 'left')
-                    ->join('trial_players', 'trial_players.id = team_players.player_id AND team_players.player_type = "trial"', 'left')
+                             league_players.cricketer_type as league_type')
+                    ->join('league_players', 'league_players.id = team_players.player_id', 'left')
                     ->where('team_players.team_id', $teamId)
+                    ->where('team_players.player_type', 'league')
                     ->orderBy('team_players.jersey_number', 'ASC')
                     ->findAll();
     }
 
     public function getAvailablePlayers($teamId = null)
     {
-        $assignedPlayerIds = $this->select('player_id, player_type')->findAll();
+        $assignedPlayerIds = $this->select('player_id')
+                                 ->where('player_type', 'league')
+                                 ->findAll();
         
-        $assignedLeague = [];
-        $assignedTrial = [];
-        
-        foreach ($assignedPlayerIds as $assigned) {
-            if ($assigned['player_type'] === 'league') {
-                $assignedLeague[] = $assigned['player_id'];
-            } else {
-                $assignedTrial[] = $assigned['player_id'];
-            }
-        }
+        $assignedLeague = array_column($assignedPlayerIds, 'player_id');
 
         $leagueModel = new \App\Models\LeaguePlayerModel();
-        $trialModel = new \App\Models\TrialPlayerModel();
 
         $availableLeague = $leagueModel->where('payment_status', 'paid');
         if (!empty($assignedLeague)) {
@@ -94,15 +82,9 @@ class TeamPlayerModel extends Model
         }
         $leaguePlayers = $availableLeague->findAll();
 
-        $availableTrial = $trialModel->where('payment_status', 'paid');
-        if (!empty($assignedTrial)) {
-            $availableTrial->whereNotIn('id', $assignedTrial);
-        }
-        $trialPlayers = $availableTrial->findAll();
-
         return [
             'league' => $leaguePlayers,
-            'trial' => $trialPlayers
+            'trial' => []
         ];
     }
 }

@@ -97,7 +97,7 @@ class TeamController extends BaseController
 
             // Check if player is already assigned to another team
             $existingAssignment = $teamPlayerModel->where('player_id', $data['player_id'])
-                                                  ->where('player_type', $data['player_type'])
+                                                  ->where('player_type', 'league')
                                                   ->first();
             if ($existingAssignment) {
                 return $this->response->setJSON([
@@ -109,7 +109,7 @@ class TeamController extends BaseController
             $insertData = [
                 'team_id' => $data['team_id'],
                 'player_id' => $data['player_id'],
-                'player_type' => $data['player_type'],
+                'player_type' => 'league',
                 'position' => $data['position'] ?? null,
                 'jersey_number' => $data['jersey_number'] ?? null
             ];

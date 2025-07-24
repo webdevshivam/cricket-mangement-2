@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin'); ?>
 <?= $this->section('content'); ?>
 
@@ -185,7 +184,7 @@
             <div class="modal-body">
                 <div class="row">
                     <!-- League Players -->
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h6 class="text-success mb-3">
                             <i class="fas fa-trophy me-2"></i>League Players
                         </h6>
@@ -213,34 +212,7 @@
                         </div>
                     </div>
 
-                    <!-- Trial Players -->
-                    <div class="col-md-6">
-                        <h6 class="text-info mb-3">
-                            <i class="fas fa-running me-2"></i>Trial Players
-                        </h6>
-                        <div class="available-players-list" style="max-height: 400px; overflow-y: auto;">
-                            <?php if (empty($availablePlayers['trial'])): ?>
-                                <p class="text-muted">No available trial players</p>
-                            <?php else: ?>
-                                <?php foreach ($availablePlayers['trial'] as $player): ?>
-                                    <div class="player-card mb-2 p-2 border border-secondary rounded">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong><?= esc($player['name']) ?></strong><br>
-                                                <small class="text-muted">
-                                                    <?= esc($player['mobile']) ?> | <?= esc($player['cricketer_type']) ?>
-                                                </small>
-                                            </div>
-                                            <button class="btn btn-info btn-sm" 
-                                                    onclick="addPlayerToTeam(<?= $team['id'] ?>, <?= $player['id'] ?>, 'trial', '<?= esc($player['name']) ?>')">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
