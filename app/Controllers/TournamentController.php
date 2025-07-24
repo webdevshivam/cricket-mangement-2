@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -43,7 +42,7 @@ class TournamentController extends BaseController
         }
 
         $tournamentModel = new TournamentModel();
-        
+
         $data = [
             'name' => $this->request->getPost('name'),
             'description' => $this->request->getPost('description'),
@@ -55,7 +54,7 @@ class TournamentController extends BaseController
 
         if ($tournamentModel->insert($data)) {
             $tournamentId = $tournamentModel->getInsertID();
-            
+
             // If it's a knockout tournament, generate initial matches
             if ($this->request->getPost('type') === 'knockout') {
                 $this->generateKnockoutMatches($tournamentId);
@@ -145,7 +144,7 @@ class TournamentController extends BaseController
 
         // Get all active teams (16 teams)
         $teams = $teamModel->where('status !=', 'inactive')->findAll(16);
-        
+
         if (count($teams) < 16) {
             return false;
         }
@@ -181,14 +180,14 @@ class TournamentController extends BaseController
             ->findAll();
 
         // Check if all matches in current round are completed
-        $completedMatches = array_filter($currentRoundMatches, function($match) {
+        $completedMatches = array_filter($currentRoundMatches, function ($match) {
             return $match['status'] === 'completed' && !empty($match['winner_team_id']);
         });
 
         if (count($completedMatches) === count($currentRoundMatches)) {
             // Get winners for next round
             $winners = $tournamentMatchModel->getRoundWinners($tournamentId, $currentRound);
-            
+
             if (count($winners) === 1) {
                 // Tournament is complete
                 $tournamentModel->update($tournamentId, [
