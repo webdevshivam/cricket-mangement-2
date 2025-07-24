@@ -114,26 +114,7 @@ class Home extends BaseController
         return $trialCount + $leagueCount;
     }
 
-    private function getRecentActivities()
-    {
-        return [
-            [
-                'description' => 'New trial registration - John Doe',
-                'icon' => 'fas fa-user-plus',
-                'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours'))
-            ],
-            [
-                'description' => 'Payment received - ₹500',
-                'icon' => 'fas fa-money-bill-wave',
-                'created_at' => date('Y-m-d H:i:s', strtotime('-3 hours'))
-            ],
-            [
-                'description' => 'League registration completed',
-                'icon' => 'fas fa-trophy',
-                'created_at' => date('Y-m-d H:i:s', strtotime('-5 hours'))
-            ]
-        ];
-    }
+    
 
     private function getPendingTasks()
     {
