@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -35,18 +34,18 @@ class ApiSettingController extends BaseController
             'openweather_enabled' => $this->request->getPost('openweather_enabled') ? 1 : 0,
             'openweather_api_key' => $this->request->getPost('openweather_api_key') ?: '',
             'openweather_api_url' => $this->request->getPost('openweather_api_url') ?: 'https://api.openweathermap.org/data/2.5',
-            
+
             // Razorpay Settings
             'razorpay_enabled' => $this->request->getPost('razorpay_enabled') ? 1 : 0,
             'razorpay_key_id' => $this->request->getPost('razorpay_key_id') ?: '',
             'razorpay_key_secret' => $this->request->getPost('razorpay_key_secret') ?: '',
-            
+
             // SMS Settings
             'sms_enabled' => $this->request->getPost('sms_enabled') ? 1 : 0,
             'sms_api_key' => $this->request->getPost('sms_api_key') ?: '',
             'sms_api_secret' => $this->request->getPost('sms_api_secret') ?: '',
             'sms_api_url' => $this->request->getPost('sms_api_url') ?: '',
-            
+
             // Email Settings
             'email_enabled' => $this->request->getPost('email_enabled') ? 1 : 0,
             'email_host' => $this->request->getPost('email_host') ?: 'smtp.gmail.com',
@@ -74,7 +73,7 @@ class ApiSettingController extends BaseController
 
         $userModel = new UserModel();
         $userId = session()->get('user_id');
-        
+
         $currentPassword = $this->request->getPost('current_password');
         $newPassword = $this->request->getPost('new_password');
         $confirmPassword = $this->request->getPost('confirm_password');
