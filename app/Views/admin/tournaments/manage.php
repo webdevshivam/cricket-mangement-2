@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin'); ?>
 <?= $this->section('content'); ?>
 
@@ -131,7 +130,7 @@
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                    
+
                                     <?php if ($match['status'] !== 'completed'): ?>
                                         <div class="text-center mt-3">
                                             <div class="btn-group" role="group">
@@ -181,7 +180,7 @@
             <div class="modal-body">
                 <form id="createMatchForm">
                     <input type="hidden" id="tournamentId" name="tournament_id" value="<?= $tournament['id'] ?>">
-                    
+
                     <div class="mb-3">
                         <label for="roundNumber" class="form-label text-light">Round Number</label>
                         <input type="number" class="form-control bg-dark text-light border-secondary" 
@@ -236,7 +235,7 @@
             <div class="modal-body">
                 <form id="matchResultForm">
                     <input type="hidden" id="matchId" name="match_id">
-                    
+
                     <div class="mb-3">
                         <label class="form-label text-light">Select Winner</label>
                         <div class="d-grid gap-2">
@@ -312,25 +311,25 @@ let currentMatch = null;
 function openMatchModal(match) {
     currentMatch = match;
     selectedWinnerId = null;
-    
+
     document.getElementById('matchId').value = match.id;
     document.getElementById('team1Score').value = match.team1_score || '';
     document.getElementById('team2Score').value = match.team2_score || '';
     document.getElementById('notes').value = match.notes || '';
-    
+
     // Set up team buttons
     const teamBtns = document.querySelectorAll('.team-btn');
     teamBtns[0].setAttribute('data-team-id', match.team1_id);
     teamBtns[0].setAttribute('data-team-name', match.team1_name);
     teamBtns[0].querySelector('.team-name').textContent = match.team1_name;
-    
+
     teamBtns[1].setAttribute('data-team-id', match.team2_id);
     teamBtns[1].setAttribute('data-team-name', match.team2_name);
     teamBtns[1].querySelector('.team-name').textContent = match.team2_name;
-    
+
     // Reset button states
     teamBtns.forEach(btn => btn.classList.remove('selected'));
-    
+
     // Add click handlers
     teamBtns.forEach(btn => {
         btn.onclick = function() {
@@ -339,7 +338,7 @@ function openMatchModal(match) {
             selectedWinnerId = this.getAttribute('data-team-id');
         };
     });
-    
+
     new bootstrap.Modal(document.getElementById('matchModal')).show();
 }
 
@@ -348,7 +347,7 @@ function saveMatchResult() {
         showError('Please select a winner');
         return;
     }
-    
+
     const formData = {
         match_id: document.getElementById('matchId').value,
         winner_team_id: selectedWinnerId,
@@ -356,7 +355,7 @@ function saveMatchResult() {
         team2_score: document.getElementById('team2Score').value,
         notes: document.getElementById('notes').value
     };
-    
+
     fetch('<?= base_url('admin/tournaments/update-match') ?>', {
         method: 'POST',
         headers: {
@@ -380,7 +379,7 @@ function saveMatchResult() {
         console.error('Error:', error);
         showError('An error occurred while saving the match result');
     });
-    
+
     bootstrap.Modal.getInstance(document.getElementById('matchModal')).hide();
 }
 
@@ -396,20 +395,20 @@ function openCreateMatchModal() {
 function createMatch() {
     const form = document.getElementById('createMatchForm');
     const formData = new FormData(form);
-    
+
     const team1Id = formData.get('team1_id');
     const team2Id = formData.get('team2_id');
-    
+
     if (!team1Id || !team2Id) {
         showError('Please select both teams');
         return;
     }
-    
+
     if (team1Id === team2Id) {
         showError('A team cannot play against itself');
         return;
     }
-    
+
     const data = {
         tournament_id: formData.get('tournament_id'),
         round_number: parseInt(formData.get('round_number')),
@@ -417,7 +416,7 @@ function createMatch() {
         team2_id: parseInt(team2Id),
         match_date: formData.get('match_date') || null
     };
-    
+
     fetch('<?= base_url('admin/tournaments/create-match') ?>', {
         method: 'POST',
         headers: {
@@ -441,7 +440,7 @@ function createMatch() {
         console.error('Error:', error);
         showError('An error occurred while creating the match');
     });
-    
+
     bootstrap.Modal.getInstance(document.getElementById('createMatchModal')).hide();
 }
 
@@ -449,7 +448,7 @@ function deleteMatch(matchId) {
     if (!confirm('Are you sure you want to delete this match?')) {
         return;
     }
-    
+
     fetch('<?= base_url('admin/tournaments/delete-match') ?>', {
         method: 'POST',
         headers: {
@@ -461,23 +460,55 @@ function deleteMatch(matchId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showSuccess(data.message);
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
+
+            // Reload page after showing message
             setTimeout(() => {
                 location.reload();
-            }, 1000);
+            }, 1500);
         } else {
-            showError(data.message);
+            // Show error message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showError('An error occurred while deleting the match');
+        // Show network error message
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-danger alert-dismissible fade show';
+        alert.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            An error occurred while deleting the match. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
     });
 }
 
 function showError(message) {
-    // You can implement toast notifications here
-    alert('Error: ' + message);
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show';
+    alert.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
 }
 </script>
 
