@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -36,8 +35,8 @@ class TrialStatusController extends BaseController
 
         // Get assigned grade if exists (for trial players, use trial_player_id)
         $gradeAssignment = $gradeAssignModel->where('trial_player_id', $player['id'])
-                                           ->where('status', 'active')
-                                           ->first();
+            ->where('status', 'active')
+            ->first();
 
         $data['player'] = $player;
         $data['grade'] = null;
