@@ -384,8 +384,11 @@ function saveMatchResult() {
 }
 
 function showSuccess(message) {
-    // You can implement toast notifications here
-    alert('Success: ' + message);
+    if (typeof notyf !== 'undefined') {
+        notyf.success(message);
+    } else {
+        alert('Success: ' + message);
+    }
 }
 
 function openCreateMatchModal() {
@@ -460,55 +463,27 @@ function deleteMatch(matchId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success message
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success alert-dismissible fade show';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle me-2"></i>
-                ${data.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
-
+            showSuccess(data.message);
             // Reload page after showing message
             setTimeout(() => {
                 location.reload();
             }, 1500);
         } else {
-            // Show error message
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-danger alert-dismissible fade show';
-            alert.innerHTML = `
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                ${data.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
+            showError(data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        // Show network error message
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-danger alert-dismissible fade show';
-        alert.innerHTML = `
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            An error occurred while deleting the match. Please try again.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
+        showError('An error occurred while deleting the match. Please try again.');
     });
 }
 
 function showError(message) {
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-danger alert-dismissible fade show';
-    alert.innerHTML = `
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.card'));
+    if (typeof notyf !== 'undefined') {
+        notyf.error(message);
+    } else {
+        alert('Error: ' + message);
+    }
 }
 </script>
 
