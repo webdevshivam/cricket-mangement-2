@@ -71,11 +71,23 @@ class GradeController extends BaseController
     {
         $trialPlayerModel = new \App\Models\TrialPlayerModel();
         $gradeModel = new GradeModel();
+        $gradeAssignModel = new GradeAssignModel();
 
-        // Get only verified trial players (full payment completed)
-        $data['players'] = $trialPlayerModel->where('payment_status', 'full')
-                                           ->where('verified_at IS NOT NULL')
-                                           ->findAll();
+        // Get players who already have grade assignments
+        $assignedPlayerIds = $gradeAssignModel->select('trial_player_id')
+                                             ->where('status', 'active')
+                                             ->where('trial_player_id IS NOT NULL')
+                                             ->findColumn('trial_player_id');
+
+        // Get only verified trial players (full payment completed) who don't have grade assignments
+        $playersQuery = $trialPlayerModel->where('payment_status', 'full')
+                                        ->where('verified_at IS NOT NULL');
+        
+        if (!empty($assignedPlayerIds)) {
+            $playersQuery->whereNotIn('id', $assignedPlayerIds);
+        }
+        
+        $data['players'] = $playersQuery->findAll();
         $data['grades'] = $gradeModel->where('status', 'active')->findAll();
 
         return view('admin/grades/assign', $data);
