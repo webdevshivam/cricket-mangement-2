@@ -29,28 +29,68 @@ class TrialCityController extends BaseController
      */
     public function getWeatherAnalysis()
     {
-        $cityName = $this->request->getPost('city_name');
-        $trialDate = $this->request->getPost('trial_date');
-        
-        if (!$cityName || !$trialDate) {
+        try {
+            $cityName = $this->request->getPost('city_name');
+            $trialDate = $this->request->getPost('trial_date');
+            
+            if (!$cityName || !$trialDate) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'error' => 'City name and trial date are required'
+                ]);
+            }
+            
+            $weatherService = new WeatherService();
+            
+            // Get weather forecast
+            $weatherData = $weatherService->getWeatherForecast($cityName, $trialDate);
+            
+            if (!$weatherData) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'error' => 'Failed to fetch weather data. Please check your API key configuration.'
+                ]);
+            }
+            
+            // Get AI analysis and recommendations
+            $analysis = $weatherService->analyzeWeatherForTrial($weatherData, $trialDate);
+            
             return $this->response->setJSON([
-                'error' => 'City name and trial date are required'
+                'success' => true,
+                'weather' => $weatherData,
+                'analysis' => $analysis
+            ]);
+            
+        } catch (Exception $e) {
+            log_message('error', 'Weather Analysis Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Weather service temporarily unavailable. Using default analysis.',
+                'weather' => $this->getDefaultWeatherData($cityName ?? 'Unknown'),
+                'analysis' => $this->getDefaultAnalysis()
             ]);
         }
-        
-        $weatherService = new WeatherService();
-        
-        // Get weather forecast
-        $weatherData = $weatherService->getWeatherForecast($cityName, $trialDate);
-        
-        // Get AI analysis and recommendations
-        $analysis = $weatherService->analyzeWeatherForTrial($weatherData, $trialDate);
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'weather' => $weatherData,
-            'analysis' => $analysis
-        ]);
+    }
+    
+    private function getDefaultWeatherData($cityName)
+    {
+        return [
+            'temperature' => 25,
+            'humidity' => 60,
+            'description' => 'moderate weather',
+            'main' => 'Clear',
+            'city' => $cityName
+        ];
+    }
+    
+    private function getDefaultAnalysis()
+    {
+        return [
+            'risk_level' => 'medium',
+            'should_delay' => false,
+            'overall_advice' => '⚠️ Weather data unavailable. Please check conditions manually.',
+            'recommendations' => ['Weather service unavailable. Please verify local conditions before proceeding.']
+        ];
     }
     public function save()
     {

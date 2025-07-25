@@ -16,6 +16,11 @@ class WeatherService
         $this->client = new Client();
         // Using OpenWeatherMap free API - you can get free API key from openweathermap.org
         $this->apiKey = getenv('OPENWEATHER_API_KEY') ?: 'demo_key'; // Replace with actual API key
+        
+        // Log API key status for debugging
+        if ($this->apiKey === 'demo_key' || $this->apiKey === 'your_actual_api_key_here') {
+            log_message('warning', 'OpenWeather API key not configured properly');
+        }
     }
     
     /**
@@ -50,6 +55,7 @@ class WeatherService
             }
             
         } catch (Exception $e) {
+            log_message('error', 'Weather API Error: ' . $e->getMessage());
             // Return default analysis if API fails
             return $this->getDefaultWeatherAnalysis($cityName, $trialDate);
         }
