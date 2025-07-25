@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -28,7 +27,7 @@ class ChangePasswordController extends BaseController
 
         $userModel = new UserModel();
         $userId = session()->get('user_id');
-        
+
         $currentPassword = $this->request->getPost('current_password');
         $newPassword = $this->request->getPost('new_password');
         $confirmPassword = $this->request->getPost('confirm_password');
@@ -59,7 +58,7 @@ class ChangePasswordController extends BaseController
 
         // Update password
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        
+
         if ($userModel->update($userId, ['password' => $hashedPassword])) {
             return redirect()->to('/admin/change-password')->with('success', 'Password changed successfully!');
         } else {
