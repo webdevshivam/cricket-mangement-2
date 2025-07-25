@@ -50,6 +50,7 @@ $routes->group('/admin/manage-trial-cities', ['filter' => 'role:admin'], functio
   $routes->get('/', 'TrialCityController::index');
   $routes->get('add', 'TrialCityController::create');
   $routes->post('save', 'TrialCityController::save');
+  $routes->post('weather-analysis', 'TrialCityController::getWeatherAnalysis');
   $routes->get('edit/(:num)', 'TrialCityController::edit/$1');
   $routes->post('update/(:num)', 'TrialCityController::update/$1');
   $routes->get('delete/(:num)', 'TrialCityController::delete/$1');
