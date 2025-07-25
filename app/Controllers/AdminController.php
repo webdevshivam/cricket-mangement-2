@@ -19,7 +19,12 @@ class AdminController extends BaseController
             return redirect()->to('/unauthorized');
         }
 
-        // Load the admin dashboard view
-        return view('admin/dashboard');
+        // Load the admin dashboard view with data
+        $data = [
+            'title' => 'Admin Dashboard',
+            'user_name' => session()->get('name')
+        ];
+        
+        return view('admin/dashboard', $data);
     }
 }
