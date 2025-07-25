@@ -94,7 +94,8 @@ class LoginController extends BaseController
     public function logout()
     {
         // Remove remember cookie if it exists
-        delete_cookie('admin_remember');
+        $response = service('response');
+        $response->deleteCookie('admin_remember');
         session()->destroy();
         return redirect()->to('/login');
     }
@@ -112,7 +113,8 @@ class LoginController extends BaseController
         
         $cookieValue = base64_encode(json_encode($cookieData));
         
-        set_cookie([
+        $response = service('response');
+        $response->setCookie([
             'name' => 'admin_remember',
             'value' => $cookieValue,
             'expire' => $expires,
