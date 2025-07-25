@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,21 +43,20 @@
 
         .container-fluid {
             position: relative;
-            background: 
+            background:
                 radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
                 linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0.02) 100%);
         }
 
         .status-card {
-            background: linear-gradient(145deg, 
-                rgba(26, 26, 26, 0.95) 0%, 
-                rgba(42, 42, 42, 0.9) 50%, 
-                rgba(26, 26, 26, 0.95) 100%
-            );
+            background: linear-gradient(145deg,
+                    rgba(26, 26, 26, 0.95) 0%,
+                    rgba(42, 42, 42, 0.9) 50%,
+                    rgba(26, 26, 26, 0.95) 100%);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 20px;
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(212, 175, 55, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -99,8 +98,13 @@
         }
 
         @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
         }
 
         .card-header h2 {
@@ -358,7 +362,7 @@
             background: linear-gradient(135deg, var(--light-gold) 0%, #fff5b7 100%);
             color: var(--primary-black);
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 12px 25px rgba(212, 175, 55, 0.3),
                 0 0 0 1px rgba(212, 175, 55, 0.2);
             text-decoration: none;
@@ -489,6 +493,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -507,6 +512,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5">
         <div class="row justify-content-center w-100">
@@ -584,7 +590,7 @@
                                         $statusText = '';
                                         $statusIcon = '';
 
-                                        switch($paymentStatus) {
+                                        switch ($paymentStatus) {
                                             case 'paid':
                                             case 'full':
                                                 $statusClass = 'status-paid';
@@ -626,7 +632,7 @@
                                     <i class="fas fa-award"></i>
                                 </div>
                                 <h3 class="grade-title">Congratulations!</h3>
-                                <div class="grade-name"><?= esc($grade['grade_name']) ?></div>
+                                <div class="grade-name"><?= esc($grade['title']) ?></div>
                                 <p class="text-muted mb-0">You have been successfully assigned to this grade. Check your email for further instructions.</p>
                             </div>
                         <?php else: ?>
@@ -712,4 +718,5 @@
         }
     </script>
 </body>
+
 </html>
