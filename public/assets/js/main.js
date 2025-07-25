@@ -249,21 +249,9 @@ function loadScript(src, callback) {
  * @param {jQuery} element - jQuery element
  */
 function confirmDelete(target, element) {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'This action cannot be undone!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#dc3545',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, delete it!',
-    background: '#2d2d2d',
-    color: '#ffffff',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      performDelete(target, element);
-    }
-  });
+  if (confirm('Are you sure you want to delete this item? This action cannot be undone!')) {
+    performDelete(target, element);
+  }
 }
 
 /**
@@ -305,15 +293,11 @@ function hideLoading() {
  * @param {string} message - Success message to show
  */
 function showSuccess(message) {
-  Swal.fire({
-    title: 'Success!',
-    text: message,
-    icon: 'success',
-    timer: 3000,
-    showConfirmButton: false,
-    background: '#2d2d2d',
-    color: '#ffffff',
-  });
+  if (typeof notyf !== 'undefined') {
+    notyf.success(message);
+  } else {
+    alert('Success: ' + message);
+  }
 }
 
 /**
@@ -321,14 +305,11 @@ function showSuccess(message) {
  * @param {string} message - Error message to show
  */
 function showError(message) {
-  Swal.fire({
-    title: 'Error!',
-    text: message,
-    icon: 'error',
-    confirmButtonColor: '#ffd700',
-    background: '#2d2d2d',
-    color: '#ffffff',
-  });
+  if (typeof notyf !== 'undefined') {
+    notyf.error(message);
+  } else {
+    alert('Error: ' + message);
+  }
 }
 
 /**
@@ -586,24 +567,14 @@ function logout() {
   sessionStorage.removeItem('cricketAdmin');
 
   // Show logout confirmation
-  if (typeof Swal !== 'undefined') {
-    Swal.fire({
-      title: 'Logged Out',
-      text: 'You have been successfully logged out.',
-      icon: 'success',
-      background: '#2a2a2a',
-      color: '#ffffff',
-      confirmButtonColor: '#ffd700',
-      timer: 2000,
-      timerProgressBar: true,
-    }).then(() => {
-      // Redirect to login page
-      window.location.href = 'login.html';
-    });
-  } else {
-    // Fallback without SweetAlert
-    window.location.href = 'login.html';
+  if (typeof notyf !== 'undefined') {
+    notyf.success('You have been successfully logged out.');
   }
+  
+  // Redirect to login page after a short delay
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 1000);
 }
 
 /**
