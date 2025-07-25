@@ -490,10 +490,8 @@ class TrialRegistrationController extends BaseController
         $totalCollection = $this->calculateDailyCollection($date);
 
         return [
-            'cash' => $totalCollection * 0.6, // Assume 60% cash
-            'upi' => $totalCollection * 0.3,  // Assume 30% UPI
-            'card' => $totalCollection * 0.08, // Assume 8% card
-            'online' => $totalCollection * 0.02, // Assume 2% online
+            'offline' => $totalCollection * 0.60, // Offline: Cash only (60%)
+            'online' => $totalCollection * 0.40,  // Online: UPI + Card + Bank Transfer (40%)
             'total' => $totalCollection
         ];
     }
