@@ -34,7 +34,7 @@ class PersistentLoginFilter implements FilterInterface
         }
         
         // Check for persistent login cookie for admin users
-        $remember = get_cookie('admin_remember');
+        $remember = $request->getCookie('admin_remember');
         if ($remember) {
             $userModel = new UserModel();
             
@@ -69,12 +69,14 @@ class PersistentLoginFilter implements FilterInterface
                         }
                     } else {
                         // Remove expired cookie
-                        delete_cookie('admin_remember');
+                        $response = service('response');
+                        $response->deleteCookie('admin_remember');
                     }
                 }
             } catch (\Exception $e) {
                 // Remove invalid cookie
-                delete_cookie('admin_remember');
+                $response = service('response');
+                $response->deleteCookie('admin_remember');
             }
         }
     }
@@ -97,7 +99,8 @@ class PersistentLoginFilter implements FilterInterface
         
         $cookieValue = base64_encode(json_encode($cookieData));
         
-        set_cookie([
+        $response = service('response');
+        $response->setCookie([
             'name' => 'admin_remember',
             'value' => $cookieValue,
             'expire' => $expires,
