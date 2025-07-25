@@ -840,20 +840,22 @@ class TrialRegistrationController extends BaseController
         $model = new \App\Models\TrialPlayerModel();
         $trialCitiesModel = new \App\Models\TrialcitiesModel();
 
-        // Get search filters
+        // Get search filters (same as the main page)
         $phone = $this->request->getGet('phone');
         $paymentStatus = $this->request->getGet('payment_status');
         $trialCity = $this->request->getGet('trial_city');
+        $dateFilter = $this->request->getGet('date_filter');
 
-        // Build query with joins
+        // Build query with joins - exactly same as verification page
         $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
             ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
 
+        // Apply filters
         if ($phone) {
             $builder->like('trial_players.mobile', $phone);
         }
 
-        if ($paymentStatus && $paymentStatus !== 'all') {
+        if ($paymentStatus && $paymentStatus !== 'all' && $paymentStatus !== '') {
             $builder->where('trial_players.payment_status', $paymentStatus);
         }
 
@@ -861,20 +863,66 @@ class TrialRegistrationController extends BaseController
             $builder->where('trial_players.trial_city_id', $trialCity);
         }
 
+        if ($dateFilter) {
+            $builder->where('DATE(trial_players.created_at)', $dateFilter);
+        }
+
         $registrations = $builder->orderBy('trial_players.id', 'DESC')->findAll();
 
-        // Generate PDF content
-        $html = $this->generateTrialPDFContent($registrations);
+        // Get filter information for PDF header
+        $filterInfo = $this->getFilterInfo($phone, $paymentStatus, $trialCity, $dateFilter, $trialCitiesModel);
+
+        // Generate PDF content with filter info
+        $html = $this->generateTrialPDFContent($registrations, $filterInfo);
+
+        // Create filename with filter info
+        $filename = 'trial-registrations';
+        if ($dateFilter) {
+            $filename .= '-' . $dateFilter;
+        }
+        if ($paymentStatus) {
+            $filename .= '-' . $paymentStatus;
+        }
+        if ($trialCity) {
+            $cityName = $trialCitiesModel->find($trialCity)['city_name'] ?? 'city';
+            $filename .= '-' . strtolower(str_replace(' ', '-', $cityName));
+        }
+        $filename .= '.pdf';
 
         // Set headers for PDF download
         $this->response->setHeader('Content-Type', 'application/pdf');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="trial-registrations-' . date('Y-m-d') . '.pdf"');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         // Use TCPDF or simple HTML to PDF conversion
         return $this->generatePDFFromHTML($html);
     }
 
-    private function generateTrialPDFContent($registrations)
+    private function getFilterInfo($phone, $paymentStatus, $trialCity, $dateFilter, $trialCitiesModel)
+    {
+        $filterInfo = [];
+        
+        if ($phone) {
+            $filterInfo[] = "Phone: " . $phone;
+        }
+        
+        if ($paymentStatus) {
+            $statusText = ucfirst(str_replace('_', ' ', $paymentStatus));
+            $filterInfo[] = "Payment Status: " . $statusText;
+        }
+        
+        if ($trialCity) {
+            $cityData = $trialCitiesModel->find($trialCity);
+            $filterInfo[] = "Trial City: " . ($cityData['city_name'] ?? 'Unknown');
+        }
+        
+        if ($dateFilter) {
+            $filterInfo[] = "Date: " . date('F j, Y', strtotime($dateFilter));
+        }
+        
+        return $filterInfo;
+    }
+
+    private function generateTrialPDFContent($registrations, $filterInfo = [])
     {
         $html = '
         <!DOCTYPE html>
@@ -903,6 +951,7 @@ class TrialRegistrationController extends BaseController
             <div class="stats">
                 <p><strong>Total Registrations:</strong> ' . count($registrations) . '</p>
                 <p><strong>Export Date:</strong> ' . date('Y-m-d H:i:s') . '</p>
+                ' . (!empty($filterInfo) ? '<p><strong>Applied Filters:</strong> ' . implode(' | ', $filterInfo) . '</p>' : '<p><strong>Filters:</strong> None (All Records)</p>') . '
             </div>
 
             <table>

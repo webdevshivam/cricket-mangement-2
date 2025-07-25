@@ -103,6 +103,14 @@
   <!-- Verification Table -->
   <div class="card bg-dark border-warning">
     <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <!-- You can add some filters or information here if needed -->
+        </div>
+		<button class="btn btn-sm btn-outline-success ms-2" onclick="exportFilteredPDF()">
+        <i class="fas fa-file-pdf"></i> Export Filtered PDF
+      </button>
+      </div>
       <div class="table-responsive">
         <table class="table table-dark table-striped table-bordered">
           <thead>
@@ -479,6 +487,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function exportFilteredPDF() {
+    // Gather filter parameters from the form
+    const dateFilter = document.querySelector('input[name="date_filter"]').value;
+    const phone = document.querySelector('input[name="phone"]').value;
+    const paymentStatus = document.querySelector('select[name="payment_status"]').value;
+    const trialCity = document.querySelector('select[name="trial_city"]').value;
+
+    // Construct the URL with filter parameters
+    let url = `<?= base_url('admin/trial-verification/export-pdf') ?>?`;
+    if (dateFilter) url += `date_filter=${dateFilter}&`;
+    if (phone) url += `phone=${phone}&`;
+    if (paymentStatus) url += `payment_status=${paymentStatus}&`;
+    if (trialCity) url += `trial_city=${trialCity}&`;
+
+    // Remove the trailing '&' if it exists
+    url = url.replace(/&$/, '');
+
+    // Open the URL in a new tab
+    window.open(url, '_blank');
+}
 </script>
 
 <?= $this->endSection(); ?>

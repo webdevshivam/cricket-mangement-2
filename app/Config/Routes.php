@@ -130,6 +130,7 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
 
   // Trial Verification Routes (separate URL pattern)
   $routes->get('trial-verification', 'TrialRegistrationController::verification');
+  $routes->get('trial-verification/export-pdf', 'TrialRegistrationController::exportPDF');
   $routes->post('trial-verification/search-by-mobile', 'TrialRegistrationController::searchByMobile');
   $routes->post('trial-verification/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment');
   $routes->post('trial-verification/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted');
