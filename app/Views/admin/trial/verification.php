@@ -33,14 +33,11 @@
           <div class="text-center">
             <h6 class="text-warning">Today's Collection Summary</h6>
             <div class="row">
-              <div class="col">Cash: <span class="badge bg-success">₹<?= number_format($collectionStats['cash'] ?? 0) ?></span></div>
-              <div class="col">UPI: <span class="badge bg-info">₹<?= number_format($collectionStats['upi'] ?? 0) ?></span></div>
-              <div class="col">Online: <span class="badge bg-primary">₹<?= number_format($collectionStats['online'] ?? 0) ?></span></div>
+              <div class="col">Cash: <span class="badge bg-success">₹<?= number_format($collectionStats['offline'] ?? 0) ?></span></div>
+              <div class="col">UPI/Card/Transfer: <span class="badge bg-info">₹<?= number_format($collectionStats['online'] ?? 0) ?></span></div>
               <div class="col">Total: <span class="badge bg-warning">₹<?= number_format($collectionStats['total'] ?? 0) ?></span></div>
             </div>
-            <div class="text-center mt-2">
-              <small class="text-muted">*Trial fees only (T-shirt fees excluded)</small>
-            </div></div>
+            <div class="text-center mt-2"></div>
           </div>
         </div>
       </div>
@@ -260,8 +257,8 @@
           <div class="mb-3">
             <label class="form-label">Payment Method</label>
             <select class="form-select bg-dark text-white" id="paymentMethod">
-              <option value="offline">Offline (Cash)</option>
-              <option value="online">Online (UPI/Card/Transfer)</option>
+              <option value="offline">Cash</option>
+              <option value="online">UPI/Card/Bank Transfer</option>
             </select>
           </div>
 
