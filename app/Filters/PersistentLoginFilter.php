@@ -33,7 +33,7 @@ class PersistentLoginFilter implements FilterInterface
         }
 
         // Check for persistent login cookie for admin users
-        $remember = get_cookie('admin_remember');
+        $remember = $request->getCookie('admin_remember');
         if ($remember) {
             $userModel = new UserModel();
 
