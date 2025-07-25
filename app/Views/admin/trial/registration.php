@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin'); ?>
 <?= $this->section('content'); ?>
 
@@ -122,7 +121,7 @@
                 // Calculate fees based on cricket type
                 $trialFees = 0;
                 $tshirtFees = 199;
-                
+
                 switch(strtolower($reg['cricket_type'])) {
                   case 'bowler':
                   case 'batsman':
@@ -133,10 +132,10 @@
                     $trialFees = 1199;
                     break;
                 }
-                
+
                 // Calculate remaining amount based on payment status
                 $remainingAmount = 0;
-                
+
                 switch($reg['payment_status']) {
                   case 'no_payment':
                     $remainingAmount = $tshirtFees + $trialFees;
@@ -191,7 +190,7 @@
                         <i class="fas fa-money-bill"></i>
                       </button>
                     <?php endif; ?>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(<?= esc($reg['id']) ?>, '<?= esc($reg['name']) ?>')" title="Delete Student">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer(<?= esc($reg['id']) ?>, '<?= esc($reg['name']) ?>')" title="Delete Student">
                       <i class="fas fa-trash"></i>
                     </button>
                   </td>
@@ -232,7 +231,7 @@
           <p><strong>Student:</strong> <span id="paymentStudentName"></span></p>
           <p><strong>Phone:</strong> <span id="paymentStudentPhone"></span></p>
           <p><strong>Remaining Amount:</strong> ₹<span id="paymentAmount"></span></p>
-          
+
           <div class="mb-3">
             <label class="form-label">Payment Method</label>
             <select class="form-select bg-dark text-white" id="paymentMethod">
@@ -242,7 +241,7 @@
               <option value="online">Online Transfer</option>
             </select>
           </div>
-          
+
           <div class="mb-3">
             <label class="form-label">Transaction Reference (Optional)</label>
             <input type="text" class="form-control bg-dark text-white" id="transactionRef" 
@@ -309,23 +308,23 @@ function updateSelectedCount() {
 function bulkUpdateStatus() {
     const selected = document.querySelectorAll('.student-checkbox:checked');
     const status = document.getElementById('bulkStatus').value;
-    
+
     if (selected.length === 0) {
         notyf.error('Please select at least one student');
         return;
     }
-    
+
     if (!status) {
         notyf.error('Please select a status');
         return;
     }
-    
+
     if (!confirm(`Update payment status for ${selected.length} students to: ${status}?`)) {
         return;
     }
-    
+
     const studentIds = Array.from(selected).map(cb => cb.getAttribute('data-student-id'));
-    
+
     fetch("<?= base_url('admin/trial-registration/bulk-update-payment-status') ?>", {
         method: "POST",
         headers: {
@@ -355,18 +354,18 @@ function bulkUpdateStatus() {
 // Bulk delete students
 function bulkDeleteStudents() {
     const selected = document.querySelectorAll('.student-checkbox:checked');
-    
+
     if (selected.length === 0) {
         notyf.error('Please select at least one student to delete');
         return;
     }
-    
+
     if (!confirm(`Are you sure you want to delete ${selected.length} selected students? This action cannot be undone!`)) {
         return;
     }
-    
+
     const studentIds = Array.from(selected).map(cb => cb.getAttribute('data-student-id'));
-    
+
     fetch("<?= base_url('admin/trial-registration/bulk-delete') ?>", {
         method: "POST",
         headers: {
@@ -395,16 +394,16 @@ function bulkDeleteStudents() {
 // Collect payment functionality
 function collectPayment(studentId, amount) {
     currentPaymentStudentId = studentId;
-    
+
     // Find student details from the table
     const row = document.querySelector(`[data-player-id="${studentId}"]`).closest('tr');
     const studentName = row.querySelector('strong').textContent;
     const studentPhone = row.querySelector('.badge').textContent;
-    
+
     document.getElementById('paymentStudentName').textContent = studentName;
     document.getElementById('paymentStudentPhone').textContent = studentPhone;
     document.getElementById('paymentAmount').textContent = amount;
-    
+
     const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
     modal.show();
 }
@@ -413,10 +412,10 @@ function confirmPayment() {
     const paymentMethod = document.getElementById('paymentMethod').value;
     const transactionRef = document.getElementById('transactionRef').value;
     const amount = document.getElementById('paymentAmount').textContent;
-    
+
     // Determine new payment status based on amount
     let newStatus = 'full'; // Default to full if collecting remaining amount
-    
+
     fetch("<?= base_url('admin/trial-registration/collect-payment') ?>", {
         method: "POST",
         headers: {
@@ -507,27 +506,27 @@ function updatePaymentStatus(playerId, status, selectElement) {
 
         if (data.success) {
             notyf.success("Payment status updated successfully!");
-            
+
             // Update the row's data attribute and remaining amount
             const row = selectElement.closest('tr');
             row.setAttribute('data-status', status);
-            
+
             // Update remaining amount badge
             const remainingBadge = row.querySelector('td:nth-child(10) .badge');
-            
+
             // Get cricket type from the row to calculate correct fees
             const cricketTypeBadge = row.querySelector('td:nth-child(7) .badge');
             const cricketType = cricketTypeBadge ? cricketTypeBadge.textContent.toLowerCase() : '';
-            
+
             let trialFees = 0;
             const tshirtFees = 199;
-            
+
             if (cricketType.includes('bowler') || cricketType.includes('batsman')) {
                 trialFees = 999;
             } else if (cricketType.includes('all-rounder') || cricketType.includes('wicket-keeper')) {
                 trialFees = 1199;
             }
-            
+
             let remainingAmount = 0;
             switch(status) {
                 case 'no_payment':
@@ -540,16 +539,16 @@ function updatePaymentStatus(playerId, status, selectElement) {
                     remainingAmount = 0;
                     break;
             }
-            
+
             remainingBadge.textContent = `₹${remainingAmount}`;
             remainingBadge.className = `badge ${remainingAmount > 0 ? 'bg-danger' : 'bg-success'}`;
-            
+
             // Show/hide collect payment button
             const collectBtn = row.querySelector('.btn-outline-success');
             if (collectBtn) {
                 collectBtn.style.display = remainingAmount > 0 ? 'inline-block' : 'none';
             }
-            
+
         } else {
             notyf.error(data.message || "Failed to update payment status.");
             selectElement.selectedIndex = 0;
@@ -566,12 +565,11 @@ function viewPlayerDetails(playerId) {
     notyf.success('Student details feature - to be implemented');
 }
 
-// Individual delete student
-function deleteStudent(studentId, studentName) {
-    if (!confirm(`Are you sure you want to delete ${studentName}? This action cannot be undone!`)) {
+function deletePlayer(playerId, playerName) {
+    if (!confirm(`Are you sure you want to delete ${playerName}? This action cannot be undone!`)) {
         return;
     }
-    
+
     fetch("<?= base_url('admin/trial-registration/delete') ?>", {
         method: "POST",
         headers: {
@@ -579,16 +577,16 @@ function deleteStudent(studentId, studentName) {
             "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({
-            student_id: studentId
+            student_id: playerId
         }),
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            notyf.success(`${studentName} deleted successfully!`);
+            notyf.success(`${playerName} deleted successfully!`);
             setTimeout(() => location.reload(), 1500);
         } else {
-            notyf.error(data.message || "Failed to delete student.");
+            notyf.error(data.message || "Failed to delete player.");
         }
     })
     .catch(error => {
@@ -600,10 +598,10 @@ function deleteStudent(studentId, studentName) {
 function exportToPDF(type) {
     const searchParams = new URLSearchParams(window.location.search);
     const exportUrl = `<?= base_url('admin/trial-registration/export-pdf') ?>?${searchParams.toString()}`;
-    
+
     // Show loading notification
     notyf.success('Generating PDF export...');
-    
+
     // Create a temporary link to download the PDF
     const link = document.createElement('a');
     link.href = exportUrl;
@@ -611,7 +609,7 @@ function exportToPDF(type) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Show success notification after a delay
     setTimeout(() => {
       notyf.success('PDF export completed!');

@@ -122,9 +122,6 @@ class LeagueRegistrationController extends BaseController
             if ($playerId === false) {
                 return redirect()->back()->with('error', 'Registration failed. Please try again.');
             } else {
-                // Automatic grade assignment
-                $this->autoAssignGrade($playerId, $data);
-
                 return redirect()->to('/league-registration')->with('success', 'Registration successful!');
             }
         }
@@ -159,7 +156,7 @@ class LeagueRegistrationController extends BaseController
             $builder->where('league_players.age_group', $ageGroup);
         }
 
-        $data['registrations'] = $builder->orderBy('league_players.id', 'DESC')->paginate(20);
+        $data['registrations'] = $builder->orderBy('league_players.id', 'DESC')->paginate(10);
         $data['pager'] = $model->pager;
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
         $data['grades'] = $gradeModel->where('status', 'active')->findAll();
@@ -461,6 +458,22 @@ class LeagueRegistrationController extends BaseController
             $data['grade'] = $gradeModel->find($gradeAssignment['grade_id']);
         }
 
+        // Add random motivation lines
+        $motivationLines = [
+            "Your cricket journey starts here! Keep practicing and stay dedicated!",
+            "Champions are made through consistent effort. Keep pushing forward!",
+            "Every great cricketer started with a dream. Make yours a reality!",
+            "Success in cricket comes to those who never give up. Stay strong!",
+            "Your potential is unlimited. Keep working hard and believe in yourself!",
+            "Cricket is not just a game, it's a passion. Follow yours!",
+            "The field is waiting for your talent. Show them what you've got!",
+            "Practice makes perfect. Keep honing your skills every day!",
+            "Great cricketers are made, not born. You're on the right path!",
+            "Your dedication today will be your success tomorrow!"
+        ];
+
+        $data['motivation'] = $motivationLines[array_rand($motivationLines)];
+
         return view('frontend/league/status_result', $data);
     }
 
@@ -658,9 +671,6 @@ class LeagueRegistrationController extends BaseController
             
             $playerId = $model->insert($registrationData);
             if ($playerId !== false) {
-                // Automatic grade assignment
-                $this->autoAssignGrade($playerId, $registrationData);
-                
                 session()->removeTempdata('league_registration_email');
                 return redirect()->to('/league-registration')->with('success', 'Email verified and registration completed successfully!');
             } else {

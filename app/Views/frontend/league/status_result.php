@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -352,16 +351,16 @@
             .card-header h2 {
                 font-size: 1.75rem;
             }
-            
+
             .card-body,
             .info-section {
                 padding: 1.5rem;
             }
-            
+
             .info-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .btn-golden,
             .btn-outline-golden {
                 width: 100%;
@@ -374,11 +373,11 @@
             .card-header {
                 padding: 1.5rem 1rem 1rem;
             }
-            
+
             .card-header h2 {
                 font-size: 1.5rem;
             }
-            
+
             .card-body,
             .info-section {
                 padding: 1rem;
@@ -456,7 +455,7 @@
                                     <i class="fas <?= $player['payment_status'] == 'paid' ? 'fa-check-circle' : 'fa-times-circle' ?>"></i>
                                     <?= $player['payment_status'] == 'paid' ? 'Payment Completed' : 'Payment Pending' ?>
                                 </div>
-                                
+
                                 <?php if ($player['payment_status'] != 'paid' && $grade): ?>
                                     <div class="alert-modern">
                                         <div class="alert-title">
@@ -546,11 +545,11 @@
         // Add smooth animations on page load
         document.addEventListener('DOMContentLoaded', function() {
             const infoSections = document.querySelectorAll('.info-section');
-            
+
             infoSections.forEach((section, index) => {
                 section.style.opacity = '0';
                 section.style.transform = 'translateY(20px)';
-                
+
                 setTimeout(() => {
                     section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                     section.style.opacity = '1';

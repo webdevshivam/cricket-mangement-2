@@ -87,6 +87,10 @@ $routes->post('league-registration-save', 'LeagueRegistrationController::registe
 $routes->get('league-status', 'LeagueRegistrationController::checkStatus');
 $routes->post('league-status-check', 'LeagueRegistrationController::getStatus');
 
+// Trial Status Check Routes
+$routes->get('trial-status', 'TrialStatusController::checkStatus');
+$routes->post('trial-status-check', 'TrialStatusController::getStatus');
+
 $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('dashboard', 'AdminController::index');
     $routes->get('trial-registration', 'TrialRegistrationController::adminIndex');
@@ -157,6 +161,10 @@ $routes->get('/league-registration', 'LeagueRegistrationController::index');
 $routes->post('/league-registration-save', 'LeagueRegistrationController::register');
 $routes->get('league-status', 'LeagueRegistrationController::checkStatus');
 $routes->post('league-status-check', 'LeagueRegistrationController::getStatus');
+
+// Trial Status Check Routes
+$routes->get('trial-status', 'TrialStatusController::checkStatus');
+$routes->post('trial-status-check', 'TrialStatusController::getStatus');
 
 $routes->get('admin/dashboard', 'Home::dashboard', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->get('admin/trial-players', 'Home::trialPlayers', ['filter' => 'roleFilter:admin,manager,coach']);

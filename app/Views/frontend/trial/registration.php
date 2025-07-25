@@ -35,7 +35,7 @@ helper('language');
           <img src="https://megastarpremiercricketleague.com/registration/mccl/images/logo.png" alt="Cricket Logo" class="logo">
         </div>
         <h2 class="mb-0"><i class="fas fa-cricket me-2"></i><?= lang('Frontend.trial_registration') ?></h2>
-        
+
         <!-- Language Selector -->
         <div class="language-selector mt-3">
           <select class="form-select form-select-sm" onchange="changeLanguage(this.value)" style="width: auto; display: inline-block;">
@@ -70,17 +70,6 @@ helper('language');
           <h4 class="step-title">
             <i class="fas fa-user me-2"></i><?= lang('Frontend.basic_information') ?>
           </h4>
-
-          <!-- Payment Information Notice -->
-          <div class="alert alert-info mb-4">
-            <h6><i class="fas fa-info-circle me-2"></i><?= lang('Frontend.payment_info_title') ?></h6>
-            <p class="mb-2"><?= lang('Frontend.payment_info_desc') ?></p>
-            <ul class="mb-0">
-              <li><strong><?= lang('Frontend.partial_payment') ?></strong></li>
-              <li><strong><?= lang('Frontend.full_payment') ?></strong></li>
-              <li><strong><?= lang('Frontend.payment_note') ?></strong></li>
-            </ul>
-          </div>
 
           <form id="basicInfoForm" action="<?= base_url('trial-registration-save') ?>" method="post" novalidate>
             <div class="row">
@@ -247,7 +236,7 @@ helper('language');
 
   <!-- Custom JS -->
   <script src="<?= base_url('assets-frontend/trial/') ?>trial.js"></script>
-  
+
   <script>
   function changeLanguage(lang) {
     const url = new URL(window.location);
@@ -255,7 +244,7 @@ helper('language');
     window.location = url;
   }
   </script>
-  
+
   <?php if (session()->get('success')): ?>
     <script>
       document.addEventListener("DOMContentLoaded", function() {

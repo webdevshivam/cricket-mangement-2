@@ -17,17 +17,17 @@ class TrialRegistrationController extends BaseController
     {
         // Load the view for trial registration
         //all trial city_name
-        
+
         // Set language
         $lang = $this->request->getGet('lang') ?? 'en';
-        
+
         // Set the locale properly
-        $languageService = \Config\Services::language();
+        $languageService = \Config\Services\language();
         $languageService->setLocale($lang);
-        
+
         // Also set session language
         session()->set('language', $lang);
-        
+
         $model = new TrialcitiesModel();
         $qrCodeSetting = new QrCodeSettingModel();
         $data['qr_code_setting'] = $qrCodeSetting->first();
@@ -116,7 +116,7 @@ class TrialRegistrationController extends BaseController
             $builder->where('trial_players.trial_city_id', $trialCity);
         }
 
-        $data['registrations'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(20);
+        $data['registrations'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(10);
         $data['pager'] = $model->pager;
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
 
@@ -371,37 +371,37 @@ class TrialRegistrationController extends BaseController
     {
         $model = new \App\Models\TrialPlayerModel();
         $trialCitiesModel = new \App\Models\TrialcitiesModel();
-        
+
         // Get search filters
         $phone = $this->request->getGet('phone');
         $paymentStatus = $this->request->getGet('payment_status');
         $trialCity = $this->request->getGet('trial_city');
         $dateFilter = $this->request->getGet('date_filter') ?: date('Y-m-d');
-        
+
         // Build query with joins
         $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
                         ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left');
-        
+
         if ($phone) {
             $builder->like('trial_players.mobile', $phone);
         }
-        
+
         if ($paymentStatus && $paymentStatus !== 'all') {
             $builder->where('trial_players.payment_status', $paymentStatus);
         }
-        
+
         if ($trialCity) {
             $builder->where('trial_players.trial_city_id', $trialCity);
         }
 
-        $data['registrations'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(20);
+        $data['registrations'] = $builder->orderBy('trial_players.id', 'DESC')->paginate(10);
         $data['pager'] = $model->pager;
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
-        
+
         // Calculate collection statistics for the selected date
         $data['todayCollection'] = $this->calculateDailyCollection($dateFilter);
         $data['collectionStats'] = $this->getCollectionStatsByDate($dateFilter);
-        
+
         // Pass filter values to view
         $data['phone'] = $phone;
         $data['payment_status'] = $paymentStatus;
@@ -414,7 +414,7 @@ class TrialRegistrationController extends BaseController
     public function searchByMobile()
     {
         $this->response->setHeader('Content-Type', 'application/json');
-        
+
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -425,7 +425,7 @@ class TrialRegistrationController extends BaseController
         try {
             $data = $this->request->getJSON(true);
             $mobile = $data['mobile'] ?? '';
-            
+
             if (empty($mobile)) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -434,7 +434,7 @@ class TrialRegistrationController extends BaseController
             }
 
             $model = new \App\Models\TrialPlayerModel();
-            
+
             $student = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
                            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
                            ->where('trial_players.mobile', $mobile)
@@ -455,7 +455,7 @@ class TrialRegistrationController extends BaseController
 
         } catch (Exception $e) {
             log_message('error', 'Mobile search error: ' . $e->getMessage());
-            
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while searching'
@@ -466,7 +466,7 @@ class TrialRegistrationController extends BaseController
     private function calculateDailyCollection($date)
     {
         $db = \Config\Database::connect();
-        
+
         // Calculate total collection excluding T-shirt fees for partial payments
         $builder = $db->table('trial_players');
         $builder->select('
@@ -479,7 +479,7 @@ class TrialRegistrationController extends BaseController
         ');
         $builder->where('DATE(verified_at)', $date);
         $builder->where('payment_status !=', 'no_payment');
-        
+
         $result = $builder->get()->getRow();
         return $result ? $result->total_collection : 0;
     }
@@ -488,7 +488,7 @@ class TrialRegistrationController extends BaseController
     {
         // Calculate trial fees collection only (excluding T-shirt fees)
         $totalCollection = $this->calculateDailyCollection($date);
-        
+
         return [
             'cash' => $totalCollection * 0.6, // Assume 60% cash
             'upi' => $totalCollection * 0.3,  // Assume 30% UPI
@@ -501,7 +501,7 @@ class TrialRegistrationController extends BaseController
     public function collectSpotPayment()
     {
         $this->response->setHeader('Content-Type', 'application/json');
-        
+
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -511,7 +511,7 @@ class TrialRegistrationController extends BaseController
 
         try {
             $data = $this->request->getJSON(true);
-            
+
             if (empty($data['student_id']) || empty($data['amount']) || empty($data['payment_status'])) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -551,7 +551,7 @@ class TrialRegistrationController extends BaseController
 
         } catch (Exception $e) {
             log_message('error', 'Spot payment collection error: ' . $e->getMessage());
-            
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while processing payment'
@@ -562,7 +562,7 @@ class TrialRegistrationController extends BaseController
     public function markTrialCompleted()
     {
         $this->response->setHeader('Content-Type', 'application/json');
-        
+
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -572,7 +572,7 @@ class TrialRegistrationController extends BaseController
 
         try {
             $data = $this->request->getJSON(true);
-            
+
             if (empty($data['student_id'])) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -581,7 +581,7 @@ class TrialRegistrationController extends BaseController
             }
 
             $model = new \App\Models\TrialPlayerModel();
-            
+
             $updateData = [
                 'trial_completed' => 1,
                 'verified_at' => date('Y-m-d H:i:s')
@@ -603,7 +603,7 @@ class TrialRegistrationController extends BaseController
 
         } catch (Exception $e) {
             log_message('error', 'Trial completion error: ' . $e->getMessage());
-            
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while marking trial as completed'
@@ -615,43 +615,43 @@ class TrialRegistrationController extends BaseController
     {
         $model = new \App\Models\TrialPlayerModel();
         $trialCitiesModel = new \App\Models\TrialcitiesModel();
-        
+
         // Get filter parameters
         $fromDate = $this->request->getGet('from_date') ?: date('Y-m-d', strtotime('-30 days'));
         $toDate = $this->request->getGet('to_date') ?: date('Y-m-d');
         $paymentMethod = $this->request->getGet('payment_method');
         $trialCity = $this->request->getGet('trial_city');
         $mobile = $this->request->getGet('mobile');
-        
+
         // Build query with filters
         $builder = $model->select('trial_players.*, trial_cities.city_name as trial_city_name')
                         ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
                         ->where('DATE(trial_players.created_at) >=', $fromDate)
                         ->where('DATE(trial_players.created_at) <=', $toDate);
-        
+
         if ($trialCity) {
             $builder->where('trial_players.trial_city_id', $trialCity);
         }
-        
+
         if ($mobile) {
             $builder->like('trial_players.mobile', $mobile);
         }
-        
+
         $data['paymentRecords'] = $builder->orderBy('trial_players.created_at', 'DESC')->paginate(20);
         $data['pager'] = $model->pager;
-        
+
         // Calculate summary statistics excluding T-shirt fees for partial payments
         $data['totalCollection'] = $this->calculateTotalCollection();
         $data['todayCollection'] = $this->calculateTodayCollection();
         $data['pendingAmount'] = $this->calculatePendingAmount();
         $data['totalStudents'] = $model->countAll();
-        
+
         // Payment method breakdown (would be more accurate with separate payments table)
         $data['paymentMethods'] = $this->getPaymentMethodBreakdown();
-        
+
         // Status counts
         $data['statusCounts'] = $this->getPaymentStatusCounts();
-        
+
         // Filter values and cities
         $data['trial_cities'] = $trialCitiesModel->where('status', 'enabled')->findAll();
         $data['from_date'] = $fromDate;
@@ -666,7 +666,7 @@ class TrialRegistrationController extends BaseController
     private function calculateTotalCollection()
     {
         $model = new \App\Models\TrialPlayerModel();
-        
+
         // Calculate collection excluding T-shirt fees for partial payments
         $query = $model->select('
             SUM(CASE 
@@ -676,14 +676,14 @@ class TrialRegistrationController extends BaseController
                 ELSE 0
             END) as total_trial_fees
         ')->where('payment_status !=', 'no_payment')->first();
-        
+
         return $query['total_trial_fees'] ?? 0;
     }
 
     private function calculateTodayCollection()
     {
         $model = new \App\Models\TrialPlayerModel();
-        
+
         // Calculate today's collection excluding T-shirt fees for partial payments
         $query = $model->select('
             SUM(CASE 
@@ -695,14 +695,14 @@ class TrialRegistrationController extends BaseController
         ')->where('DATE(verified_at)', date('Y-m-d'))
           ->where('payment_status !=', 'no_payment')
           ->first();
-        
+
         return $query['today_trial_fees'] ?? 0;
     }
 
     private function calculatePendingAmount()
     {
         $model = new \App\Models\TrialPlayerModel();
-        
+
         $query = $model->select('
             SUM(CASE 
                 WHEN cricket_type IN ("bowler", "batsman") AND payment_status IN ("no_payment", "partial") THEN 999
@@ -710,7 +710,7 @@ class TrialRegistrationController extends BaseController
                 ELSE 0
             END) as pending_trial_fees
         ')->where('payment_status !=', 'full')->first();
-        
+
         return $query['pending_trial_fees'] ?? 0;
     }
 
@@ -719,7 +719,7 @@ class TrialRegistrationController extends BaseController
         // This would be more accurate with a separate payments table
         // For now, returning estimated breakdown
         $totalCollection = $this->calculateTotalCollection();
-        
+
         return [
             'offline' => $totalCollection * 0.7, // Assume 70% offline (cash)
             'online' => $totalCollection * 0.3   // Assume 30% online (UPI/Card/Transfer)
@@ -729,13 +729,13 @@ class TrialRegistrationController extends BaseController
     private function getPaymentStatusCounts()
     {
         $model = new \App\Models\TrialPlayerModel();
-        
+
         $counts = [
             'no_payment' => $model->where('payment_status', 'no_payment')->countAllResults(),
             'partial' => $model->where('payment_status', 'partial')->countAllResults(),
             'full' => $model->where('payment_status', 'full')->countAllResults()
         ];
-        
+
         return $counts;
     }
 
@@ -901,7 +901,7 @@ class TrialRegistrationController extends BaseController
                 <h2>Trial Student Registrations Report</h2>
                 <p>Generated on: ' . date('F j, Y, g:i a') . '</p>
             </div>
-            
+
             <div class="stats">
                 <p><strong>Total Registrations:</strong> ' . count($registrations) . '</p>
                 <p><strong>Export Date:</strong> ' . date('Y-m-d H:i:s') . '</p>
@@ -929,7 +929,7 @@ class TrialRegistrationController extends BaseController
             // Calculate fees based on cricket type
             $trialFees = 0;
             $tshirtFees = 199;
-            
+
             switch(strtolower($reg['cricket_type'])) {
                 case 'bowler':
                 case 'batsman':
@@ -940,11 +940,11 @@ class TrialRegistrationController extends BaseController
                     $trialFees = 1199;
                     break;
             }
-            
+
             // Calculate remaining amount based on payment status
             $remainingAmount = 0;
             $paymentStatus = $reg['payment_status'] ?? 'no_payment';
-            
+
             switch($paymentStatus) {
                 case 'no_payment':
                     $remainingAmount = $tshirtFees + $trialFees;
@@ -962,7 +962,7 @@ class TrialRegistrationController extends BaseController
                     $paymentText = 'Full Paid';
                     break;
             }
-            
+
             $html .= '
                     <tr>
                         <td>' . $i++ . '</td>
@@ -991,13 +991,13 @@ class TrialRegistrationController extends BaseController
     {
         // Using DomPDF library for PDF generation
         require_once APPPATH . '../vendor/autoload.php';
-        
+
         try {
             $dompdf = new \Dompdf\Dompdf();
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4', 'landscape');
             $dompdf->render();
-            
+
             return $dompdf->output();
         } catch (Exception $e) {
             // Fallback: return HTML content with PDF headers
@@ -1011,7 +1011,7 @@ class TrialRegistrationController extends BaseController
         if (!$email) {
             return redirect()->to('/trial-registration')->with('error', 'OTP verification session expired. Please register again.');
         }
-        
+
         $data['email'] = $email;
         return view('frontend/trial/otp_verification', $data);
     }
@@ -1083,7 +1083,7 @@ class TrialRegistrationController extends BaseController
     private function sendOTPEmail($email, $name, $otp, $type)
     {
         helper('email');
-        
+
         $subject = "OTP Verification - MPCL " . ucfirst($type) . " Registration";
         $message = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
@@ -1091,7 +1091,7 @@ class TrialRegistrationController extends BaseController
                 <img src='https://megastarpremiercricketleague.com/registration/mccl/images/logo.png' alt='MPCL Logo' style='height: 60px;'>
                 <h2 style='color: #ff6b35; margin: 10px 0;'>Email Verification</h2>
             </div>
-            
+
             <div style='background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;'>
                 <h3 style='color: #333; margin-top: 0;'>Hello {$name},</h3>
                 <p style='color: #666; line-height: 1.6;'>
@@ -1099,19 +1099,19 @@ class TrialRegistrationController extends BaseController
                     To complete your registration, please verify your email address using the OTP below:
                 </p>
             </div>
-            
+
             <div style='text-align: center; margin: 30px 0;'>
                 <div style='background-color: #ff6b35; color: white; padding: 15px 30px; border-radius: 5px; display: inline-block; font-size: 24px; font-weight: bold; letter-spacing: 3px;'>
                     {$otp}
                 </div>
             </div>
-            
+
             <div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;'>
                 <p style='color: #856404; margin: 0; font-size: 14px;'>
                     <strong>Important:</strong> This OTP will expire in 10 minutes. Do not share this code with anyone.
                 </p>
             </div>
-            
+
             <div style='text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;'>
                 <p style='color: #999; font-size: 12px; margin: 0;'>
                     Best regards,<br>

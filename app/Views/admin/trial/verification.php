@@ -5,8 +5,9 @@
   <div class="card-body d-flex justify-content-between align-items-center">
     <h5 class="card-title text-warning mb-0">Trial Day Verification & Payment Collection</h5>
     <div>
-      <span class="badge bg-info me-2">Total Students: <?= count($registrations) ?></span>
-      <span class="badge bg-success me-2">Today's Collection: ₹<?= number_format($todayCollection ?? 0) ?></span>
+      <span class="badge bg-info me-2">Total Players: <?= count($registrations) ?></span>
+      <span class="badge bg-warning me-2">Offline: ₹<?= number_format($collectionStats['offline'] ?? 0) ?></span>
+      <span class="badge bg-success me-2">Online: ₹<?= number_format($collectionStats['online'] ?? 0) ?></span>
     </div>
   </div>
 </div>

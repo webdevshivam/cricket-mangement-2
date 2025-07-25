@@ -1,3 +1,7 @@
+The code adds functionality to delete a tournament and its associated matches.
+```
+
+```php
 <?php
 
 namespace App\Controllers;
@@ -257,7 +261,7 @@ class TournamentController extends BaseController
             $existingMatches = $tournamentMatchModel->where('tournament_id', $data['tournament_id'])
                 ->where('round_number', $data['round_number'])
                 ->findAll();
-            
+
             $nextMatchNumber = count($existingMatches) + 1;
 
             $matchData = [
@@ -355,4 +359,55 @@ class TournamentController extends BaseController
 
         return view('admin/tournaments/bracket', $data);
     }
+
+    public function delete($id)
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $model = new TournamentModel();
+            $matchModel = new TournamentMatchModel();
+
+            $tournament = $model->find($id);
+
+            if (!$tournament) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Tournament not found'
+                ]);
+            }
+
+            // Delete all matches associated with this tournament
+            $matchModel->where('tournament_id', $id)->delete();
+
+            // Delete the tournament
+            if ($model->delete($id)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tournament deleted successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to delete tournament'
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', 'Delete tournament error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while deleting tournament'
+            ]);
+        }
+    }
 }
+</replit_final_file>
