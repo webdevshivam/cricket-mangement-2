@@ -1,7 +1,3 @@
-The code adds functionality to delete a tournament and its associated matches.
-```
-
-```php
 <?php
 
 namespace App\Controllers;
@@ -399,7 +395,6 @@ class TournamentController extends BaseController
                     'message' => 'Failed to delete tournament'
                 ]);
             }
-
         } catch (\Exception $e) {
             log_message('error', 'Delete tournament error: ' . $e->getMessage());
 
@@ -410,4 +405,3 @@ class TournamentController extends BaseController
         }
     }
 }
-</replit_final_file>
