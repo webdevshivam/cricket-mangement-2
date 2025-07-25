@@ -105,6 +105,10 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->post('api-settings/update', 'ApiSettingController::update');
     $routes->post('api-settings/change-password', 'ApiSettingController::changePassword');
 
+    // Change Password Routes
+    $routes->get('change-password', 'ChangePasswordController::index');
+    $routes->post('change-password/update', 'ChangePasswordController::update');
+
     // Team Management Routes
     $routes->get('teams', 'TeamController::index');
     $routes->get('teams/manage/(:num)', 'TeamController::manageTeam/$1');
