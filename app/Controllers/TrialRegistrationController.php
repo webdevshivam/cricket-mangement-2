@@ -22,7 +22,7 @@ class TrialRegistrationController extends BaseController
         $lang = $this->request->getGet('lang') ?? 'en';
 
         // Set the locale properly
-        $languageService = \Config\Services\language();
+        $languageService = \Config\Services::language();
         $languageService->setLocale($lang);
 
         // Also set session language
