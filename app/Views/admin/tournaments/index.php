@@ -95,6 +95,10 @@
                                    class="btn btn-outline-info btn-sm">
                                     <i class="fas fa-sitemap me-2"></i>View Bracket
                                 </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        onclick="deleteTournament(<?= $tournament['id'] ?>, '<?= esc($tournament['name']) ?>')">
+                                    <i class="fas fa-trash me-2"></i>Delete Tournament
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -132,5 +136,49 @@
     }
 }
 </style>
+
+<script>
+function deleteTournament(tournamentId, tournamentName) {
+    if (!confirm(`Are you sure you want to delete the tournament "${tournamentName}"?\n\nThis will also delete all matches associated with this tournament.\n\nThis action cannot be undone.`)) {
+        return;
+    }
+
+    fetch(`<?= base_url('admin/tournaments/delete/') ?>${tournamentId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof notyf !== 'undefined') {
+                notyf.success(data.message);
+            } else {
+                alert('Success: ' + data.message);
+            }
+            // Reload page after showing message
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            if (typeof notyf !== 'undefined') {
+                notyf.error(data.message);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (typeof notyf !== 'undefined') {
+            notyf.error('An error occurred while deleting the tournament. Please try again.');
+        } else {
+            alert('An error occurred while deleting the tournament. Please try again.');
+        }
+    });
+}
+</script>
 
 <?= $this->endSection(); ?>
