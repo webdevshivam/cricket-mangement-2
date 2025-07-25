@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\TrialcitiesModel;
+use App\Libraries\WeatherService;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class TrialCityController extends BaseController
@@ -21,6 +22,35 @@ class TrialCityController extends BaseController
     public function create()
     {
         return view('admin/trial_cities/create');
+    }
+    
+    /**
+     * Get weather analysis for trial city via AJAX
+     */
+    public function getWeatherAnalysis()
+    {
+        $cityName = $this->request->getPost('city_name');
+        $trialDate = $this->request->getPost('trial_date');
+        
+        if (!$cityName || !$trialDate) {
+            return $this->response->setJSON([
+                'error' => 'City name and trial date are required'
+            ]);
+        }
+        
+        $weatherService = new WeatherService();
+        
+        // Get weather forecast
+        $weatherData = $weatherService->getWeatherForecast($cityName, $trialDate);
+        
+        // Get AI analysis and recommendations
+        $analysis = $weatherService->analyzeWeatherForTrial($weatherData, $trialDate);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'weather' => $weatherData,
+            'analysis' => $analysis
+        ]);
     }
     public function save()
     {

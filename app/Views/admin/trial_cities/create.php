@@ -41,12 +41,54 @@
 
         <div class="col-md-6">
           <label for="trial_date" class="form-label text-white">Trial Date</label>
-          <input type="date" class="form-control" name="trial_date" required>
+          <input type="date" class="form-control" name="trial_date" id="trial_date" required>
         </div>
 
         <div class="col-md-6">
           <label for="trial_venue" class="form-label text-white">Trial Venue</label>
           <input type="text" class="form-control" name="trial_venue" required>
+        </div>
+
+        <!-- AI Weather Analysis Section -->
+        <div class="col-md-12">
+          <div class="card bg-secondary border-info mt-3" id="weather-analysis-card" style="display: none;">
+            <div class="card-header bg-info text-dark">
+              <h6 class="mb-0"><i class="fas fa-cloud-sun"></i> AI Weather Analysis & Recommendations</h6>
+            </div>
+            <div class="card-body">
+              <div id="weather-loading" style="display: none;">
+                <div class="text-center">
+                  <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Analyzing weather...</span>
+                  </div>
+                  <p class="mt-2 text-info">Analyzing weather conditions...</p>
+                </div>
+              </div>
+              <div id="weather-results" style="display: none;">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="text-warning">Weather Forecast</h6>
+                    <div id="weather-summary"></div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="text-warning">AI Risk Assessment</h6>
+                    <div id="risk-assessment"></div>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <h6 class="text-warning">AI Recommendations</h6>
+                  <div id="ai-recommendations"></div>
+                </div>
+                <div class="mt-3">
+                  <div id="overall-advice"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button type="button" class="btn btn-info mt-2" id="analyze-weather-btn">
+            <i class="fas fa-robot"></i> Get AI Weather Analysis
+          </button>
         </div>
 
         <div class="col-md-6">
@@ -76,4 +118,6 @@
     </form>
   </div>
 </div>
+
+<script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
 <?= $this->endSection(); ?>
