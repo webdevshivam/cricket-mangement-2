@@ -100,6 +100,11 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('otp-settings', 'OtpSettingController::index');
     $routes->post('otp-settings/update', 'OtpSettingController::update');
 
+    // API Settings Routes
+    $routes->get('api-settings', 'ApiSettingController::index');
+    $routes->post('api-settings/update', 'ApiSettingController::update');
+    $routes->post('api-settings/change-password', 'ApiSettingController::changePassword');
+
     // Team Management Routes
     $routes->get('teams', 'TeamController::index');
     $routes->get('teams/manage/(:num)', 'TeamController::manageTeam/$1');

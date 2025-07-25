@@ -30,6 +30,9 @@ The code adds a link to trial players on the dashboard.
       <a href="<?= base_url('admin/otp-settings') ?>" class="btn btn-outline-warning btn-sm">
         <i class="fas fa-shield-alt"></i> OTP Settings
       </a>
+      <a href="<?= base_url('admin/api-settings') ?>" class="btn btn-outline-info btn-sm">
+        <i class="fas fa-cogs"></i> API Settings
+      </a>
     </div>
   </div>
 </div>

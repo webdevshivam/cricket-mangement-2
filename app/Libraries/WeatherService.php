@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Libraries;
@@ -10,19 +9,21 @@ class WeatherService
 {
     private $client;
     private $apiKey;
-    
+	private $baseUrl;
+
     public function __construct()
     {
         $this->client = new Client();
         // Using OpenWeatherMap free API - you can get free API key from openweathermap.org
         $this->apiKey = getenv('OPENWEATHER_API_KEY') ?: 'demo_key'; // Replace with actual API key
-        
+		$this->baseUrl = "https://api.openweathermap.org/data/2.5";
+
         // Log API key status for debugging
         if ($this->apiKey === 'demo_key' || $this->apiKey === 'your_actual_api_key_here') {
             log_message('warning', 'OpenWeather API key not configured properly');
         }
     }
-    
+
     /**
      * Get weather forecast for a city and date
      */
@@ -30,14 +31,14 @@ class WeatherService
     {
         try {
             $daysFromNow = (strtotime($trialDate) - time()) / (24 * 60 * 60);
-            
+
             // If trial date is more than 5 days away, use current weather as approximation
             if ($daysFromNow > 5) {
-                $url = "http://api.openweathermap.org/data/2.5/weather";
+                $url = $this->baseUrl . "/weather";
             } else {
-                $url = "http://api.openweathermap.org/data/2.5/forecast";
+                $url = $this->baseUrl . "/forecast";
             }
-            
+
             $response = $this->client->get($url, [
                 'query' => [
                     'q' => $cityName,
@@ -45,22 +46,22 @@ class WeatherService
                     'units' => 'metric'
                 ]
             ]);
-            
+
             $data = json_decode($response->getBody(), true);
-            
+
             if ($daysFromNow > 5) {
                 return $this->processCurrentWeather($data, $trialDate);
             } else {
                 return $this->processForecastWeather($data, $trialDate);
             }
-            
+
         } catch (Exception $e) {
             log_message('error', 'Weather API Error: ' . $e->getMessage());
             // Return default analysis if API fails
             return $this->getDefaultWeatherAnalysis($cityName, $trialDate);
         }
     }
-    
+
     /**
      * Process current weather data for future predictions
      */
@@ -69,10 +70,10 @@ class WeatherService
         if (!isset($data['weather'])) {
             return $this->getDefaultWeatherAnalysis('Unknown', $trialDate);
         }
-        
+
         $weather = $data['weather'][0];
         $main = $data['main'];
-        
+
         return [
             'temperature' => $main['temp'] ?? 25,
             'humidity' => $main['humidity'] ?? 50,
@@ -81,7 +82,7 @@ class WeatherService
             'city' => $data['name'] ?? 'Unknown'
         ];
     }
-    
+
     /**
      * Process forecast weather data
      */
@@ -90,16 +91,16 @@ class WeatherService
         if (!isset($data['list'])) {
             return $this->getDefaultWeatherAnalysis('Unknown', $trialDate);
         }
-        
+
         $targetDate = date('Y-m-d', strtotime($trialDate));
-        
+
         // Find forecast closest to trial date
         foreach ($data['list'] as $forecast) {
             $forecastDate = date('Y-m-d', $forecast['dt']);
             if ($forecastDate === $targetDate) {
                 $weather = $forecast['weather'][0];
                 $main = $forecast['main'];
-                
+
                 return [
                     'temperature' => $main['temp'] ?? 25,
                     'humidity' => $main['humidity'] ?? 50,
@@ -109,12 +110,12 @@ class WeatherService
                 ];
             }
         }
-        
+
         // If no exact match, use first forecast
         $forecast = $data['list'][0];
         $weather = $forecast['weather'][0];
         $main = $forecast['main'];
-        
+
         return [
             'temperature' => $main['temp'] ?? 25,
             'humidity' => $main['humidity'] ?? 50,
@@ -123,14 +124,14 @@ class WeatherService
             'city' => $data['city']['name'] ?? 'Unknown'
         ];
     }
-    
+
     /**
      * Get default weather analysis when API is unavailable
      */
     private function getDefaultWeatherAnalysis($cityName, $trialDate)
     {
         $month = date('n', strtotime($trialDate));
-        
+
         // Basic seasonal analysis for India
         if ($month >= 6 && $month <= 9) {
             // Monsoon season
@@ -161,7 +162,7 @@ class WeatherService
             ];
         }
     }
-    
+
     /**
      * AI-powered weather analysis and recommendations
      */
@@ -170,7 +171,7 @@ class WeatherService
         $recommendations = [];
         $riskLevel = 'low';
         $shouldDelay = false;
-        
+
         // Analyze temperature
         if ($weatherData['temperature'] > 40) {
             $recommendations[] = "⚠️ Extreme heat expected ({$weatherData['temperature']}°C). Consider morning slots or indoor venues.";
@@ -182,11 +183,11 @@ class WeatherService
             $recommendations[] = "🥶 Cold weather expected ({$weatherData['temperature']}°C). Consider afternoon slots for better temperature.";
             $riskLevel = ($riskLevel === 'low') ? 'medium' : $riskLevel;
         }
-        
+
         // Analyze precipitation and humidity
         $rainKeywords = ['rain', 'drizzle', 'shower', 'thunderstorm', 'storm'];
         $isRainy = false;
-        
+
         foreach ($rainKeywords as $keyword) {
             if (stripos($weatherData['description'], $keyword) !== false || 
                 stripos($weatherData['main'], $keyword) !== false) {
@@ -194,7 +195,7 @@ class WeatherService
                 break;
             }
         }
-        
+
         if ($isRainy || $weatherData['humidity'] > 85) {
             $recommendations[] = "🌧️ High chance of rain/storms. Strong recommendation to delay or arrange covered venue.";
             $riskLevel = 'high';
@@ -203,20 +204,20 @@ class WeatherService
             $recommendations[] = "☁️ High humidity expected. Consider backup indoor arrangements.";
             $riskLevel = ($riskLevel === 'low') ? 'medium' : $riskLevel;
         }
-        
+
         // Seasonal analysis
         $month = date('n', strtotime($trialDate));
         if ($month >= 6 && $month <= 9) {
             $recommendations[] = "🌦️ Monsoon season - historically high rainfall probability in this period.";
             $riskLevel = ($riskLevel === 'low') ? 'medium' : $riskLevel;
         }
-        
+
         // Day of week analysis
         $dayOfWeek = date('N', strtotime($trialDate));
         if ($dayOfWeek >= 6) {
             $recommendations[] = "📅 Weekend date - expect higher participant turnout despite weather conditions.";
         }
-        
+
         // Generate overall recommendation
         if ($shouldDelay) {
             $overallAdvice = "🚨 STRONGLY RECOMMEND RESCHEDULING: Weather conditions pose significant risk to trial operations.";
@@ -227,7 +228,7 @@ class WeatherService
         } else {
             $overallAdvice = "✅ EXCELLENT CONDITIONS: Ideal weather for outdoor trials.";
         }
-        
+
         return [
             'risk_level' => $riskLevel,
             'should_delay' => $shouldDelay,
