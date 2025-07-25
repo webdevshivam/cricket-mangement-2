@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -44,7 +43,7 @@ class AdminManagementController extends BaseController
         }
 
         $validation = \Config\Services::validation();
-        
+
         $validation->setRules([
             'name' => 'required|min_length[2]|max_length[100]',
             'email' => 'required|valid_email|max_length[100]',
@@ -111,7 +110,7 @@ class AdminManagementController extends BaseController
         }
 
         $validation = \Config\Services::validation();
-        
+
         $rules = [
             'name' => 'required|min_length[2]|max_length[100]',
             'email' => 'required|valid_email|max_length[100]',
