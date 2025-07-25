@@ -109,6 +109,14 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('change-password', 'ChangePasswordController::index');
     $routes->post('change-password/update', 'ChangePasswordController::update');
 
+    // Admin Management Routes
+    $routes->get('manage-admins', 'AdminManagementController::index');
+    $routes->get('manage-admins/create', 'AdminManagementController::create');
+    $routes->post('manage-admins/store', 'AdminManagementController::store');
+    $routes->get('manage-admins/edit/(:num)', 'AdminManagementController::edit/$1');
+    $routes->post('manage-admins/update/(:num)', 'AdminManagementController::update/$1');
+    $routes->get('manage-admins/delete/(:num)', 'AdminManagementController::delete/$1');
+
     // Team Management Routes
     $routes->get('teams', 'TeamController::index');
     $routes->get('teams/manage/(:num)', 'TeamController::manageTeam/$1');
