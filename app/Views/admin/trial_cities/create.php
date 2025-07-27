@@ -31,12 +31,16 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label for="city_name" class="form-label text-white">City Name</label>
-          <input type="text" class="form-control" name="city_name" required>
+          <select class="form-select" name="city_name" id="city_name" required>
+            <option value="">Select City</option>
+          </select>
         </div>
 
         <div class="col-md-6">
           <label for="state" class="form-label text-white">State</label>
-          <input type="text" class="form-control" name="state" required>
+          <select class="form-select" name="state" id="state" required>
+            <option value="">Select State</option>
+          </select>
         </div>
 
         <div class="col-md-6">
@@ -85,7 +89,7 @@
               </div>
             </div>
           </div>
-          
+
           <button type="button" class="btn btn-info mt-2" id="analyze-weather-btn">
             <i class="fas fa-robot"></i> Get AI Weather Analysis
           </button>
@@ -120,4 +124,81 @@
 </div>
 
 <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const stateDropdown = document.getElementById('state');
+    const cityDropdown = document.getElementById('city_name');
+
+    // Function to load states
+    function loadStates() {
+      fetch('https://countriesnow.space/api/v0.1/countries/states', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          country: "India"
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.data) {
+          // Clear existing options
+          stateDropdown.innerHTML = '<option value="">Select State</option>';
+          data.data.states.forEach(state => {
+            const option = document.createElement('option');
+            option.value = state.name;
+            option.textContent = state.name;
+            stateDropdown.appendChild(option);
+          });
+        } else {
+          console.error('Failed to load states:', data.msg);
+        }
+      })
+      .catch(error => console.error('Error loading states:', error));
+    }
+
+    // Function to load cities based on selected state
+    function loadCities(stateName) {
+      fetch('https://countriesnow.space/api/v0.1/countries/state/city', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              country: "India",
+              state: stateName
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.data) {
+              cityDropdown.innerHTML = '<option value="">Select City</option>';
+              data.data.forEach(city => {
+                  const option = document.createElement('option');
+                  option.value = city;
+                  option.textContent = city;
+                  cityDropdown.appendChild(option);
+              });
+          } else {
+              console.error('Failed to load cities:', data.msg);
+          }
+      })
+      .catch(error => console.error('Error loading cities:', error));
+    }
+
+    // Load states on page load
+    loadStates();
+
+    // Add event listener to state dropdown
+    stateDropdown.addEventListener('change', function() {
+      const selectedState = this.value;
+      if (selectedState) {
+        loadCities(selectedState);
+      } else {
+        cityDropdown.innerHTML = '<option value="">Select City</option>';
+      }
+    });
+  });
+</script>
 <?= $this->endSection(); ?>

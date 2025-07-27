@@ -12,54 +12,26 @@ class FormWizard {
     this.updateUI();
   }
 
-  // Load Indian States (static data)
-  loadIndianStates() {
-    const states = [
-      'Andhra Pradesh',
-      'Arunachal Pradesh',
-      'Assam',
-      'Bihar',
-      'Chhattisgarh',
-      'Goa',
-      'Gujarat',
-      'Haryana',
-      'Himachal Pradesh',
-      'Jharkhand',
-      'Karnataka',
-      'Kerala',
-      'Madhya Pradesh',
-      'Maharashtra',
-      'Manipur',
-      'Meghalaya',
-      'Mizoram',
-      'Nagaland',
-      'Odisha',
-      'Punjab',
-      'Rajasthan',
-      'Sikkim',
-      'Tamil Nadu',
-      'Telangana',
-      'Tripura',
-      'Uttar Pradesh',
-      'Uttarakhand',
-      'West Bengal',
-      'Andaman and Nicobar Islands',
-      'Chandigarh',
-      'Dadra and Nagar Haveli and Daman and Diu',
-      'Delhi',
-      'Jammu and Kashmir',
-      'Ladakh',
-      'Lakshadweep',
-      'Puducherry',
-    ];
-
-    const stateSelect = document.getElementById('state');
-    states.forEach((state) => {
-      const option = document.createElement('option');
-      option.value = state.toLowerCase().replace(/\s+/g, '_');
-      option.textContent = state;
-      stateSelect.appendChild(option);
-    });
+  // Load Indian States from API
+  async loadIndianStates() {
+    try {
+      const response = await fetch('/index.php/api/states');
+      const data = await response.json();
+      
+      if (data.success) {
+        const stateSelect = document.getElementById('state');
+        data.states.forEach((state) => {
+          const option = document.createElement('option');
+          option.value = state.code;
+          option.textContent = state.name;
+          stateSelect.appendChild(option);
+        });
+      } else {
+        console.error('Failed to load states');
+      }
+    } catch (error) {
+      console.error('Error loading states:', error);
+    }
   }
 
   // Bind event listeners
