@@ -14,13 +14,19 @@ class WeatherService
     public function __construct()
     {
         $this->client = new Client();
-        // Using OpenWeatherMap free API - you can get free API key from openweathermap.org
-        $this->apiKey = getenv('OPENWEATHER_API_KEY') ?: 'demo_key'; // Replace with actual API key
-		$this->baseUrl = "https://api.openweathermap.org/data/2.5";
+        
+        // Load API settings from database
+        $apiSettingModel = new \App\Models\ApiSettingModel();
+        $settings = $apiSettingModel->getSettings();
+        
+        $this->apiKey = $settings['openweather_api_key'] ?? 'demo_key';
+        $this->baseUrl = $settings['openweather_api_url'] ?? "https://api.openweathermap.org/data/2.5";
 
         // Log API key status for debugging
-        if ($this->apiKey === 'demo_key' || $this->apiKey === 'your_actual_api_key_here') {
+        if ($this->apiKey === 'demo_key' || empty($this->apiKey)) {
             log_message('warning', 'OpenWeather API key not configured properly');
+        } else {
+            log_message('info', 'OpenWeather API key loaded successfully');
         }
     }
 
@@ -30,6 +36,15 @@ class WeatherService
     public function getWeatherForecast($cityName, $trialDate)
     {
         try {
+            // Check if API is enabled and configured
+            $apiSettingModel = new \App\Models\ApiSettingModel();
+            $settings = $apiSettingModel->getSettings();
+            
+            if (!$settings['openweather_enabled'] || empty($this->apiKey) || $this->apiKey === 'demo_key') {
+                log_message('info', 'OpenWeather API disabled or not configured, using default analysis');
+                return $this->getDefaultWeatherAnalysis($cityName, $trialDate);
+            }
+
             $daysFromNow = (strtotime($trialDate) - time()) / (24 * 60 * 60);
 
             // If trial date is more than 5 days away, use current weather as approximation
@@ -39,15 +54,22 @@ class WeatherService
                 $url = $this->baseUrl . "/forecast";
             }
 
+            log_message('info', 'Making weather API request to: ' . $url . ' for city: ' . $cityName);
+
             $response = $this->client->get($url, [
                 'query' => [
                     'q' => $cityName,
                     'appid' => $this->apiKey,
                     'units' => 'metric'
-                ]
+                ],
+                'timeout' => 10
             ]);
 
             $data = json_decode($response->getBody(), true);
+            
+            if (!$data) {
+                throw new Exception('Invalid API response');
+            }
 
             if ($daysFromNow > 5) {
                 return $this->processCurrentWeather($data, $trialDate);
@@ -57,6 +79,7 @@ class WeatherService
 
         } catch (Exception $e) {
             log_message('error', 'Weather API Error: ' . $e->getMessage());
+            log_message('error', 'API Key used: ' . substr($this->apiKey, 0, 8) . '...');
             // Return default analysis if API fails
             return $this->getDefaultWeatherAnalysis($cityName, $trialDate);
         }

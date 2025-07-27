@@ -23,55 +23,50 @@ class TrialCityController extends BaseController
     {
         return view('admin/trial_cities/create');
     }
-    
+
     /**
      * Get weather analysis for trial city via AJAX
      */
     public function getWeatherAnalysis()
     {
         try {
+            log_message('info', 'Starting weather analysis for city: ' . $cityName . ', date: ' . $trialDate);
+
             $cityName = $this->request->getPost('city_name');
             $trialDate = $this->request->getPost('trial_date');
-            
+
             if (!$cityName || !$trialDate) {
                 return $this->response->setJSON([
                     'success' => false,
                     'error' => 'City name and trial date are required'
                 ]);
             }
-            
+
             $weatherService = new WeatherService();
-            
-            // Get weather forecast
-            $weatherData = $weatherService->getWeatherForecast($cityName, $trialDate);
-            
-            if (!$weatherData) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'error' => 'Failed to fetch weather data. Please check your API key configuration.'
-                ]);
-            }
-            
-            // Get AI analysis and recommendations
-            $analysis = $weatherService->analyzeWeatherForTrial($weatherData, $trialDate);
-            
+            $weather = $weatherService->getWeatherForecast($cityName, $trialDate);
+            $analysis = $weatherService->analyzeWeatherForTrial($weather, $trialDate);
+
+            log_message('info', 'Weather analysis completed successfully');
+
             return $this->response->setJSON([
                 'success' => true,
-                'weather' => $weatherData,
+                'weather' => $weather,
                 'analysis' => $analysis
             ]);
-            
+
         } catch (Exception $e) {
             log_message('error', 'Weather Analysis Error: ' . $e->getMessage());
+            log_message('error', 'Request data - City: ' . $cityName . ', Date: ' . $trialDate);
+
             return $this->response->setJSON([
                 'success' => false,
-                'error' => 'Weather service temporarily unavailable. Using default analysis.',
+                'error' => 'Weather service error: ' . $e->getMessage(),
                 'weather' => $this->getDefaultWeatherData($cityName ?? 'Unknown'),
                 'analysis' => $this->getDefaultAnalysis()
             ]);
         }
     }
-    
+
     private function getDefaultWeatherData($cityName)
     {
         return [
@@ -82,7 +77,7 @@ class TrialCityController extends BaseController
             'city' => $cityName
         ];
     }
-    
+
     private function getDefaultAnalysis()
     {
         return [
