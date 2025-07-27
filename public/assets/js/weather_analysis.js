@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
             
             // Make AJAX request
-            fetch('<?= base_url("admin/manage-trial-cities/weather-analysis") ?>', {
+            fetch('/index.php/admin/manage-trial-cities/weather-analysis', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

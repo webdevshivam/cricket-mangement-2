@@ -7,6 +7,9 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+// Weather analysis route
+$routes->post('admin/manage-trial-cities/weather-analysis', 'TrialCityController::getWeatherAnalysis');
+
 // Trial Registration Routes
 $routes->get('/trial-registration', 'TrialRegistrationController::index');
 $routes->post('/trial-registration-save', 'TrialRegistrationController::register');

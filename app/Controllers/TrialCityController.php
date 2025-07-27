@@ -30,10 +30,10 @@ class TrialCityController extends BaseController
     public function getWeatherAnalysis()
     {
         try {
-            log_message('info', 'Starting weather analysis for city: ' . $cityName . ', date: ' . $trialDate);
-
             $cityName = $this->request->getPost('city_name');
             $trialDate = $this->request->getPost('trial_date');
+            
+            log_message('info', 'Starting weather analysis for city: ' . $cityName . ', date: ' . $trialDate);
 
             if (!$cityName || !$trialDate) {
                 return $this->response->setJSON([
@@ -55,6 +55,9 @@ class TrialCityController extends BaseController
             ]);
 
         } catch (Exception $e) {
+            $cityName = $this->request->getPost('city_name') ?? 'Unknown';
+            $trialDate = $this->request->getPost('trial_date') ?? 'Unknown';
+            
             log_message('error', 'Weather Analysis Error: ' . $e->getMessage());
             log_message('error', 'Request data - City: ' . $cityName . ', Date: ' . $trialDate);
 
