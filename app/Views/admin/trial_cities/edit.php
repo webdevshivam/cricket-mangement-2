@@ -27,7 +27,7 @@
       <input type="hidden" name="id" value="<?= $city['id'] ?>">
 
       <div class="row g-3">
-        
+
 		<div class="col-md-6 mb-3">
             <label for="city_name" class="form-label text-light">City Name *</label>
             <select class="form-select bg-dark text-white" id="city_name" name="city_name" required>
@@ -126,4 +126,43 @@
 </div>
 
 <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Store current values
+    const currentState = "<?= esc($city['state']) ?>";
+    const currentCity = "<?= esc($city['city_name']) ?>";
+
+    // Wait for location loader to initialize
+    setTimeout(function() {
+      if (window.locationLoader) {
+        // Set current state value
+        const stateSelect = document.getElementById('state');
+        const citySelect = document.getElementById('city_name');
+
+        // Find and set the current state
+        const stateOption = Array.from(stateSelect.options).find(option => 
+          option.textContent === currentState
+        );
+
+        if (stateOption) {
+          stateSelect.value = stateOption.value;
+
+          // Load cities for current state and set current city
+          window.locationLoader.loadCities(stateOption.value).then(cities => {
+            citySelect.innerHTML = '<option value="">Select City</option>';
+            cities.forEach(city => {
+              const option = document.createElement('option');
+              option.value = city;
+              option.textContent = city;
+              if (city === currentCity) {
+                option.selected = true;
+              }
+              citySelect.appendChild(option);
+            });
+          });
+        }
+      }
+    }, 1000);
+  });
+</script>
 <?= $this->endSection(); ?>
