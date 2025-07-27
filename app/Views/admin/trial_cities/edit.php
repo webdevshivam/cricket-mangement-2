@@ -28,27 +28,15 @@
 
       <div class="row g-3">
 
-		<div class="col-md-6 mb-3">
-            <label for="city_name" class="form-label text-light">City Name *</label>
-            <select class="form-select bg-dark text-white" id="city_name" name="city_name" required>
-              <option value="">Select City</option>
-              <option value="<?= esc($city['city_name']) ?>" selected><?= esc($city['city_name']) ?></option>
-            </select>
-          </div>
-		<div class="col-md-6 mb-3">
-            <label for="city_name" class="form-label text-light">City Name *</label>
-            <select class="form-select bg-dark text-white" id="city_name" name="city_name" required>
-              <option value="">Select City</option>
-              <option value="<?= esc($city['city_name']) ?>" selected><?= esc($city['city_name']) ?></option>
-            </select>
-          </div>
-		<div class="col-md-6 mb-3">
-            <label for="state" class="form-label text-light">State *</label>
-            <select class="form-select bg-dark text-white" id="state" name="state" required>
-              <option value="">Select State</option>
-              <option value="<?= esc($city['state']) ?>" selected><?= esc($city['state']) ?></option>
-            </select>
-          </div>
+		<div class="col-md-6">
+          <label for="city_name" class="form-label text-white">City Name</label>
+          <input type="text" class="form-control" name="city_name" id="city_name" value="<?= esc($city['city_name']) ?>" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="state" class="form-label text-white">State</label>
+          <input type="text" class="form-control" name="state" id="state" value="<?= esc($city['state']) ?>" required>
+        </div>
         <div class="col-md-6">
           <label for="trial_date" class="form-label text-white">Trial Date</label>
           <input type="date" class="form-control" name="trial_date" id="trial_date" value="<?= $city['trial_date'] ?>" required>
@@ -126,43 +114,4 @@
 </div>
 
 <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Store current values
-    const currentState = "<?= esc($city['state']) ?>";
-    const currentCity = "<?= esc($city['city_name']) ?>";
-
-    // Wait for location loader to initialize
-    setTimeout(function() {
-      if (window.locationLoader) {
-        // Set current state value
-        const stateSelect = document.getElementById('state');
-        const citySelect = document.getElementById('city_name');
-
-        // Find and set the current state
-        const stateOption = Array.from(stateSelect.options).find(option => 
-          option.textContent === currentState
-        );
-
-        if (stateOption) {
-          stateSelect.value = stateOption.value;
-
-          // Load cities for current state and set current city
-          window.locationLoader.loadCities(stateOption.value).then(cities => {
-            citySelect.innerHTML = '<option value="">Select City</option>';
-            cities.forEach(city => {
-              const option = document.createElement('option');
-              option.value = city;
-              option.textContent = city;
-              if (city === currentCity) {
-                option.selected = true;
-              }
-              citySelect.appendChild(option);
-            });
-          });
-        }
-      }
-    }, 1000);
-  });
-</script>
 <?= $this->endSection(); ?>

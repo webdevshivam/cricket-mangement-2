@@ -310,7 +310,7 @@
   </script>
 
   <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
-  <script src="<?= base_url('assets/js/location_loader.js') ?>"></script>
-</body>
+  
+</body
 
 </html>

@@ -7,58 +7,8 @@ class FormWizard {
   }
 
   init() {
-    this.loadIndianStates();
     this.bindEvents();
     this.updateUI();
-  }
-
-  // Load Indian States from API
-  async loadIndianStates() {
-    try {
-      const response = await fetch('/index.php/api/states');
-      const data = await response.json();
-      
-      if (data.success) {
-        const stateSelect = document.getElementById('state');
-        data.states.forEach((state) => {
-          const option = document.createElement('option');
-          option.value = state.code;
-          option.textContent = state.name;
-          stateSelect.appendChild(option);
-        });
-        
-        // Add event listener for state change to load cities
-        stateSelect.addEventListener('change', async (e) => {
-          const stateCode = e.target.value;
-          const citySelect = document.getElementById('city');
-          
-          if (stateCode) {
-            try {
-              const cityResponse = await fetch(`/index.php/api/cities/${stateCode}`);
-              const cityData = await cityResponse.json();
-              
-              if (cityData.success) {
-                citySelect.innerHTML = '<option value="">Select City</option>';
-                cityData.cities.forEach(city => {
-                  const option = document.createElement('option');
-                  option.value = city;
-                  option.textContent = city;
-                  citySelect.appendChild(option);
-                });
-              }
-            } catch (error) {
-              console.error('Error loading cities:', error);
-            }
-          } else {
-            citySelect.innerHTML = '<option value="">Select City</option>';
-          }
-        });
-      } else {
-        console.error('Failed to load states');
-      }
-    } catch (error) {
-      console.error('Error loading states:', error);
-    }
   }
 
   // Bind event listeners

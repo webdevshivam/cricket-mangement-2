@@ -31,16 +31,12 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label for="city_name" class="form-label text-white">City Name</label>
-          <select class="form-select" name="city_name" id="city_name" required>
-            <option value="">Select City</option>
-          </select>
+          <input type="text" class="form-control" name="city_name" id="city_name" required>
         </div>
 
         <div class="col-md-6">
           <label for="state" class="form-label text-white">State</label>
-          <select class="form-select" name="state" id="state" required>
-            <option value="">Select State</option>
-          </select>
+          <input type="text" class="form-control" name="state" id="state" required>
         </div>
 
         <div class="col-md-6">
@@ -124,16 +120,4 @@
 </div>
 
 <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize location loader
-    if (window.locationLoader) {
-      console.log('Location loader initialized successfully');
-    } else {
-      console.error('Location loader not found, initializing fallback');
-      // Fallback initialization
-      window.locationLoader = new LocationLoader();
-    }
-  });
-</script>
 <?= $this->endSection(); ?>

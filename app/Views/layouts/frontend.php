@@ -77,6 +77,6 @@
 
     <?= $this->renderSection('scripts') ?>
     <script src="<?= base_url('assets-frontend/trial/trial.js') ?>"></script>
-  <script src="<?= base_url('assets/js/location_loader.js') ?>"></script>
+  
 </body>
 </html>
