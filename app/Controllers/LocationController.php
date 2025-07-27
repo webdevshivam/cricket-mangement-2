@@ -1,10 +1,10 @@
-
 <?php
 
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
+use Exception;
 
 class LocationController extends BaseController
 {
@@ -58,7 +58,6 @@ class LocationController extends BaseController
                 'success' => true,
                 'states' => $states
             ]);
-
         } catch (Exception $e) {
             log_message('error', 'States API Error: ' . $e->getMessage());
             return $this->response->setJSON([
@@ -87,14 +86,13 @@ class LocationController extends BaseController
 
             // Using a comprehensive cities database for India
             $citiesData = $this->getIndianCitiesData();
-            
+
             $cities = isset($citiesData[$stateCode]) ? $citiesData[$stateCode] : [];
 
             return $this->response->setJSON([
                 'success' => true,
                 'cities' => $cities
             ]);
-
         } catch (Exception $e) {
             log_message('error', 'Cities API Error: ' . $e->getMessage());
             return $this->response->setJSON([
