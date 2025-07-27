@@ -31,7 +31,13 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label for="city_name" class="form-label text-white">City Name</label>
-          <input type="text" class="form-control" name="city_name" id="city_name" required>
+          <div class="input-group">
+            <input type="text" class="form-control" name="city_name" id="city_name" required>
+            <button type="button" class="btn btn-outline-warning" id="bestCricketGroundsBtn" 
+                    onclick="showBestCricketGrounds()" disabled>
+              <i class="fas fa-map-marker-alt"></i> Best Cricket Grounds
+            </button>
+          </div>
         </div>
 
         <div class="col-md-6">
@@ -119,5 +125,29 @@
   </div>
 </div>
 
+<!-- Cricket Grounds Offcanvas -->
+<div class="offcanvas offcanvas-end bg-dark text-white" tabindex="-1" id="cricketGroundsOffcanvas" 
+     aria-labelledby="cricketGroundsOffcanvasLabel">
+  <div class="offcanvas-header border-bottom border-warning">
+    <h5 class="offcanvas-title text-warning" id="cricketGroundsOffcanvasLabel">
+      <i class="fas fa-map-marker-alt me-2"></i>Best Cricket Grounds in <span id="selectedCityName"></span>
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="cricketGroundsLoading" class="text-center" style="display: none;">
+      <div class="spinner-border text-warning" role="status">
+        <span class="visually-hidden">Loading cricket grounds...</span>
+      </div>
+      <p class="mt-2 text-muted">Finding best cricket grounds...</p>
+    </div>
+    
+    <div id="cricketGroundsList">
+      <!-- Cricket grounds will be loaded here -->
+    </div>
+  </div>
+</div>
+
 <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
+<script src="<?= base_url('assets/js/cricket_grounds.js') ?>"></script>
 <?= $this->endSection(); ?>
