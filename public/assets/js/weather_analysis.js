@@ -1,7 +1,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const analyzeBtn = document.getElementById('analyze-weather-btn');
-    const cityInput = document.querySelector('input[name="city_name"]');
+    const citySelect = document.querySelector('select[name="city_name"]');
     const dateInput = document.getElementById('trial_date');
     const weatherCard = document.getElementById('weather-analysis-card');
     const loadingDiv = document.getElementById('weather-loading');
@@ -9,12 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', function() {
-            const cityName = cityInput.value.trim();
+            const cityName = citySelect ? citySelect.value.trim() : '';
             const trialDate = dateInput.value;
             
             if (!cityName) {
-                alert('Please enter city name first');
-                cityInput.focus();
+                alert('Please select city name first');
+                if (citySelect) citySelect.focus();
                 return;
             }
             

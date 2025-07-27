@@ -126,79 +126,14 @@
 <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const stateDropdown = document.getElementById('state');
-    const cityDropdown = document.getElementById('city_name');
-
-    // Function to load states
-    function loadStates() {
-      fetch('https://countriesnow.space/api/v0.1/countries/states', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          country: "India"
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.data) {
-          // Clear existing options
-          stateDropdown.innerHTML = '<option value="">Select State</option>';
-          data.data.states.forEach(state => {
-            const option = document.createElement('option');
-            option.value = state.name;
-            option.textContent = state.name;
-            stateDropdown.appendChild(option);
-          });
-        } else {
-          console.error('Failed to load states:', data.msg);
-        }
-      })
-      .catch(error => console.error('Error loading states:', error));
+    // Initialize location loader
+    if (window.locationLoader) {
+      console.log('Location loader initialized successfully');
+    } else {
+      console.error('Location loader not found, initializing fallback');
+      // Fallback initialization
+      window.locationLoader = new LocationLoader();
     }
-
-    // Function to load cities based on selected state
-    function loadCities(stateName) {
-      fetch('https://countriesnow.space/api/v0.1/countries/state/city', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              country: "India",
-              state: stateName
-          })
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.data) {
-              cityDropdown.innerHTML = '<option value="">Select City</option>';
-              data.data.forEach(city => {
-                  const option = document.createElement('option');
-                  option.value = city;
-                  option.textContent = city;
-                  cityDropdown.appendChild(option);
-              });
-          } else {
-              console.error('Failed to load cities:', data.msg);
-          }
-      })
-      .catch(error => console.error('Error loading cities:', error));
-    }
-
-    // Load states on page load
-    loadStates();
-
-    // Add event listener to state dropdown
-    stateDropdown.addEventListener('change', function() {
-      const selectedState = this.value;
-      if (selectedState) {
-        loadCities(selectedState);
-      } else {
-        cityDropdown.innerHTML = '<option value="">Select City</option>';
-      }
-    });
   });
 </script>
 <?= $this->endSection(); ?>
