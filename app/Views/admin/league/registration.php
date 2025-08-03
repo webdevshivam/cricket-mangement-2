@@ -45,6 +45,16 @@
               <i class="fas fa-refresh"></i> Reset
             </a>
           </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-success" onclick="bulkUpdateStatus('selected')">
+              <i class="fas fa-check"></i> Mark Selected
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-danger" onclick="bulkUpdateStatus('not_selected')">
+              <i class="fas fa-times"></i> Mark Not Selected
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -69,6 +79,7 @@
               <th>Age Group</th>
               <th>Trial City</th>
               <th>Payment Status</th>
+              <th>Status</th>
               <th>Assigned Grade</th>
               <th>Documents</th>
               <th>Actions</th>
@@ -105,6 +116,18 @@
                       </option>
                       <option value="paid" <?= (isset($reg['payment_status']) && $reg['payment_status'] == 'paid') ? 'selected' : '' ?>>
                         ✅ Paid
+                      </option>
+                    </select>
+                  </td>
+                  <td>
+                    <select class="form-select form-select-sm status-select bg-dark text-white"
+                      data-player-id="<?= esc($reg['id']) ?>"
+                      data-player-name="<?= esc($reg['name']) ?>">
+                      <option value="not_selected" <?= (!isset($reg['status']) || $reg['status'] == 'not_selected') ? 'selected' : '' ?>>
+                        ❌ Not Selected
+                      </option>
+                      <option value="selected" <?= (isset($reg['status']) && $reg['status'] == 'selected') ? 'selected' : '' ?>>
+                        ✅ Selected
                       </option>
                     </select>
                   </td>
@@ -163,7 +186,7 @@
               <?php endforeach; ?>
             <?php else : ?>
               <tr>
-                <td colspan="13" class="text-center text-muted">No league registrations found.</td>
+                <td colspan="14" class="text-center text-muted">No league registrations found.</td>
               </tr>
             <?php endif; ?>
           </tbody>
@@ -219,6 +242,25 @@
 
         if (confirm(`Update ${playerName} (${playerPhone}) payment status to: ${statusText}?`)) {
           updatePaymentStatus(playerId, newStatus, this);
+        } else {
+          this.value = originalValue;
+        }
+      });
+    });
+
+    // Status selection handlers
+    const statusSelects = document.querySelectorAll('.status-select');
+    statusSelects.forEach(select => {
+      const originalValue = select.value;
+
+      select.addEventListener('change', function() {
+        const playerId = this.getAttribute('data-player-id');
+        const playerName = this.getAttribute('data-player-name');
+        const newStatus = this.value;
+        const statusText = newStatus === 'selected' ? 'Selected' : 'Not Selected';
+
+        if (confirm(`Update ${playerName} status to: ${statusText}?`)) {
+          updatePlayerStatus(playerId, newStatus, this);
         } else {
           this.value = originalValue;
         }
@@ -284,6 +326,43 @@
       });
   }
 
+  function updatePlayerStatus(playerId, status, selectElement) {
+    selectElement.disabled = true;
+
+    fetch("<?= base_url('admin/league-registration/update-status') ?>", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+          player_id: playerId,
+          status: status
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        selectElement.disabled = false;
+
+        if (data.success) {
+          notyf.success("Status updated successfully!");
+        } else {
+          notyf.error(data.message || "Failed to update status.");
+          selectElement.selectedIndex = 0;
+        }
+      })
+      .catch(error => {
+        selectElement.disabled = false;
+        notyf.error("Network error occurred. Please check your connection.");
+        selectElement.selectedIndex = 0;
+      });
+  }
+
   function updatePlayerGrade(playerId, gradeId, selectElement) {
     selectElement.disabled = true;
 
@@ -318,6 +397,52 @@
         selectElement.disabled = false;
         notyf.error("Network error occurred. Please check your connection.");
         selectElement.selectedIndex = 0;
+      });
+  }
+
+  function bulkUpdateStatus(status) {
+    const checkedBoxes = document.querySelectorAll('.player-checkbox:checked');
+    
+    if (checkedBoxes.length === 0) {
+      notyf.error('Please select at least one player to update.');
+      return;
+    }
+
+    const playerIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
+    const statusText = status === 'selected' ? 'Selected' : 'Not Selected';
+    
+    if (!confirm(`Are you sure you want to mark ${playerIds.length} player(s) as ${statusText}?`)) {
+      return;
+    }
+
+    fetch("<?= base_url('admin/league-registration/bulk-update-status') ?>", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+          player_ids: playerIds,
+          status: status
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          notyf.success(data.message);
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          notyf.error(data.message || "Failed to bulk update status.");
+        }
+      })
+      .catch(error => {
+        notyf.error("Network error occurred. Please check your connection.");
+        console.error("Network error:", error);
       });
   }
 

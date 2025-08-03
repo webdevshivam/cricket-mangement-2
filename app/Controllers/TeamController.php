@@ -38,10 +38,10 @@ class TeamController extends BaseController
         $data['availablePlayers'] = $teamPlayerModel->getAvailablePlayers($teamId);
 
         // Get league players for team assignment (only selected players)
-        $leagueModel = new \App\Models\LeaguePlayerModel();
-        $data['league_players'] = $leagueModel->where('payment_status', 'paid')
-                                             ->where('status', 'selected')
-                                             ->findAll();
+        $leaguePlayerModel = new LeaguePlayerModel();
+        $availablePlayers = $leaguePlayerModel->where('payment_status', 'paid')
+                                            ->where('status', 'selected')
+                                            ->findAll();
 
         return view('admin/teams/manage', $data);
     }
