@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
+
     <style>
         body {
             background: linear-gradient(135deg, #343a40 0%, #212529 100%);
@@ -144,7 +143,7 @@
                 <h2>Trial Manager Portal</h2>
                 <p class="mb-0">Access your trial management dashboard</p>
             </div>
-            
+
             <div class="login-body">
                 <?php if (session()->getFlashdata('error')): ?>
                     <div class="alert alert-danger">
@@ -204,3 +203,4 @@
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 </body>
 </html>
+```

@@ -62,8 +62,6 @@
           </a>
         </li>
 
-
-
         <!-- 🏟️ Trial Management -->
         <li class="nav-item">
           <a href="#trial-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
@@ -72,21 +70,20 @@
           <ul class="collapse list-unstyled" id="trial-submenu">
             <li><a href="<?= base_url('admin/manage-trial-cities') ?>" class="nav-link">Manage Trial Cities</a></li>
             <li><a href="<?= base_url('admin/trial-managers') ?>" class="nav-link">Trial Managers</a></li>
-            <li>
-              <a href="#assignment-submenu" class="nav-link dropdown-toggle ms-3" aria-expanded="false" data-bs-toggle="collapse">
-                <i class="fas fa-user-check"></i> Player Assignments
-              </a>
-              <ul class="collapse list-unstyled ms-4" id="assignment-submenu">
-                <li><a href="<?= base_url('admin/trial-managers') ?>" class="nav-link">Assign Players to Managers</a></li>
-                <li><a href="<?= base_url('admin/trial/players') ?>" class="nav-link">View All Trial Players</a></li>
-                <li><a href="<?= base_url('admin/trial-managers/unassigned') ?>" class="nav-link">Unassigned Players</a></li>
-              </ul>
-            </li>
             <li><a href="<?= base_url('admin/trial-registration') ?>" class="nav-link">Manage Trial Registration</a></li>
             <li><a href="<?= base_url('admin/trial-verification') ?>" class="nav-link">Trial Verification</a></li>
-            <li><a href="<?= base_url('admin/payment-tracking') ?>" class="nav-link">Payment Tracking</a></li>
-            <li><a href="<?= base_url('admin/schedule-trials') ?>" class="nav-link">Schedule Trials</a></li>
-            <li><a href="<?= base_url('admin/trial-attendance') ?>" class="nav-link">Trial Attendance</a></li>
+          </ul>
+        </li>
+
+        <!-- 👥 Player Assignment -->
+        <li class="nav-item">
+          <a href="#assignment-submenu" class="nav-link dropdown-toggle" aria-expanded="false">
+            <i class="fas fa-user-check"></i> Player Assignment
+          </a>
+          <ul class="collapse list-unstyled" id="assignment-submenu">
+            <li><a href="<?= base_url('admin/trial-managers/unassigned') ?>" class="nav-link">Unassigned Players</a></li>
+            <li><a href="<?= base_url('admin/trial-managers') ?>" class="nav-link">Assign Players to Managers</a></li>
+            <li><a href="<?= base_url('admin/trial/players') ?>" class="nav-link">View All Trial Players</a></li>
           </ul>
         </li>
 
@@ -321,7 +318,7 @@
   </script>
 
   <script src="<?= base_url('assets/js/weather_analysis.js') ?>"></script>
-  
+
 </body
 
 </html>

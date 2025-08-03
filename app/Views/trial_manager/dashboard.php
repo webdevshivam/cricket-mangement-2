@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/admin') ?>
+<?= $this->extend('layouts/trial_manager') ?>
 
 <?= $this->section('title') ?>Trial Manager Dashboard<?= $this->endSection() ?>
 
