@@ -188,7 +188,8 @@ class TrialManagerDashboardController extends BaseController
             'mobile' => 'required|exact_length[10]|is_unique[trial_players.mobile]',
             'email' => 'permit_empty|valid_email',
             'age' => 'required|integer|greater_than[10]|less_than[50]',
-            'cricket_type' => 'required|in_list[bowler,batsman,all-rounder,wicket-keeper]'
+            'cricket_type' => 'required|in_list[bowler,batsman,all-rounder,wicket-keeper]',
+            'payment_type' => 'required|in_list[offline,online]'
         ];
 
         if (!$validation->setRules($rules)->run($input)) {
@@ -226,10 +227,10 @@ class TrialManagerDashboardController extends BaseController
                 'trial_player_id' => $playerId,
                 'trial_manager_id' => $managerId,
                 'amount' => $fees['total'],
-                'payment_method' => 'offline', // Default to offline for trial manager registration
+                'payment_method' => $input['payment_type'], // Use the selected payment type
                 'collected_by' => session()->get('tm_name'),
                 'payment_date' => date('Y-m-d H:i:s'),
-                'notes' => 'Registration by Trial Manager with full payment'
+                'notes' => 'Registration by Trial Manager with full payment (' . ucfirst($input['payment_type']) . ')'
             ];
 
             $paymentModel->insert($paymentData);
@@ -237,7 +238,13 @@ class TrialManagerDashboardController extends BaseController
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Player registered successfully with full payment!',
-                'fees_collected' => $fees['total']
+                'fees_collected' => $fees['total'],
+                'payment_type' => ucfirst($input['payment_type']),
+                'payment_breakdown' => [
+                    'trial_fees' => $fees['trial'],
+                    'tshirt_fees' => $fees['tshirt'],
+                    'total' => $fees['total']
+                ]
             ]);
         } else {
             return $this->response->setJSON([
