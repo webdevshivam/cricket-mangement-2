@@ -127,23 +127,33 @@ class TrialManagerDashboardController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Mobile number is required']);
         }
 
-        $player = $this->trialPlayerModel->where('mobile', $mobile)->first();
+        $managerId = session()->get('tm_user_id');
+
+        // Search for player assigned to this trial manager or unassigned players
+        $player = $this->trialPlayerModel
+            ->select('trial_players.*, trial_cities.city_name as trial_city_name')
+            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
+            ->where('trial_players.mobile', $mobile)
+            ->groupStart()
+                ->where('trial_players.trial_manager_id', $managerId)
+                ->orWhere('trial_players.trial_manager_id IS NULL')
+            ->groupEnd()
+            ->first();
 
         if ($player) {
-            // Calculate fees based on cricket type
-            $fees = $this->calculateFees($player['cricket_type']);
+            // Calculate total amount paid so far
+            $paymentModel = new \App\Models\TrialPaymentModel();
+            $totalPaid = $paymentModel->where('trial_player_id', $player['id'])->selectSum('amount')->first();
+            $player['total_paid'] = $totalPaid['amount'] ?? 0;
 
             return $this->response->setJSON([
                 'success' => true,
-                'found' => true,
-                'player' => $player,
-                'fees' => $fees
+                'player' => $player
             ]);
         } else {
             return $this->response->setJSON([
-                'success' => true,
-                'found' => false,
-                'message' => 'Player not found. You can register them manually.'
+                'success' => false,
+                'message' => 'Player not found or not assigned to you'
             ]);
         }
     }

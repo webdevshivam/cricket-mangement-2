@@ -320,10 +320,6 @@ class TrialManagerController extends BaseController
 
         return $this->response->setJSON(['success' => true, 'players' => $players]);
     }
-            ->findAll();
-
-        return $this->response->setJSON(['success' => true, 'players' => $players]);
-    }
 
     // Assign players to trial manager
     public function assignPlayers()

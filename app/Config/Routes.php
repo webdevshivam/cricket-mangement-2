@@ -229,9 +229,7 @@ $routes->post('trial-manager/authenticate', 'TrialManagerDashboardController::au
 $routes->get('trial-manager/dashboard', 'TrialManagerDashboardController::dashboard');
 $routes->get('trial-manager/player-verification', 'TrialManagerDashboardController::playerVerification');
 $routes->post('trial-manager/search-player', 'TrialManagerDashboardController::searchPlayer');
-$routes->post('trial-manager/register-player', 'TrialManagerDashboardController::registerPlayer');
-$routes->post('trial-manager/collect-payment', 'TrialManagerDashboardController::collectPayment');
-$routes->get('trial-manager/logout', 'TrialManagerDashboardController::logout');
+$routes->get('trial-manager/login', 'TrialManagerDashboardController::login');
 $routes->post('trial-manager/authenticate', 'TrialManagerDashboardController::authenticate');
 $routes->get('trial-manager/dashboard', 'TrialManagerDashboardController::dashboard');
 $routes->get('trial-manager/player-verification', 'TrialManagerDashboardController::playerVerification');
