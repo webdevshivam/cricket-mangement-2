@@ -111,10 +111,13 @@
     <div class="row">
         <div class="col-12">
             <div class="card bg-dark text-light border-warning">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-users me-2"></i>Assigned Players (<?= count($players) ?>)
                     </h5>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignPlayerModal">
+                        <i class="fas fa-plus"></i> Assign Player
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -129,12 +132,13 @@
                                     <th>Payment Status</th>
                                     <th>Registered</th>
                                     <th>Verified</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($players)): ?>
                                     <tr>
-                                        <td colspan="8" class="text-center">No players assigned to this trial manager</td>
+                                        <td colspan="9" class="text-center">No players assigned to this trial manager</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($players as $player): ?>
@@ -165,6 +169,13 @@
                                                     <span class="badge bg-secondary">Pending</span>
                                                 <?php endif; ?>
                                             </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        onclick="unassignPlayer(<?= $player['id'] ?>, '<?= esc($player['name']) ?>')"
+                                                        title="Unassign Player">
+                                                    <i class="fas fa-unlink"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -176,4 +187,271 @@
         </div>
     </div>
 </div>
+
+<!-- Assign Player Modal -->
+<div class="modal fade" id="assignPlayerModal" tabindex="-1" aria-labelledby="assignPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignPlayerModalLabel">Assign Player to Trial Manager</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Players -->
+                <div class="mb-3">
+                    <label for="playerSearch" class="form-label">Search Players</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-dark text-white border-secondary" 
+                               id="playerSearch" placeholder="Enter mobile number or name">
+                        <button class="btn btn-outline-primary" type="button" onclick="searchPlayers()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" class="d-none">
+                    <h6 class="text-info">Search Results:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Cricket Type</th>
+                                    <th>Current Assignment</th>
+                                </tr>
+                            </thead>
+                            <tbody id="searchResultsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Unassigned Players -->
+                <div class="mt-4">
+                    <h6 class="text-warning">Unassigned Players:</h6>
+                    <div id="unassignedPlayers">
+                        <div class="text-center">
+                            <button class="btn btn-outline-info" onclick="loadUnassignedPlayers()">
+                                <i class="fas fa-users"></i> Load Unassigned Players
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="assignSelectedPlayers()" id="assignBtn" disabled>
+                    <i class="fas fa-check"></i> Assign Selected Players
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedPlayers = [];
+const managerId = <?= $manager['id'] ?>;
+
+function searchPlayers() {
+    const query = document.getElementById('playerSearch').value.trim();
+    if (query.length < 2) {
+        alert('Please enter at least 2 characters to search');
+        return;
+    }
+
+    fetch('/admin/trial-managers/search-players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displaySearchResults(data.players);
+        } else {
+            alert(data.message || 'Search failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during search');
+    });
+}
+
+function loadUnassignedPlayers() {
+    fetch('/admin/trial-managers/unassigned-players')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayUnassignedPlayers(data.players);
+        } else {
+            alert(data.message || 'Failed to load unassigned players');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while loading players');
+    });
+}
+
+function displaySearchResults(players) {
+    const resultsBody = document.getElementById('searchResultsBody');
+    const resultsDiv = document.getElementById('searchResults');
+    
+    resultsBody.innerHTML = '';
+    
+    if (players.length === 0) {
+        resultsBody.innerHTML = '<tr><td colspan="6" class="text-center">No players found</td></tr>';
+    } else {
+        players.forEach(player => {
+            const row = createPlayerRow(player, true);
+            resultsBody.appendChild(row);
+        });
+    }
+    
+    resultsDiv.classList.remove('d-none');
+}
+
+function displayUnassignedPlayers(players) {
+    const container = document.getElementById('unassignedPlayers');
+    
+    if (players.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted">No unassigned players found</p>';
+        return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-dark table-striped"><thead><tr>';
+    html += '<th>Select</th><th>Name</th><th>Mobile</th><th>Email</th><th>Cricket Type</th><th>Registered</th>';
+    html += '</tr></thead><tbody>';
+
+    players.forEach(player => {
+        html += `<tr>
+            <td><input type="checkbox" class="form-check-input player-checkbox" value="${player.id}" onchange="togglePlayerSelection(${player.id})"></td>
+            <td>${player.name}</td>
+            <td>${player.mobile}</td>
+            <td>${player.email || 'N/A'}</td>
+            <td>${player.cricket_type}</td>
+            <td>${new Date(player.created_at).toLocaleDateString()}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function createPlayerRow(player, showAssignment = false) {
+    const row = document.createElement('tr');
+    
+    let assignmentInfo = 'Unassigned';
+    if (player.trial_manager_id) {
+        assignmentInfo = player.manager_name || 'Assigned to another manager';
+    }
+    
+    row.innerHTML = `
+        <td><input type="checkbox" class="form-check-input player-checkbox" value="${player.id}" onchange="togglePlayerSelection(${player.id})"></td>
+        <td>${player.name}</td>
+        <td>${player.mobile}</td>
+        <td>${player.email || 'N/A'}</td>
+        <td>${player.cricket_type}</td>
+        ${showAssignment ? `<td><span class="badge ${player.trial_manager_id ? 'bg-warning' : 'bg-success'}">${assignmentInfo}</span></td>` : `<td>${new Date(player.created_at).toLocaleDateString()}</td>`}
+    `;
+    
+    return row;
+}
+
+function togglePlayerSelection(playerId) {
+    const checkbox = document.querySelector(`input[value="${playerId}"]`);
+    
+    if (checkbox.checked) {
+        if (!selectedPlayers.includes(playerId)) {
+            selectedPlayers.push(playerId);
+        }
+    } else {
+        selectedPlayers = selectedPlayers.filter(id => id !== playerId);
+    }
+    
+    document.getElementById('assignBtn').disabled = selectedPlayers.length === 0;
+}
+
+function assignSelectedPlayers() {
+    if (selectedPlayers.length === 0) {
+        alert('Please select at least one player');
+        return;
+    }
+
+    const confirmMsg = `Are you sure you want to assign ${selectedPlayers.length} player(s) to this trial manager?`;
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+
+    fetch('/admin/trial-managers/assign-players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            manager_id: managerId,
+            player_ids: selectedPlayers
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload(); // Refresh the page to show updated assignments
+        } else {
+            alert(data.message || 'Assignment failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during assignment');
+    });
+}
+
+// Unassign player function
+function unassignPlayer(playerId, playerName) {
+    if (!confirm(`Are you sure you want to unassign ${playerName} from this trial manager?`)) {
+        return;
+    }
+
+    fetch(`/admin/trial-managers/unassign-player/${playerId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload(); // Refresh the page to show updated assignments
+        } else {
+            alert(data.message || 'Unassignment failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during unassignment');
+    });
+}
+
+// Reset modal when closed
+document.getElementById('assignPlayerModal').addEventListener('hidden.bs.modal', function () {
+    selectedPlayers = [];
+    document.getElementById('playerSearch').value = '';
+    document.getElementById('searchResults').classList.add('d-none');
+    document.getElementById('unassignedPlayers').innerHTML = '<div class="text-center"><button class="btn btn-outline-info" onclick="loadUnassignedPlayers()"><i class="fas fa-users"></i> Load Unassigned Players</button></div>';
+    document.getElementById('assignBtn').disabled = true;
+});
+</script>
 <?= $this->endSection() ?>

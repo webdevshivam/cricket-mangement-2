@@ -274,4 +274,141 @@ class TrialManagerController extends BaseController
 
         return $stats;
     }
+
+    // Search players for assignment
+    public function searchPlayers()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $input = $this->request->getJSON(true);
+        $query = $input['query'] ?? '';
+
+        if (strlen($query) < 2) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Query must be at least 2 characters']);
+        }
+
+        $players = $this->trialPlayerModel
+            ->select('trial_players.*, trial_managers.name as manager_name')
+            ->join('trial_managers', 'trial_managers.id = trial_players.trial_manager_id', 'left')
+            ->groupStart()
+                ->like('trial_players.name', $query)
+                ->orLike('trial_players.mobile', $query)
+                ->orLike('trial_players.email', $query)
+            ->groupEnd()
+            ->orderBy('trial_players.created_at', 'DESC')
+            ->limit(50)
+            ->findAll();
+
+        return $this->response->setJSON(['success' => true, 'players' => $players]);
+    }
+
+    // Get unassigned players
+    public function getUnassignedPlayers()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $players = $this->trialPlayerModel
+            ->where('trial_manager_id IS NULL')
+            ->orderBy('created_at', 'DESC')
+            ->limit(100)
+            ->findAll();
+
+        return $this->response->setJSON(['success' => true, 'players' => $players]);
+    }
+
+    // Assign players to trial manager
+    public function assignPlayers()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $input = $this->request->getJSON(true);
+        $managerId = $input['manager_id'] ?? null;
+        $playerIds = $input['player_ids'] ?? [];
+
+        if (!$managerId || empty($playerIds)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Manager ID and player IDs are required']);
+        }
+
+        // Verify manager exists and is active
+        $manager = $this->trialManagerModel->find($managerId);
+        if (!$manager || $manager['status'] !== 'active') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid trial manager']);
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $assignedCount = 0;
+            $skippedCount = 0;
+
+            foreach ($playerIds as $playerId) {
+                // Check if player exists
+                $player = $this->trialPlayerModel->find($playerId);
+                if (!$player) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                // Update player assignment
+                $updateData = [
+                    'trial_manager_id' => $managerId
+                ];
+
+                // If player doesn't have a trial city, set it to manager's city
+                if (!$player['trial_city_id'] && $manager['trial_city_id']) {
+                    $updateData['trial_city_id'] = $manager['trial_city_id'];
+                }
+
+                if ($this->trialPlayerModel->update($playerId, $updateData)) {
+                    $assignedCount++;
+                } else {
+                    $skippedCount++;
+                }
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Database transaction failed']);
+            }
+
+            $message = "Successfully assigned {$assignedCount} player(s) to the trial manager.";
+            if ($skippedCount > 0) {
+                $message .= " {$skippedCount} player(s) were skipped.";
+            }
+
+            return $this->response->setJSON(['success' => true, 'message' => $message]);
+
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', 'Player assignment error: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'An error occurred during assignment']);
+        }
+    }
+
+    // Unassign player from trial manager
+    public function unassignPlayer($playerId)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $player = $this->trialPlayerModel->find($playerId);
+        if (!$player) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Player not found']);
+        }
+
+        if ($this->trialPlayerModel->update($playerId, ['trial_manager_id' => null])) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Player unassigned successfully']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to unassign player']);
+        }
+    }
 }
