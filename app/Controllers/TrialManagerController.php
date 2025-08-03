@@ -304,7 +304,15 @@ class TrialManagerController extends BaseController
         return $this->response->setJSON(['success' => true, 'players' => $players]);
     }
 
-    l_cities.city_name as trial_city_name')
+    // Get unassigned players
+    public function getUnassignedPlayers()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $players = $this->trialPlayerModel
+            ->select('trial_players.*, trial_cities.city_name as trial_city_name')
             ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
             ->where('trial_players.trial_manager_id IS NULL')
             ->orderBy('trial_players.created_at', 'DESC')
