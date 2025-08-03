@@ -22,8 +22,7 @@ class TrialPaymentModel extends Model
         'notes',
         'collected_on_trial_day',
         'collected_by',
-        'payment_date',
-        'remaining_amount'
+        'payment_date'
     ];
 
     protected $useTimestamps = true;
