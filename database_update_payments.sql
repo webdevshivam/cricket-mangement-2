@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS `trial_payments` (
   KEY `payment_method` (`payment_method`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Add index for better performance on date-based queries
-ALTER TABLE `trial_players` ADD INDEX `idx_verified_at` (`verified_at`);
-ALTER TABLE `trial_players` ADD INDEX `idx_mobile` (`mobile`);
+-- Add index for better performance on date-based queries (if not exists)
+ALTER TABLE `trial_players` ADD INDEX IF NOT EXISTS `idx_verified_at` (`verified_at`);
+ALTER TABLE `trial_players` ADD INDEX IF NOT EXISTS `idx_mobile` (`mobile`);
 
 -- Add trial_completed column if not exists
-ALTER TABLE `trial_players` ADD COLUMN `trial_completed` tinyint(1) DEFAULT 0;
+ALTER TABLE `trial_players` ADD COLUMN IF NOT EXISTS `trial_completed` tinyint(1) DEFAULT 0;
