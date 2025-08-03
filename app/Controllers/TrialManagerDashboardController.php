@@ -153,8 +153,8 @@ class TrialManagerDashboardController extends BaseController
             if ($player['payment_status'] === 'no_payment') {
                 $remainingAmount = $fees['total']; // T-shirt (199) + cricket type fees
             } elseif ($player['payment_status'] === 'partial') {
-                // Calculate the actually remaining amount
-                 $remainingAmount = $fees['total'] - $player['total_paid'];
+                // Partial payment means T-shirt fee is already paid, only show cricket type fee
+                $remainingAmount = $fees['trial']; // Only cricket type fees
             }
             // If full payment, remaining amount stays 0
 
