@@ -219,6 +219,8 @@ $routes->post('admin/trial-managers/unassign-player/(:num)', 'TrialManagerContro
 $routes->post('admin/trial-managers/search-single-player', 'TrialManagerController::searchSinglePlayer', ['filter' => 'roleFilter:admin']);
 $routes->get('admin/trial-managers/get-trial-cities', 'TrialManagerController::getTrialCities', ['filter' => 'roleFilter:admin']);
 $routes->get('admin/trial-managers/get-trial-players/(:num)', 'TrialManagerController::getTrialPlayers/$1', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial-managers/unassigned', 'TrialManagerController::unassignedPlayers', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial-managers/active', 'TrialManagerController::getActiveManagers', ['filter' => 'roleFilter:admin']);
 
 // Trial Manager Dashboard Routes
 $routes->get('trial-manager/login', 'TrialManagerDashboardController::login');

@@ -483,4 +483,35 @@ class TrialManagerController extends BaseController
 
         return $this->response->setJSON(['success' => true, 'players' => $players]);
     }
+
+    // Show unassigned players page
+    public function unassignedPlayers()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $data = [
+            'title' => 'Unassigned Players',
+        ];
+
+        return view('admin/trial_managers/unassigned', $data);
+    }
+
+    // Get active trial managers for assignment dropdowns
+    public function getActiveManagers()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $managers = $this->trialManagerModel
+            ->select('trial_managers.*, trial_cities.city_name')
+            ->join('trial_cities', 'trial_cities.id = trial_managers.trial_city_id', 'left')
+            ->where('trial_managers.status', 'active')
+            ->orderBy('trial_managers.name')
+            ->findAll();
+
+        return $this->response->setJSON(['success' => true, 'managers' => $managers]);
+    }
 }
