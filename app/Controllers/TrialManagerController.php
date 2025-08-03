@@ -1,0 +1,278 @@
+
+<?php
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use App\Models\TrialManagerModel;
+use App\Models\TrialcitiesModel;
+use App\Models\TrialPlayerModel;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class TrialManagerController extends BaseController
+{
+    protected $trialManagerModel;
+    protected $trialCitiesModel;
+    protected $trialPlayerModel;
+
+    public function __construct()
+    {
+        $this->trialManagerModel = new TrialManagerModel();
+        $this->trialCitiesModel = new TrialcitiesModel();
+        $this->trialPlayerModel = new TrialPlayerModel();
+    }
+
+    // Admin - List all trial managers
+    public function index()
+    {
+        // Check admin access
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $data = [
+            'title' => 'Trial Managers',
+            'managers' => $this->trialManagerModel->getAllWithCity()
+        ];
+
+        return view('admin/trial_managers/index', $data);
+    }
+
+    // Admin - Create trial manager form
+    public function create()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $data = [
+            'title' => 'Create Trial Manager',
+            'trial_cities' => $this->trialCitiesModel->where('status', 'enabled')->findAll()
+        ];
+
+        return view('admin/trial_managers/create', $data);
+    }
+
+    // Admin - Store trial manager
+    public function store()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $validation = \Config\Services::validation();
+        
+        $rules = [
+            'name' => 'required|min_length[3]|max_length[100]',
+            'email' => 'required|valid_email|is_unique[trial_managers.email]',
+            'trial_name' => 'required|min_length[3]|max_length[150]',
+            'trial_city_id' => 'permit_empty|integer',
+            'password_type' => 'required|in_list[auto,manual]',
+            'manual_password' => 'permit_empty|min_length[6]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Generate or use manual password
+        $password = '';
+        if ($this->request->getPost('password_type') === 'auto') {
+            $password = $this->trialManagerModel->generatePassword();
+        } else {
+            $password = $this->request->getPost('manual_password');
+        }
+
+        $data = [
+            'name' => $this->request->getPost('name'),
+            'email' => $this->request->getPost('email'),
+            'password' => password_hash($password, PASSWORD_DEFAULT),
+            'trial_name' => $this->request->getPost('trial_name'),
+            'trial_city_id' => $this->request->getPost('trial_city_id') ?: null,
+            'status' => 'active',
+            'created_by' => session()->get('user_id')
+        ];
+
+        if ($this->trialManagerModel->insert($data)) {
+            // Store plain password in session to show to admin
+            session()->setFlashdata('success', 'Trial Manager created successfully!');
+            session()->setFlashdata('generated_password', $password);
+            session()->setFlashdata('manager_email', $data['email']);
+            
+            return redirect()->to('/admin/trial-managers');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Failed to create trial manager.');
+        }
+    }
+
+    // Admin - Edit trial manager
+    public function edit($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $manager = $this->trialManagerModel->find($id);
+        if (!$manager) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Trial Manager not found');
+        }
+
+        $data = [
+            'title' => 'Edit Trial Manager',
+            'manager' => $manager,
+            'trial_cities' => $this->trialCitiesModel->where('status', 'enabled')->findAll()
+        ];
+
+        return view('admin/trial_managers/edit', $data);
+    }
+
+    // Admin - Update trial manager
+    public function update($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $manager = $this->trialManagerModel->find($id);
+        if (!$manager) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Trial Manager not found');
+        }
+
+        $rules = [
+            'name' => 'required|min_length[3]|max_length[100]',
+            'email' => "required|valid_email|is_unique[trial_managers.email,id,{$id}]",
+            'trial_name' => 'required|min_length[3]|max_length[150]',
+            'trial_city_id' => 'permit_empty|integer',
+            'status' => 'required|in_list[active,inactive]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $data = [
+            'name' => $this->request->getPost('name'),
+            'email' => $this->request->getPost('email'),
+            'trial_name' => $this->request->getPost('trial_name'),
+            'trial_city_id' => $this->request->getPost('trial_city_id') ?: null,
+            'status' => $this->request->getPost('status')
+        ];
+
+        // Update password if provided
+        $newPassword = $this->request->getPost('new_password');
+        if (!empty($newPassword)) {
+            $data['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+        }
+
+        if ($this->trialManagerModel->update($id, $data)) {
+            session()->setFlashdata('success', 'Trial Manager updated successfully!');
+            return redirect()->to('/admin/trial-managers');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Failed to update trial manager.');
+        }
+    }
+
+    // Admin - Delete trial manager
+    public function delete($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $manager = $this->trialManagerModel->find($id);
+        if (!$manager) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Trial Manager not found']);
+        }
+
+        if ($this->trialManagerModel->delete($id)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Trial Manager deleted successfully']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to delete trial manager']);
+        }
+    }
+
+    // Admin - View trial manager details with players
+    public function view($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/unauthorized');
+        }
+
+        $manager = $this->trialManagerModel->getWithCity($id);
+        if (!$manager) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Trial Manager not found');
+        }
+
+        // Get players assigned to this trial manager
+        $players = $this->trialPlayerModel
+            ->select('trial_players.*, trial_cities.city_name as trial_city_name')
+            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
+            ->where('trial_players.trial_manager_id', $id)
+            ->orderBy('trial_players.created_at', 'DESC')
+            ->findAll();
+
+        // Calculate payment statistics
+        $stats = $this->calculateManagerStats($id);
+
+        $data = [
+            'title' => 'Trial Manager Details',
+            'manager' => $manager,
+            'players' => $players,
+            'stats' => $stats
+        ];
+
+        return view('admin/trial_managers/view', $data);
+    }
+
+    // Calculate statistics for trial manager
+    private function calculateManagerStats($managerId)
+    {
+        $db = \Config\Database::connect();
+        
+        // Payment status counts
+        $statusCounts = $db->query("
+            SELECT 
+                payment_status,
+                COUNT(*) as count
+            FROM trial_players 
+            WHERE trial_manager_id = ? 
+            GROUP BY payment_status
+        ", [$managerId])->getResultArray();
+
+        // Payment collection by method
+        $paymentStats = $db->query("
+            SELECT 
+                payment_method,
+                SUM(amount) as total_amount,
+                COUNT(*) as transaction_count
+            FROM trial_payments tp
+            JOIN trial_players tpl ON tp.trial_player_id = tpl.id
+            WHERE tpl.trial_manager_id = ?
+            GROUP BY payment_method
+        ", [$managerId])->getResultArray();
+
+        $stats = [
+            'total_players' => 0,
+            'full_payment' => 0,
+            'partial_payment' => 0,
+            'no_payment' => 0,
+            'online_collection' => 0,
+            'offline_collection' => 0,
+            'total_collection' => 0
+        ];
+
+        // Process status counts
+        foreach ($statusCounts as $status) {
+            $stats['total_players'] += $status['count'];
+            $stats[$status['payment_status'] . '_payment'] = $status['count'];
+        }
+
+        // Process payment stats
+        foreach ($paymentStats as $payment) {
+            $stats[$payment['payment_method'] . '_collection'] = $payment['total_amount'];
+            $stats['total_collection'] += $payment['total_amount'];
+        }
+
+        return $stats;
+    }
+}

@@ -203,6 +203,25 @@ $routes->post('admin/trial-registration/bulk-update-payment', 'TrialRegistration
 $routes->post('admin/trial-registration/collect-payment', 'TrialRegistrationController::collectPayment', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->post('admin/trial-registration/collect-spot-payment', 'TrialRegistrationController::collectSpotPayment', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->post('admin/trial-registration/mark-trial-completed', 'TrialRegistrationController::markTrialCompleted', ['filter' => 'roleFilter:admin,manager,coach']);
+
+// Trial Manager Management Routes (Admin)
+$routes->get('admin/trial-managers', 'TrialManagerController::index', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial-managers/create', 'TrialManagerController::create', ['filter' => 'roleFilter:admin']);
+$routes->post('admin/trial-managers', 'TrialManagerController::store', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial-managers/edit/(:num)', 'TrialManagerController::edit/$1', ['filter' => 'roleFilter:admin']);
+$routes->post('admin/trial-managers/update/(:num)', 'TrialManagerController::update/$1', ['filter' => 'roleFilter:admin']);
+$routes->delete('admin/trial-managers/delete/(:num)', 'TrialManagerController::delete/$1', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial-managers/view/(:num)', 'TrialManagerController::view/$1', ['filter' => 'roleFilter:admin']);
+
+// Trial Manager Dashboard Routes
+$routes->get('trial-manager/login', 'TrialManagerDashboardController::login');
+$routes->post('trial-manager/authenticate', 'TrialManagerDashboardController::authenticate');
+$routes->get('trial-manager/dashboard', 'TrialManagerDashboardController::dashboard');
+$routes->get('trial-manager/player-verification', 'TrialManagerDashboardController::playerVerification');
+$routes->post('trial-manager/search-player', 'TrialManagerDashboardController::searchPlayer');
+$routes->post('trial-manager/register-player', 'TrialManagerDashboardController::registerPlayer');
+$routes->post('trial-manager/collect-payment', 'TrialManagerDashboardController::collectPayment');
+$routes->get('trial-manager/logout', 'TrialManagerDashboardController::logout');
 $routes->post('admin/trial-registration/search-mobile', 'TrialRegistrationController::searchByMobile', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->post('admin/trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-registration/delete', 'TrialRegistrationController::deleteStudent', ['filter' => 'roleFilter:admin']);

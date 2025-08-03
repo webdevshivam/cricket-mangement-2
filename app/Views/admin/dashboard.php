@@ -180,6 +180,22 @@
             </div>
         </div>
 
+        <!-- Trial Managers -->
+        <div class="col-md-6 col-xl-4 mb-4">
+            <div class="card bg-dark border-primary h-100">
+                <div class="card-body text-center">
+                    <div class="text-primary mb-3">
+                        <i class="fas fa-user-tie fa-3x"></i>
+                    </div>
+                    <h5 class="card-title text-light">Trial Managers</h5>
+                    <p class="card-text text-muted">Create and manage trial managers</p>
+                    <a href="/admin/trial-managers" class="btn btn-outline-primary">
+                        <i class="fas fa-user-tie me-2"></i>Manage TMs
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- Trial Cities -->
         <div class="col-md-6 col-xl-4 mb-4">
             <div class="card bg-dark border-light h-100">
