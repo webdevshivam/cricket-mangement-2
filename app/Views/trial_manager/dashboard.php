@@ -13,9 +13,9 @@
                         <div class="col-md-8">
                             <h1 class="mb-2 text-warning">
                                 <i class="fas fa-clipboard-check me-2"></i>
-                                Welcome, <?= session()->get('name') ?>!
+                                Welcome, <?= session()->get('tm_name') ?>!
                             </h1>
-                            <p class="mb-0 fs-5">Managing trials for: <strong class="text-warning"><?= session()->get('trial_name') ?></strong></p>
+                            <p class="mb-0 fs-5">Managing trials for: <strong class="text-warning"><?= session()->get('tm_trial_name') ?></strong></p>
                         </div>
                         <div class="col-md-4 text-end">
                             <i class="fas fa-futbol text-warning" style="font-size: 4rem; opacity: 0.3;"></i>

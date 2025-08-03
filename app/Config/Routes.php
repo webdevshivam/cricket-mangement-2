@@ -232,6 +232,13 @@ $routes->post('trial-manager/search-player', 'TrialManagerDashboardController::s
 $routes->post('trial-manager/register-player', 'TrialManagerDashboardController::registerPlayer');
 $routes->post('trial-manager/collect-payment', 'TrialManagerDashboardController::collectPayment');
 $routes->get('trial-manager/logout', 'TrialManagerDashboardController::logout');
+$routes->post('trial-manager/authenticate', 'TrialManagerDashboardController::authenticate');
+$routes->get('trial-manager/dashboard', 'TrialManagerDashboardController::dashboard');
+$routes->get('trial-manager/player-verification', 'TrialManagerDashboardController::playerVerification');
+$routes->post('trial-manager/search-player', 'TrialManagerDashboardController::searchPlayer');
+$routes->post('trial-manager/register-player', 'TrialManagerDashboardController::registerPlayer');
+$routes->post('trial-manager/collect-payment', 'TrialManagerDashboardController::collectPayment');
+$routes->get('trial-manager/logout', 'TrialManagerDashboardController::logout');
 $routes->post('admin/trial-registration/search-mobile', 'TrialRegistrationController::searchByMobile', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->post('admin/trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-registration/delete', 'TrialRegistrationController::deleteStudent', ['filter' => 'roleFilter:admin']);
