@@ -214,13 +214,14 @@ $routes->delete('admin/trial-managers/delete/(:num)', 'TrialManagerController::d
 $routes->get('admin/trial-managers/view/(:num)', 'TrialManagerController::view/$1', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-managers/search-players', 'TrialManagerController::searchPlayers', ['filter' => 'roleFilter:admin']);
 $routes->get('admin/trial-managers/unassigned-players', 'TrialManagerController::getUnassignedPlayers', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial/unassigned-players', 'TrialManagerController::getUnassignedPlayers', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-managers/assign-players', 'TrialManagerController::assignPlayers', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-managers/unassign-player/(:num)', 'TrialManagerController::unassignPlayer/$1', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-managers/search-single-player', 'TrialManagerController::searchSinglePlayer', ['filter' => 'roleFilter:admin']);
 $routes->get('admin/trial-managers/get-trial-cities', 'TrialManagerController::getTrialCities', ['filter' => 'roleFilter:admin']);
 $routes->get('admin/trial-managers/get-trial-players/(:num)', 'TrialManagerController::getTrialPlayers/$1', ['filter' => 'roleFilter:admin']);
 $routes->get('admin/trial-managers/unassigned', 'TrialManagerController::unassignedPlayers', ['filter' => 'roleFilter:admin']);
-$routes->get('admin/trial-managers/active', 'TrialManagerController::getActiveManagers', ['filter' => 'roleFilter:admin']);
+$routes->get('admin/trial-managers/get-active-managers', 'TrialManagerController::getActiveManagers', ['filter' => 'roleFilter:admin']);
 
 // Trial Manager Dashboard Routes
 $routes->get('trial-manager/login', 'TrialManagerDashboardController::login');
