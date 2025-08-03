@@ -253,6 +253,7 @@ function searchPlayer() {
 
 function displayPlayerInfo(player) {
     const statusBadge = getStatusBadge(player.payment_status);
+    const cricketType = formatCricketType(player.cricket_type);
 
     document.getElementById('playerInfo').innerHTML = `
         <div class="row">
@@ -261,6 +262,7 @@ function displayPlayerInfo(player) {
                 <p><strong class="text-warning">Mobile:</strong> ${player.mobile}</p>
                 <p><strong class="text-warning">Email:</strong> ${player.email || 'Not provided'}</p>
                 <p><strong class="text-warning">Age:</strong> ${player.age}</p>
+                <p><strong class="text-warning">Cricket Type:</strong> ${cricketType}</p>
             </div>
             <div class="col-md-6">
                 <p><strong class="text-warning">Trial City:</strong> ${player.trial_city_name}</p>
@@ -299,6 +301,21 @@ function getStatusBadge(status) {
             return '<span class="badge bg-warning text-dark">Partial Payment</span>';
         case 'no_payment':
             return '<span class="badge bg-danger">No Payment</span>';
+        default:
+            return '<span class="badge bg-secondary">Unknown</span>';
+    }
+}
+
+function formatCricketType(type) {
+    switch(type) {
+        case 'batsman':
+            return '<span class="badge bg-primary">Batsman</span>';
+        case 'bowler':
+            return '<span class="badge bg-info">Bowler</span>';
+        case 'all-rounder':
+            return '<span class="badge bg-success">All-rounder</span>';
+        case 'wicket-keeper':
+            return '<span class="badge bg-warning text-dark">Wicket Keeper</span>';
         default:
             return '<span class="badge bg-secondary">Unknown</span>';
     }

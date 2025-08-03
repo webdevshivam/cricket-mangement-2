@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS `trial_payments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `trial_player_id` int(11) NOT NULL,
+  `trial_manager_id` int(11) DEFAULT NULL,
   `amount` decimal(10,2) NOT NULL,
   `payment_method` enum('offline','online') NOT NULL DEFAULT 'offline',
   `transaction_ref` varchar(100) DEFAULT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `trial_payments` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `trial_player_id` (`trial_player_id`),
+  KEY `trial_manager_id` (`trial_manager_id`),
   KEY `payment_date` (`payment_date`),
   KEY `payment_method` (`payment_method`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
