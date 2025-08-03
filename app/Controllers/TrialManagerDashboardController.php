@@ -166,7 +166,7 @@ class TrialManagerDashboardController extends BaseController
         }
 
         $input = $this->request->getJSON(true);
-        
+
         $validation = \Config\Services::validation();
 
         $rules = [
@@ -201,10 +201,27 @@ class TrialManagerDashboardController extends BaseController
             'verified_at' => date('Y-m-d H:i:s')
         ];
 
-        if ($this->trialPlayerModel->insert($playerData)) {
+        $playerId = $this->trialPlayerModel->insert($playerData);
+
+        if ($playerId) {
+            // Add payment record for the full amount
+            $fees = $this->calculateFees($input['cricket_type']);
+            $paymentModel = new \App\Models\TrialPaymentModel();
+
+            $paymentData = [
+                'trial_player_id' => $playerId,
+                'trial_manager_id' => $managerId,
+                'amount' => $fees['total'],
+                'payment_method' => 'offline', // Default to offline for trial manager registration
+                'collected_by' => session()->get('tm_name'),
+                'payment_date' => date('Y-m-d H:i:s')
+            ];
+
+            $paymentModel->insert($paymentData);
+
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Player registered successfully!'
+                'message' => 'Player registered successfully with full payment!'
             ]);
         } else {
             return $this->response->setJSON([

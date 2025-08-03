@@ -79,10 +79,8 @@
                                     <label class="form-label text-warning">Payment Method</label>
                                     <select class="form-select" name="payment_method" required>
                                         <option value="">Select Method</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="upi">UPI</option>
-                                        <option value="card">Card</option>
-                                        <option value="online">Online Transfer</option>
+                                        <option value="offline">Offline (Cash)</option>
+                                        <option value="online">Online (UPI/Card/Transfer)</option>
                                     </select>
                                 </div>
                             </div>
@@ -90,7 +88,7 @@
                                 <div class="mb-3">
                                     <label class="form-label text-warning">Amount (₹)</label>
                                     <input type="number" class="form-control" name="amount" 
-                                           placeholder="Enter amount" min="1" required>
+                                           id="paymentAmount" readonly required>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -200,6 +198,7 @@ function displayPlayerInfo(player) {
                 <p><strong class="text-warning">Payment Status:</strong> ${statusBadge}</p>
                 <p><strong class="text-warning">Registration Date:</strong> ${formatDate(player.created_at)}</p>
                 <p><strong class="text-warning">Total Paid:</strong> ₹${player.total_paid || 0}</p>
+                <p><strong class="text-warning">Remaining Amount:</strong> ₹${player.remaining_amount || 0}</p>
             </div>
         </div>
     `;
@@ -207,10 +206,19 @@ function displayPlayerInfo(player) {
     document.getElementById('playerId').value = player.id;
     document.getElementById('playerDetails').style.display = 'block';
 
-    if (player.payment_status !== 'full') {
-        document.getElementById('paymentSection').style.display = 'block';
-    } else {
+    if (player.payment_status === 'full') {
         document.getElementById('paymentSection').style.display = 'none';
+        // Show full payment message
+        document.getElementById('playerInfo').innerHTML += `
+            <div class="alert alert-success mt-3">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Payment Complete!</strong> This player has made full payment.
+            </div>
+        `;
+    } else {
+        document.getElementById('paymentSection').style.display = 'block';
+        // Set the auto-calculated amount
+        document.getElementById('paymentAmount').value = player.remaining_amount;
     }
 }
 

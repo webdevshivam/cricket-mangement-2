@@ -33,7 +33,7 @@ class TrialPaymentModel extends Model
     protected $validationRules = [
         'trial_player_id' => 'required|integer',
         'amount'          => 'required|decimal|greater_than[0]',
-        'payment_method'  => 'required|in_list[online,offline]'
+        'payment_method'  => 'required|in_list[offline,online]'
     ];
 
     protected $skipValidation = false;

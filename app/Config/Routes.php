@@ -236,6 +236,7 @@ $routes->get('trial-manager/player-verification', 'TrialManagerDashboardControll
 $routes->post('trial-manager/search-player', 'TrialManagerDashboardController::searchPlayer');
 $routes->post('trial-manager/register-player', 'TrialManagerDashboardController::registerPlayer');
 $routes->post('trial-manager/collect-payment', 'TrialManagerDashboardController::collectPayment');
+$routes->post('trial-manager/search-player', 'TrialManagerDashboardController::searchPlayer');
 $routes->get('trial-manager/logout', 'TrialManagerDashboardController::logout');
 $routes->post('admin/trial-registration/search-mobile', 'TrialRegistrationController::searchByMobile', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->post('admin/trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete', ['filter' => 'roleFilter:admin']);
