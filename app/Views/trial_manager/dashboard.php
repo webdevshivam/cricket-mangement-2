@@ -72,7 +72,21 @@
 
     <!-- Quick Actions -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-warning h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-plus text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="text-warning">Register New Player</h4>
+                    <p class="text-light">Register new player with full payment collection</p>
+                    <button class="btn btn-warning" onclick="showRegisterModal()">
+                        <i class="fas fa-user-plus me-2"></i>Register Player
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
             <div class="card bg-dark text-light border-warning h-100">
                 <div class="card-body text-center">
                     <div class="mb-3">
@@ -86,7 +100,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card bg-dark text-light border-warning h-100">
                 <div class="card-body text-center">
                     <div class="mb-3">
@@ -199,9 +213,121 @@
     </div>
 </div>
 
+<!-- Register New Player Modal -->
+<div class="modal fade" id="registerPlayerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light border-warning">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">Register New Player</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="registerPlayerForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-warning">Player Name *</label>
+                                <input type="text" class="form-control bg-dark text-white border-warning" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-warning">Mobile Number *</label>
+                                <input type="tel" class="form-control bg-dark text-white border-warning" name="mobile" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-warning">Email</label>
+                                <input type="email" class="form-control bg-dark text-white border-warning" name="email">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-warning">Age *</label>
+                                <input type="number" class="form-control bg-dark text-white border-warning" name="age" min="11" max="49" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-warning">Cricket Type *</label>
+                                <select class="form-select bg-dark text-white border-warning" name="cricket_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="bowler">Bowler (₹999 + ₹199 = ₹1198)</option>
+                                    <option value="batsman">Batsman (₹999 + ₹199 = ₹1198)</option>
+                                    <option value="all-rounder">All-Rounder (₹1199 + ₹199 = ₹1398)</option>
+                                    <option value="wicket-keeper">Wicket-Keeper (₹1199 + ₹199 = ₹1398)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-warning">Payment Type *</label>
+                                <select class="form-select bg-dark text-white border-warning" name="payment_type" required>
+                                    <option value="">Select Payment Type</option>
+                                    <option value="offline">Cash Payment</option>
+                                    <option value="online">UPI/Online Payment</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="registerNewPlayer()">
+                    <i class="fas fa-user-plus me-2"></i>Register Player
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 function showPaymentModal() {
     new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+
+function showRegisterModal() {
+    new bootstrap.Modal(document.getElementById('registerPlayerModal')).show();
+}
+
+function registerNewPlayer() {
+    const formData = new FormData(document.getElementById('registerPlayerForm'));
+    const data = Object.fromEntries(formData);
+
+    // Validate required fields
+    if (!data.name || !data.mobile || !data.age || !data.cricket_type || !data.payment_type) {
+        alert('Please fill all required fields');
+        return;
+    }
+
+    fetch('/trial-manager/register-player', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Player registered successfully!\n\nPayment Details:\nTrial Fees: ₹${data.payment_breakdown.trial_fees}\nT-Shirt Fees: ₹${data.payment_breakdown.tshirt_fees}\nTotal Collected: ₹${data.payment_breakdown.total}\nPayment Type: ${data.payment_type}`);
+            bootstrap.Modal.getInstance(document.getElementById('registerPlayerModal')).hide();
+            document.getElementById('registerPlayerForm').reset();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            alert(data.message || 'Failed to register player');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while registering player');
+    });
 }
 </script>
 <?= $this->endSection() ?>
