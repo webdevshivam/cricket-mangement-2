@@ -71,6 +71,7 @@
           </a>
           <ul class="collapse list-unstyled" id="trial-submenu">
             <li><a href="<?= base_url('admin/manage-trial-cities') ?>" class="nav-link">Manage Trial Cities</a></li>
+            <li><a href="<?= base_url('admin/trial-managers') ?>" class="nav-link">Trial Managers</a></li>
             <li><a href="<?= base_url('admin/trial-registration') ?>" class="nav-link">Manage Trial Registration</a></li>
             <li><a href="<?= base_url('admin/trial-verification') ?>" class="nav-link">Trial Verification</a></li>
             <li><a href="<?= base_url('admin/payment-tracking') ?>" class="nav-link">Payment Tracking</a></li>
