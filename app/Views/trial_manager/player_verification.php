@@ -123,6 +123,14 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+<script>
+// Initialize notyf after the library loads
+let notyf;
+document.addEventListener('DOMContentLoaded', function() {
+    notyf = new Notyf();
+});
+</script>
 <script>
 document.getElementById('searchForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -251,15 +259,5 @@ function hidePlayerDetails() {
     document.getElementById('playerDetails').style.display = 'none';
     document.getElementById('paymentSection').style.display = 'none';
 }
-
-// Initialize Notyf
-let notyf = new Notyf({
-    duration: 3000,
-    ripple: true,
-    position: {
-        x: 'right',
-        y: 'bottom'
-    }
-});
 </script>
 <?= $this->endSection() ?>
