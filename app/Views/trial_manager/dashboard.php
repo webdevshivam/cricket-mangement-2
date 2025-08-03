@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -269,6 +268,7 @@
                                         $badgeClass = match($player['payment_status']) {
                                             'full' => 'bg-success',
                                             'partial' => 'bg-warning',
+                                            'no_payment' => 'bg-warning',
                                             'no_payment' => 'bg-danger',
                                             default => 'bg-secondary'
                                         };

@@ -900,25 +900,25 @@ class TrialRegistrationController extends BaseController
     private function getFilterInfo($phone, $paymentStatus, $trialCity, $dateFilter, $trialCitiesModel)
     {
         $filterInfo = [];
-        
+
         if ($phone) {
             $filterInfo[] = "Phone: " . $phone;
         }
-        
+
         if ($paymentStatus) {
             $statusText = ucfirst(str_replace('_', ' ', $paymentStatus));
             $filterInfo[] = "Payment Status: " . $statusText;
         }
-        
+
         if ($trialCity) {
             $cityData = $trialCitiesModel->find($trialCity);
             $filterInfo[] = "Trial City: " . ($cityData['city_name'] ?? 'Unknown');
         }
-        
+
         if ($dateFilter) {
             $filterInfo[] = "Date: " . date('F j, Y', strtotime($dateFilter));
         }
-        
+
         return $filterInfo;
     }
 
@@ -1078,6 +1078,19 @@ class TrialRegistrationController extends BaseController
         if ($registrationData) {
             // OTP verified, complete registration
             $model = new TrialPlayerModel();
+
+            // Auto-assign to trial manager based on city
+            $trialCityId = $registrationData['trial_city_id']; // Assuming trial_city_id is in registration data
+
+            $trialManagerModel = new \App\Models\TrialManagerModel();
+            $assignedManager = $trialManagerModel
+                ->where('trial_city_id', $trialCityId)
+                ->where('status', 'active')
+                ->first();
+
+            if ($assignedManager) {
+                $registrationData['trial_manager_id'] = $assignedManager['id'];
+            }
             if ($model->insert($registrationData) !== false) {
                 session()->removeTempdata('trial_registration_email');
                 return redirect()->to('/trial-registration')->with('success', 'Email verified and registration completed successfully!');

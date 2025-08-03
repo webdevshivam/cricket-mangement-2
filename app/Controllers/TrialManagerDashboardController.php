@@ -22,7 +22,7 @@ class TrialManagerDashboardController extends BaseController
     public function login()
     {
         // Redirect if already logged in as trial manager
-        if (session()->get('isLoggedIn') && session()->get('role') === 'trial_manager') {
+        if (session()->get('tm_isLoggedIn') && session()->get('tm_role') === 'trial_manager') {
             return redirect()->to('/trial-manager/dashboard');
         }
 
@@ -49,17 +49,17 @@ class TrialManagerDashboardController extends BaseController
         $manager = $this->trialManagerModel->getByEmail($email);
 
         if ($manager && password_verify($password, $manager['password']) && $manager['status'] === 'active') {
-            // Set trial manager session
+            // Set trial manager session with distinct keys
             $sessionData = [
-                'user_id' => $manager['id'],
-                'name' => $manager['name'],
-                'email' => $manager['email'],
-                'trial_name' => $manager['trial_name'],
-                'trial_city_id' => $manager['trial_city_id'],
-                'role' => 'trial_manager',
-                'isLoggedIn' => true,
-                'login_time' => time(),
-                'last_activity' => time()
+                'tm_user_id' => $manager['id'],
+                'tm_name' => $manager['name'],
+                'tm_email' => $manager['email'],
+                'tm_trial_name' => $manager['trial_name'],
+                'tm_trial_city_id' => $manager['trial_city_id'],
+                'tm_role' => 'trial_manager',
+                'tm_isLoggedIn' => true,
+                'tm_login_time' => time(),
+                'tm_last_activity' => time()
             ];
 
             session()->set($sessionData);
@@ -73,11 +73,11 @@ class TrialManagerDashboardController extends BaseController
     // Trial Manager Dashboard
     public function dashboard()
     {
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'trial_manager') {
+        if (!session()->get('tm_isLoggedIn') || session()->get('tm_role') !== 'trial_manager') {
             return redirect()->to('/trial-manager/login');
         }
 
-        $managerId = session()->get('user_id');
+        $managerId = session()->get('tm_user_id');
 
         // Get dashboard statistics
         $stats = $this->getDashboardStats($managerId);
@@ -102,7 +102,7 @@ class TrialManagerDashboardController extends BaseController
     // Player Verification Page
     public function playerVerification()
     {
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'trial_manager') {
+        if (!session()->get('tm_isLoggedIn') || session()->get('tm_role') !== 'trial_manager') {
             return redirect()->to('/trial-manager/login');
         }
 
@@ -116,7 +116,7 @@ class TrialManagerDashboardController extends BaseController
     // Search Player by Mobile
     public function searchPlayer()
     {
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'trial_manager') {
+        if (!session()->get('tm_isLoggedIn') || session()->get('tm_role') !== 'trial_manager') {
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
         }
 
@@ -151,7 +151,7 @@ class TrialManagerDashboardController extends BaseController
     // Manual Player Registration
     public function registerPlayer()
     {
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'trial_manager') {
+        if (!session()->get('tm_isLoggedIn') || session()->get('tm_role') !== 'trial_manager') {
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
         }
 
@@ -175,8 +175,8 @@ class TrialManagerDashboardController extends BaseController
             ]);
         }
 
-        $managerId = session()->get('user_id');
-        $trialCityId = session()->get('trial_city_id');
+        $managerId = session()->get('tm_user_id');
+        $trialCityId = session()->get('tm_trial_city_id');
 
         $playerData = [
             'name' => $input['name'],
@@ -207,7 +207,7 @@ class TrialManagerDashboardController extends BaseController
     // Collect Payment
     public function collectPayment()
     {
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'trial_manager') {
+        if (!session()->get('tm_isLoggedIn') || session()->get('tm_role') !== 'trial_manager') {
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
         }
 
@@ -221,7 +221,7 @@ class TrialManagerDashboardController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Player not found']);
         }
 
-        $managerId = session()->get('user_id');
+        $managerId = session()->get('tm_user_id');
 
         // Insert payment record
         $paymentModel = new \App\Models\TrialPaymentModel();
@@ -230,7 +230,7 @@ class TrialManagerDashboardController extends BaseController
             'trial_manager_id' => $managerId,
             'amount' => $amount,
             'payment_method' => $paymentMethod,
-            'collected_by' => session()->get('name'),
+            'collected_by' => session()->get('tm_name'),
             'payment_date' => date('Y-m-d H:i:s')
         ];
 
@@ -281,7 +281,8 @@ class TrialManagerDashboardController extends BaseController
     // Logout
     public function logout()
     {
-        session()->destroy();
+        // Remove only trial manager session data
+        session()->remove(['tm_user_id', 'tm_name', 'tm_email', 'tm_trial_name', 'tm_trial_city_id', 'tm_role', 'tm_isLoggedIn', 'tm_login_time', 'tm_last_activity']);
         return redirect()->to('/trial-manager/login');
     }
 
