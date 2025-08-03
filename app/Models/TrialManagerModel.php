@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -16,7 +15,7 @@ class TrialManagerModel extends Model
 
     protected $allowedFields    = [
         'name',
-        'email', 
+        'email',
         'password',
         'trial_name',
         'trial_city_id',
@@ -47,20 +46,20 @@ class TrialManagerModel extends Model
     public function getWithCity($id)
     {
         return $this->select('trial_managers.*, trial_cities.city_name')
-                   ->join('trial_cities', 'trial_cities.id = trial_managers.trial_city_id', 'left')
-                   ->where('trial_managers.id', $id)
-                   ->first();
+            ->join('trial_cities', 'trial_cities.id = trial_managers.trial_city_id', 'left')
+            ->where('trial_managers.id', $id)
+            ->first();
     }
 
     // Get all trial managers with city details
     public function getAllWithCity()
     {
         return $this->select('trial_managers.*, trial_cities.city_name, COUNT(tp.id) as total_players')
-                   ->join('trial_cities', 'trial_cities.id = trial_managers.trial_city_id', 'left')
-                   ->join('trial_players tp', 'tp.trial_manager_id = trial_managers.id', 'left')
-                   ->groupBy('trial_managers.id')
-                   ->orderBy('trial_managers.created_at', 'DESC')
-                   ->findAll();
+            ->join('trial_cities', 'trial_cities.id = trial_managers.trial_city_id', 'left')
+            ->join('trial_players tp', 'tp.trial_manager_id = trial_managers.id', 'left')
+            ->groupBy('trial_managers.id')
+            ->orderBy('trial_managers.created_at', 'DESC')
+            ->findAll();
     }
 
     // Get trial manager by email

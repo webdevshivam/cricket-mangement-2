@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -43,10 +42,10 @@ class TrialPaymentModel extends Model
     public function getByTrialManager($managerId)
     {
         return $this->select('trial_payments.*, trial_players.name, trial_players.mobile')
-                   ->join('trial_players', 'trial_players.id = trial_payments.trial_player_id')
-                   ->where('trial_payments.trial_manager_id', $managerId)
-                   ->orderBy('trial_payments.payment_date', 'DESC')
-                   ->findAll();
+            ->join('trial_players', 'trial_players.id = trial_payments.trial_player_id')
+            ->where('trial_payments.trial_manager_id', $managerId)
+            ->orderBy('trial_payments.payment_date', 'DESC')
+            ->findAll();
     }
 
     // Get payment summary by trial manager
@@ -57,9 +56,9 @@ class TrialPaymentModel extends Model
             COUNT(*) as transaction_count,
             SUM(amount) as total_amount
         ')
-        ->join('trial_players', 'trial_players.id = trial_payments.trial_player_id')
-        ->where('trial_players.trial_manager_id', $managerId)
-        ->groupBy('payment_method')
-        ->findAll();
+            ->join('trial_players', 'trial_players.id = trial_payments.trial_player_id')
+            ->where('trial_players.trial_manager_id', $managerId)
+            ->groupBy('payment_method')
+            ->findAll();
     }
 }

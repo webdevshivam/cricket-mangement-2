@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -61,7 +60,7 @@ class TrialManagerController extends BaseController
         }
 
         $validation = \Config\Services::validation();
-        
+
         $rules = [
             'name' => 'required|min_length[3]|max_length[100]',
             'email' => 'required|valid_email|is_unique[trial_managers.email]',
@@ -98,7 +97,7 @@ class TrialManagerController extends BaseController
             session()->setFlashdata('success', 'Trial Manager created successfully!');
             session()->setFlashdata('generated_password', $password);
             session()->setFlashdata('manager_email', $data['email']);
-            
+
             return redirect()->to('/admin/trial-managers');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create trial manager.');
@@ -228,20 +227,20 @@ class TrialManagerController extends BaseController
     private function calculateManagerStats($managerId)
     {
         $db = \Config\Database::connect();
-        
+
         // Payment status counts
         $statusCounts = $db->query("
-            SELECT 
+            SELECT
                 payment_status,
                 COUNT(*) as count
-            FROM trial_players 
-            WHERE trial_manager_id = ? 
+            FROM trial_players
+            WHERE trial_manager_id = ?
             GROUP BY payment_status
         ", [$managerId])->getResultArray();
 
         // Payment collection by method
         $paymentStats = $db->query("
-            SELECT 
+            SELECT
                 payment_method,
                 SUM(amount) as total_amount,
                 COUNT(*) as transaction_count

@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Controllers;
@@ -34,7 +33,7 @@ class TrialManagerDashboardController extends BaseController
     public function authenticate()
     {
         $validation = \Config\Services::validation();
-        
+
         $rules = [
             'email' => 'required|valid_email',
             'password' => 'required|min_length[6]'
@@ -62,9 +61,9 @@ class TrialManagerDashboardController extends BaseController
                 'login_time' => time(),
                 'last_activity' => time()
             ];
-            
+
             session()->set($sessionData);
-            
+
             return redirect()->to('/trial-manager/dashboard');
         } else {
             return redirect()->back()->withInput()->with('error', 'Invalid email or password, or account is inactive.');
@@ -79,10 +78,10 @@ class TrialManagerDashboardController extends BaseController
         }
 
         $managerId = session()->get('user_id');
-        
+
         // Get dashboard statistics
         $stats = $this->getDashboardStats($managerId);
-        
+
         // Get recent players
         $recentPlayers = $this->trialPlayerModel
             ->select('name, mobile, payment_status, created_at')
@@ -122,7 +121,7 @@ class TrialManagerDashboardController extends BaseController
         }
 
         $mobile = $this->request->getPost('mobile');
-        
+
         if (empty($mobile)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Mobile number is required']);
         }
@@ -132,7 +131,7 @@ class TrialManagerDashboardController extends BaseController
         if ($player) {
             // Calculate fees based on cricket type
             $fees = $this->calculateFees($player['cricket_type']);
-            
+
             return $this->response->setJSON([
                 'success' => true,
                 'found' => true,
@@ -156,7 +155,7 @@ class TrialManagerDashboardController extends BaseController
         }
 
         $validation = \Config\Services::validation();
-        
+
         $rules = [
             'name' => 'required|min_length[3]',
             'mobile' => 'required|exact_length[10]|is_unique[trial_players.mobile]',
@@ -167,7 +166,7 @@ class TrialManagerDashboardController extends BaseController
 
         if (!$this->validate($rules)) {
             return $this->response->setJSON([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $this->validator->getErrors()
             ]);
@@ -212,7 +211,7 @@ class TrialManagerDashboardController extends BaseController
         $playerId = $this->request->getPost('player_id');
         $amount = $this->request->getPost('amount');
         $paymentMethod = $this->request->getPost('payment_method');
-        
+
         $player = $this->trialPlayerModel->find($playerId);
         if (!$player) {
             return $this->response->setJSON(['success' => false, 'message' => 'Player not found']);
@@ -234,7 +233,7 @@ class TrialManagerDashboardController extends BaseController
         // Determine new payment status
         $fees = $this->calculateFees($player['cricket_type']);
         $totalRequired = $fees['total'];
-        
+
         if ($amount >= $totalRequired) {
             $newStatus = 'full';
         } else {
@@ -269,22 +268,22 @@ class TrialManagerDashboardController extends BaseController
     private function getDashboardStats($managerId)
     {
         $db = \Config\Database::connect();
-        
+
         // Player counts by status
         $statusQuery = $db->query("
-            SELECT 
+            SELECT
                 payment_status,
                 COUNT(*) as count
-            FROM trial_players 
-            WHERE trial_manager_id = ? 
+            FROM trial_players
+            WHERE trial_manager_id = ?
             GROUP BY payment_status
         ", [$managerId]);
-        
+
         $statusCounts = $statusQuery->getResultArray();
-        
+
         // Payment collection
         $collectionQuery = $db->query("
-            SELECT 
+            SELECT
                 tp.payment_method,
                 SUM(tp.amount) as total_amount
             FROM trial_payments tp
@@ -292,9 +291,9 @@ class TrialManagerDashboardController extends BaseController
             WHERE tpl.trial_manager_id = ?
             GROUP BY tp.payment_method
         ", [$managerId]);
-        
+
         $collections = $collectionQuery->getResultArray();
-        
+
         $stats = [
             'total_players' => 0,
             'full_payment' => 0,
