@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('title') ?>Admin Dashboard<?= $this->endSection() ?>
