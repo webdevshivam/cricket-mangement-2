@@ -106,6 +106,13 @@ MODIFY COLUMN `player_id` INT(11) NULL;
 -- Add foreign key constraints (only if tables exist and columns are compatible)
 SET foreign_key_checks = 0;
 
+-- Drop existing constraints if they exist to avoid duplicate key errors
+ALTER TABLE `trial_players` DROP FOREIGN KEY IF EXISTS `fk_trial_players_manager`;
+ALTER TABLE `trial_payments` DROP FOREIGN KEY IF EXISTS `fk_trial_payments_player`;
+ALTER TABLE `trial_payments` DROP FOREIGN KEY IF EXISTS `fk_trial_payments_manager`;
+ALTER TABLE `trial_manager_sessions` DROP FOREIGN KEY IF EXISTS `fk_sessions_manager`;
+
+-- Add foreign key constraints
 ALTER TABLE `trial_players` 
 ADD CONSTRAINT `fk_trial_players_manager` 
 FOREIGN KEY (`trial_manager_id`) REFERENCES `trial_managers`(`id`) ON DELETE SET NULL;
