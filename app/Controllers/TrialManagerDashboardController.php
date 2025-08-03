@@ -113,7 +113,7 @@ class TrialManagerDashboardController extends BaseController
         return view('trial_manager/player_verification', $data);
     }
 
-    // Search Player by Mobile
+    // Search player by mobile
     public function searchPlayer()
     {
         if (!session()->get('tm_isLoggedIn') || session()->get('tm_role') !== 'trial_manager') {
@@ -146,6 +146,20 @@ class TrialManagerDashboardController extends BaseController
             $totalPaid = $paymentModel->where('trial_player_id', $player['id'])->selectSum('amount')->first();
             $player['total_paid'] = $totalPaid['amount'] ?? 0;
 
+             // Calculate remaining amount based on payment status
+            $fees = $this->calculateFees($player['cricket_type']);
+            $remainingAmount = 0;
+
+            if ($player['payment_status'] === 'no_payment') {
+                $remainingAmount = $fees['total']; // T-shirt (199) + cricket type fees
+            } elseif ($player['payment_status'] === 'partial') {
+                // Calculate the actually remaining amount
+                 $remainingAmount = $fees['total'] - $player['total_paid'];
+            }
+            // If full payment, remaining amount stays 0
+
+            $player['remaining_amount'] = $remainingAmount;
+            $player['fees_breakdown'] = $fees;
             return $this->response->setJSON([
                 'success' => true,
                 'player' => $player
@@ -214,14 +228,16 @@ class TrialManagerDashboardController extends BaseController
                 'amount' => $fees['total'],
                 'payment_method' => 'offline', // Default to offline for trial manager registration
                 'collected_by' => session()->get('tm_name'),
-                'payment_date' => date('Y-m-d H:i:s')
+                'payment_date' => date('Y-m-d H:i:s'),
+                'notes' => 'Registration by Trial Manager with full payment'
             ];
 
             $paymentModel->insert($paymentData);
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Player registered successfully with full payment!'
+                'message' => 'Player registered successfully with full payment!',
+                'fees_collected' => $fees['total']
             ]);
         } else {
             return $this->response->setJSON([
@@ -265,7 +281,11 @@ class TrialManagerDashboardController extends BaseController
         $fees = $this->calculateFees($player['cricket_type']);
         $totalRequired = $fees['total'];
 
-        if ($amount >= $totalRequired) {
+        // Calculate total amount paid so far
+        $totalPaid = $paymentModel->where('trial_player_id', $playerId)->selectSum('amount')->first();
+        $totalPaidAmount = $totalPaid['amount'] ?? 0;
+
+        if (($totalPaidAmount + $amount) >= $totalRequired) {
             $newStatus = 'full';
         } else {
             $newStatus = 'partial';

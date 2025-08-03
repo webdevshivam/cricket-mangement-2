@@ -55,7 +55,20 @@
                     </h5>
                 </div>
                 <div class="card-body" id="playerInfo">
-                    <!-- Player details will be loaded here -->
+                     <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item">
+                                    <span class="label">Payment Status:</span>
+                                    <span class="value" id="paymentStatus"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item">
+                                    <span class="label">Remaining Amount:</span>
+                                    <span class="value text-warning fw-bold" id="remainingAmount">₹0</span>
+                                </div>
+                            </div>
+</div>
                 </div>
             </div>
         </div>
@@ -113,6 +126,62 @@
                         </button>
                         <button type="button" class="btn btn-secondary ms-2" onclick="resetForm()">
                             <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Registration Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-dark text-light border-success">
+                <div class="card-header bg-success text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Register New Player
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="registrationForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="playerName" class="form-label">Player Name *</label>
+                                <input type="text" class="form-control" id="playerName" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="playerAge" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="playerAge" name="age" min="10" max="50">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="playerMobile" class="form-label">Mobile Number *</label>
+                                <input type="tel" class="form-control" id="playerMobile" name="mobile" pattern="[0-9]{10}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="playerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="playerEmail" name="email">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="playerCity" class="form-label">City</label>
+                                <input type="text" class="form-control" id="playerCity" name="city">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cricketType" class="form-label">Cricket Type *</label>
+                                <select class="form-control" id="cricketType" name="cricket_type" required>
+                                    <option value="">Select Cricket Type</option>
+                                    <option value="batsman">Batsman (₹999 + ₹199)</option>
+                                    <option value="bowler">Bowler (₹999 + ₹199)</option>
+                                    <option value="all-rounder">All-rounder (₹1199 + ₹199)</option>
+                                    <option value="wicket-keeper">Wicket Keeper (₹1199 + ₹199)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Registration fee will be automatically collected as offline payment (T-shirt ₹199 + Cricket Type fee)
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-user-plus me-2"></i>Register Player
                         </button>
                     </form>
                 </div>
