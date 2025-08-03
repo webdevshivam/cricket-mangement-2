@@ -16,7 +16,7 @@ class LeaguePlayerModel extends Model
     protected $allowedFields    = [
         'name', 'email', 'mobile', 'age', 'cricketer_type', 'age_group', 
         'state', 'city', 'aadhar_document', 'marksheet_document', 
-        'dob_proof', 'photo', 'payment_status', 'verified_at'
+        'dob_proof', 'photo', 'payment_status', 'status', 'verified_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -34,11 +34,15 @@ class LeaguePlayerModel extends Model
 
     // Validation
     protected $validationRules = [
-        'payment_status' => 'in_list[unpaid,paid]'
+        'payment_status' => 'in_list[unpaid,paid]',
+        'status' => 'in_list[not_selected,selected]'
     ];
     protected $validationMessages   = [
         'payment_status' => [
             'in_list' => 'Payment status must be either unpaid or paid'
+        ],
+        'status' => [
+            'in_list' => 'Status must be either not_selected or selected'
         ]
     ];
     protected $skipValidation       = false;

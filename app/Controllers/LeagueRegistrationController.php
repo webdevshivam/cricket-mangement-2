@@ -328,6 +328,120 @@ class LeagueRegistrationController extends BaseController
         }
     }
 
+    public function updateStatus()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['player_id']) || !isset($data['status'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing required data'
+                ]);
+            }
+
+            $validStatuses = ['not_selected', 'selected'];
+            if (!in_array($data['status'], $validStatuses)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invalid status'
+                ]);
+            }
+
+            $model = new LeaguePlayerModel();
+            $updateData = [
+                'status' => $data['status']
+            ];
+
+            $update = $model->update($data['player_id'], $updateData);
+
+            if ($update) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Status updated successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update status'
+                ]);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'League status update error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating status'
+            ]);
+        }
+    }
+
+    public function bulkUpdateStatus()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['player_ids']) || !isset($data['status']) || !is_array($data['player_ids'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing required data'
+                ]);
+            }
+
+            $validStatuses = ['not_selected', 'selected'];
+            if (!in_array($data['status'], $validStatuses)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invalid status'
+                ]);
+            }
+
+            $model = new LeaguePlayerModel();
+            $updatedCount = 0;
+
+            foreach ($data['player_ids'] as $playerId) {
+                $updateData = [
+                    'status' => $data['status']
+                ];
+
+                if ($model->update($playerId, $updateData)) {
+                    $updatedCount++;
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Successfully updated {$updatedCount} player(s) status",
+                'updated_count' => $updatedCount
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Bulk status update error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating status'
+            ]);
+        }
+    }
+
     public function updateGrade()
     {
         $this->response->setHeader('Content-Type', 'application/json');

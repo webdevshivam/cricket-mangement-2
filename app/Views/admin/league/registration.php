@@ -57,6 +57,9 @@
         <table class="table table-dark table-striped table-bordered" id="registrationsTable">
           <thead>
             <tr>
+              <th>
+                <input type="checkbox" class="form-check-input" id="selectAll">
+              </th>
               <th>#</th>
               <th>Name</th>
               <th>Mobile</th>
@@ -81,7 +84,10 @@
               ?>
               <?php foreach ($registrations as $reg) : ?>
                 <tr>
-                  <td><?= $i++ ?></td>
+                  <td>
+                    <input type="checkbox" class="form-check-input player-checkbox" value="<?= esc($reg['id']) ?>">
+                    <?= $i++ ?>
+                  </td>
                   <td><strong><?= esc($reg['name']) ?></strong></td>
                   <td><span class="badge bg-info"><?= esc($reg['mobile']) ?></span></td>
                   <td><?= esc($reg['email']) ?></td>
@@ -348,10 +354,10 @@
   function exportToPDF(type) {
     const searchParams = new URLSearchParams(window.location.search);
     const exportUrl = `<?= base_url('admin/league-registration/export-pdf') ?>?${searchParams.toString()}`;
-    
+
     // Show loading notification
     notyf.success('Generating PDF export...');
-    
+
     // Create a temporary link to download the PDF
     const link = document.createElement('a');
     link.href = exportUrl;
@@ -359,12 +365,20 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Show success notification after a delay
     setTimeout(() => {
       notyf.success('PDF export completed!');
     }, 2000);
   }
+
+  // Select All checkbox functionality
+  document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.player-checkbox');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+  });
 </script>
 
 <?= $this->endSection(); ?>
