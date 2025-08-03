@@ -73,7 +73,7 @@
             <li><a href="<?= base_url('admin/manage-trial-cities') ?>" class="nav-link">Manage Trial Cities</a></li>
             <li><a href="<?= base_url('admin/trial-managers') ?>" class="nav-link">Trial Managers</a></li>
             <li>
-              <a href="#assignment-submenu" class="nav-link dropdown-toggle ms-3" aria-expanded="false">
+              <a href="#assignment-submenu" class="nav-link dropdown-toggle ms-3" aria-expanded="false" data-bs-toggle="collapse">
                 <i class="fas fa-user-check"></i> Player Assignments
               </a>
               <ul class="collapse list-unstyled ms-4" id="assignment-submenu">

@@ -312,9 +312,10 @@ class TrialManagerController extends BaseController
         }
 
         $players = $this->trialPlayerModel
-            ->where('trial_manager_id IS NULL')
-            ->orderBy('created_at', 'DESC')
-            ->limit(100)
+            ->select('trial_players.*, trial_cities.city_name as trial_city_name')
+            ->join('trial_cities', 'trial_cities.id = trial_players.trial_city_id', 'left')
+            ->where('trial_players.trial_manager_id IS NULL')
+            ->orderBy('trial_players.created_at', 'DESC')
             ->findAll();
 
         return $this->response->setJSON(['success' => true, 'players' => $players]);
@@ -347,12 +348,20 @@ class TrialManagerController extends BaseController
         try {
             $assignedCount = 0;
             $skippedCount = 0;
+            $cityMismatchCount = 0;
 
             foreach ($playerIds as $playerId) {
                 // Check if player exists
                 $player = $this->trialPlayerModel->find($playerId);
                 if (!$player) {
                     $skippedCount++;
+                    continue;
+                }
+
+                // Check if player's trial city matches manager's trial city
+                if ($manager['trial_city_id'] && $player['trial_city_id'] && 
+                    $player['trial_city_id'] != $manager['trial_city_id']) {
+                    $cityMismatchCount++;
                     continue;
                 }
 
@@ -382,6 +391,9 @@ class TrialManagerController extends BaseController
             $message = "Successfully assigned {$assignedCount} player(s) to the trial manager.";
             if ($skippedCount > 0) {
                 $message .= " {$skippedCount} player(s) were skipped.";
+            }
+            if ($cityMismatchCount > 0) {
+                $message .= " {$cityMismatchCount} player(s) skipped due to trial city mismatch.";
             }
 
             return $this->response->setJSON(['success' => true, 'message' => $message]);

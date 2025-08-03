@@ -1,34 +1,58 @@
 
 <?= $this->extend('layouts/admin') ?>
 
-<?= $this->section('title') ?>Unassigned Players<?= $this->endSection() ?>
+<?= $this->section('title') ?>Unassigned Trial Players<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card bg-dark text-light border-warning">
+            <div class="card bg-dark text-light border-primary">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">
-                        <i class="fas fa-user-times text-warning"></i> Unassigned Players
+                        <i class="fas fa-user-plus text-primary"></i> Unassigned Trial Players
                     </h4>
                     <div class="d-flex gap-2">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkAssignModal">
-                            <i class="fas fa-users"></i> Bulk Assign
+                            <i class="fas fa-user-check"></i> Bulk Assign
                         </button>
-                        <button class="btn btn-success" onclick="loadUnassignedPlayers()">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
+                        <a href="/admin/trial-managers" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Managers
+                        </a>
                     </div>
                 </div>
 
                 <div class="card-body">
+                    <!-- Filter Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Filter by Trial City</label>
+                            <select class="form-select bg-dark text-white border-secondary" id="cityFilter">
+                                <option value="">All Cities</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Search by Mobile</label>
+                            <input type="text" class="form-control bg-dark text-white border-secondary" 
+                                   id="mobileSearch" placeholder="Enter mobile number">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-outline-info" onclick="applyFilters()">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                            <button class="btn btn-outline-secondary ms-2" onclick="clearFilters()">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Players Table -->
                     <div class="table-responsive">
-                        <table class="table table-dark table-striped" id="unassignedPlayersTable">
+                        <table class="table table-dark table-striped">
                             <thead>
                                 <tr>
-                                    <th>
-                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    <th width="50">
+                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="form-check-input">
                                     </th>
                                     <th>Name</th>
                                     <th>Mobile</th>
@@ -38,15 +62,25 @@
                                     <th>Trial City</th>
                                     <th>Payment Status</th>
                                     <th>Registered</th>
-                                    <th>Actions</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="playersTableBody">
                                 <tr>
-                                    <td colspan="10" class="text-center">Loading players...</td>
+                                    <td colspan="10" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Loading unassigned players...
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Selection Info -->
+                    <div id="selectionInfo" class="mt-3 text-info" style="display: none;">
+                        <span id="selectedPlayersCount">No players selected</span>
                     </div>
                 </div>
             </div>
@@ -69,6 +103,12 @@
                         <option value="">Select Manager...</option>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Filter Managers by City</label>
+                    <select class="form-select bg-dark text-white border-secondary" id="managerCityFilter">
+                        <option value="">All Cities</option>
+                    </select>
+                </div>
                 <div id="selectedPlayersCount" class="text-info">
                     No players selected
                 </div>
@@ -84,10 +124,14 @@
 <script>
 let selectedPlayers = [];
 let allPlayers = [];
+let filteredPlayers = [];
+let allCities = [];
+let allManagers = [];
 
-// Load unassigned players on page load
+// Load data on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadUnassignedPlayers();
+    loadTrialCities();
     loadTrialManagers();
 });
 
@@ -97,52 +141,30 @@ function loadUnassignedPlayers() {
     .then(data => {
         if (data.success) {
             allPlayers = data.players;
-            displayUnassignedPlayers(data.players);
+            filteredPlayers = [...allPlayers];
+            renderPlayersTable();
         } else {
             document.getElementById('playersTableBody').innerHTML = 
-                '<tr><td colspan="10" class="text-center text-danger">Failed to load players</td></tr>';
+                '<tr><td colspan="10" class="text-center text-muted">No unassigned players found</td></tr>';
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error loading players:', error);
         document.getElementById('playersTableBody').innerHTML = 
             '<tr><td colspan="10" class="text-center text-danger">Error loading players</td></tr>';
     });
 }
 
-function displayUnassignedPlayers(players) {
-    const tbody = document.getElementById('playersTableBody');
-    
-    if (players.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center">No unassigned players found</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = players.map(player => `
-        <tr>
-            <td>
-                <input type="checkbox" class="player-checkbox" value="${player.id}" 
-                       onchange="updateSelectedPlayers(${player.id}, this.checked)">
-            </td>
-            <td>${escapeHtml(player.name)}</td>
-            <td>${escapeHtml(player.mobile)}</td>
-            <td>${escapeHtml(player.email || 'N/A')}</td>
-            <td>${player.age}</td>
-            <td>${escapeHtml(player.cricket_type)}</td>
-            <td>${escapeHtml(player.trial_city_name || 'Not Set')}</td>
-            <td>
-                <span class="badge bg-${getPaymentBadge(player.payment_status)}">
-                    ${formatPaymentStatus(player.payment_status)}
-                </span>
-            </td>
-            <td>${formatDate(player.created_at)}</td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary" onclick="quickAssign(${player.id})">
-                    <i class="fas fa-user-plus"></i> Quick Assign
-                </button>
-            </td>
-        </tr>
-    `).join('');
+function loadTrialCities() {
+    fetch('/admin/trial-managers/trial-cities')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            allCities = data.cities;
+            populateCityFilters();
+        }
+    })
+    .catch(error => console.error('Error loading cities:', error));
 }
 
 function loadTrialManagers() {
@@ -150,14 +172,107 @@ function loadTrialManagers() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const select = document.getElementById('bulkAssignManager');
-            select.innerHTML = '<option value="">Select Manager...</option>' +
-                data.managers.map(manager => 
-                    `<option value="${manager.id}">${escapeHtml(manager.name)} - ${escapeHtml(manager.trial_name)}</option>`
-                ).join('');
+            allManagers = data.managers;
+            populateManagerSelect();
         }
     })
     .catch(error => console.error('Error loading managers:', error));
+}
+
+function populateCityFilters() {
+    const cityFilter = document.getElementById('cityFilter');
+    const managerCityFilter = document.getElementById('managerCityFilter');
+    
+    const cityOptions = allCities.map(city => 
+        `<option value="${city.id}">${escapeHtml(city.city_name)} (${city.player_count} players)</option>`
+    ).join('');
+    
+    cityFilter.innerHTML = '<option value="">All Cities</option>' + cityOptions;
+    managerCityFilter.innerHTML = '<option value="">All Cities</option>' + cityOptions;
+    
+    // Add change handler for manager city filter
+    managerCityFilter.addEventListener('change', filterManagersByCity);
+}
+
+function populateManagerSelect() {
+    const select = document.getElementById('bulkAssignManager');
+    const options = allManagers.map(manager => 
+        `<option value="${manager.id}" data-city-id="${manager.trial_city_id || ''}">${escapeHtml(manager.name)} - ${escapeHtml(manager.trial_name)} ${manager.city_name ? '(' + escapeHtml(manager.city_name) + ')' : ''}</option>`
+    ).join('');
+    
+    select.innerHTML = '<option value="">Select Manager...</option>' + options;
+}
+
+function filterManagersByCity() {
+    const selectedCityId = document.getElementById('managerCityFilter').value;
+    const managerSelect = document.getElementById('bulkAssignManager');
+    
+    managerSelect.innerHTML = '<option value="">Select Manager...</option>';
+    
+    const filteredManagers = selectedCityId ? 
+        allManagers.filter(manager => manager.trial_city_id == selectedCityId) : 
+        allManagers;
+    
+    const options = filteredManagers.map(manager => 
+        `<option value="${manager.id}" data-city-id="${manager.trial_city_id || ''}">${escapeHtml(manager.name)} - ${escapeHtml(manager.trial_name)} ${manager.city_name ? '(' + escapeHtml(manager.city_name) + ')' : ''}</option>`
+    ).join('');
+    
+    managerSelect.innerHTML += options;
+}
+
+function applyFilters() {
+    const cityFilter = document.getElementById('cityFilter').value;
+    const mobileSearch = document.getElementById('mobileSearch').value.trim();
+    
+    filteredPlayers = allPlayers.filter(player => {
+        const cityMatch = !cityFilter || player.trial_city_id == cityFilter;
+        const mobileMatch = !mobileSearch || player.mobile.includes(mobileSearch);
+        return cityMatch && mobileMatch;
+    });
+    
+    renderPlayersTable();
+    clearSelection();
+}
+
+function clearFilters() {
+    document.getElementById('cityFilter').value = '';
+    document.getElementById('mobileSearch').value = '';
+    filteredPlayers = [...allPlayers];
+    renderPlayersTable();
+    clearSelection();
+}
+
+function renderPlayersTable() {
+    const tbody = document.getElementById('playersTableBody');
+    
+    if (filteredPlayers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No players found with current filters</td></tr>';
+        return;
+    }
+    
+    const rows = filteredPlayers.map(player => `
+        <tr>
+            <td>
+                <input type="checkbox" class="form-check-input player-checkbox" 
+                       value="${player.id}" onchange="updateSelectedPlayers(${player.id}, this.checked)">
+            </td>
+            <td>${escapeHtml(player.name)}</td>
+            <td>${escapeHtml(player.mobile)}</td>
+            <td>${escapeHtml(player.email)}</td>
+            <td>${player.age}</td>
+            <td><span class="badge bg-info">${escapeHtml(player.cricket_type)}</span></td>
+            <td>${player.trial_city_name ? escapeHtml(player.trial_city_name) : '<span class="text-muted">Not Set</span>'}</td>
+            <td>${getPaymentStatusBadge(player.payment_status)}</td>
+            <td>${formatDate(player.created_at)}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="assignSinglePlayer(${player.id})">
+                    <i class="fas fa-user-check"></i> Assign
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    tbody.innerHTML = rows;
 }
 
 function toggleSelectAll() {
@@ -166,7 +281,8 @@ function toggleSelectAll() {
     
     checkboxes.forEach(checkbox => {
         checkbox.checked = selectAll.checked;
-        updateSelectedPlayers(parseInt(checkbox.value), checkbox.checked);
+        const playerId = parseInt(checkbox.value);
+        updateSelectedPlayers(playerId, checkbox.checked);
     });
 }
 
@@ -179,14 +295,54 @@ function updateSelectedPlayers(playerId, isSelected) {
         selectedPlayers = selectedPlayers.filter(id => id !== playerId);
     }
     
-    document.getElementById('selectedPlayersCount').textContent = 
-        `${selectedPlayers.length} player(s) selected`;
+    updateSelectionDisplay();
+    updateSelectAllState();
+}
+
+function updateSelectAllState() {
+    const checkboxes = document.querySelectorAll('.player-checkbox');
+    const selectAll = document.getElementById('selectAll');
     
-    // Update "select all" checkbox
-    const totalCheckboxes = document.querySelectorAll('.player-checkbox').length;
-    const selectAllCheckbox = document.getElementById('selectAll');
-    selectAllCheckbox.indeterminate = selectedPlayers.length > 0 && selectedPlayers.length < totalCheckboxes;
-    selectAllCheckbox.checked = selectedPlayers.length === totalCheckboxes && totalCheckboxes > 0;
+    if (checkboxes.length === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+        return;
+    }
+    
+    const checkedCount = selectedPlayers.length;
+    const totalVisible = checkboxes.length;
+    
+    if (checkedCount === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    } else if (checkedCount === totalVisible) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+    }
+}
+
+function updateSelectionDisplay() {
+    const selectionInfo = document.getElementById('selectionInfo');
+    const countDisplay = document.getElementById('selectedPlayersCount');
+    
+    if (selectedPlayers.length > 0) {
+        selectionInfo.style.display = 'block';
+        countDisplay.textContent = `${selectedPlayers.length} player(s) selected`;
+    } else {
+        selectionInfo.style.display = 'none';
+        countDisplay.textContent = 'No players selected';
+    }
+}
+
+function clearSelection() {
+    selectedPlayers = [];
+    document.querySelectorAll('.player-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked = false;
+    document.getElementById('selectAll').indeterminate = false;
+    updateSelectionDisplay();
 }
 
 function bulkAssignPlayers() {
@@ -199,6 +355,32 @@ function bulkAssignPlayers() {
     
     if (selectedPlayers.length === 0) {
         alert('Please select at least one player');
+        return;
+    }
+    
+    // Get selected manager details
+    const selectedManager = allManagers.find(m => m.id == managerId);
+    const selectedManagerCity = selectedManager ? selectedManager.trial_city_id : null;
+    
+    // Check if selected players are from the same city as manager
+    if (selectedManagerCity) {
+        const incompatiblePlayers = selectedPlayers.filter(playerId => {
+            const player = allPlayers.find(p => p.id == playerId);
+            return player && player.trial_city_id && player.trial_city_id != selectedManagerCity;
+        });
+        
+        if (incompatiblePlayers.length > 0) {
+            const message = `Warning: ${incompatiblePlayers.length} selected player(s) are from different trial cities and cannot be assigned to this manager. Continue with remaining players?`;
+            if (!confirm(message)) {
+                return;
+            }
+            // Remove incompatible players from selection
+            selectedPlayers = selectedPlayers.filter(id => !incompatiblePlayers.includes(id));
+        }
+    }
+    
+    if (selectedPlayers.length === 0) {
+        alert('No compatible players selected for assignment');
         return;
     }
     
@@ -217,8 +399,7 @@ function bulkAssignPlayers() {
     .then(data => {
         if (data.success) {
             alert(data.message);
-            selectedPlayers = [];
-            document.getElementById('selectedPlayersCount').textContent = 'No players selected';
+            clearSelection();
             loadUnassignedPlayers();
             bootstrap.Modal.getInstance(document.getElementById('bulkAssignModal')).hide();
         } else {
@@ -231,60 +412,19 @@ function bulkAssignPlayers() {
     });
 }
 
-function quickAssign(playerId) {
-    // Open a simple prompt for quick assignment
-    const managerId = prompt('Enter Trial Manager ID for quick assignment:');
-    if (managerId && !isNaN(managerId)) {
-        fetch('/admin/trial-managers/assign-players', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                manager_id: parseInt(managerId),
-                player_ids: [playerId]
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                loadUnassignedPlayers();
-            } else {
-                alert(data.message || 'Assignment failed');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred during assignment');
-        });
-    }
+function assignSinglePlayer(playerId) {
+    selectedPlayers = [playerId];
+    document.getElementById('bulkAssignModal').querySelector('.modal-title').textContent = 'Assign Player';
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('bulkAssignModal')).show();
 }
 
-// Utility functions
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function getPaymentBadge(status) {
-    switch (status) {
-        case 'full': return 'success';
-        case 'partial': return 'warning';
-        case 'no_payment': return 'danger';
-        default: return 'secondary';
-    }
-}
-
-function formatPaymentStatus(status) {
-    switch (status) {
-        case 'full': return 'Full Payment';
-        case 'partial': return 'Partial Payment';
-        case 'no_payment': return 'No Payment';
-        default: return 'Unknown';
-    }
+function getPaymentStatusBadge(status) {
+    const badges = {
+        'no_payment': '<span class="badge bg-danger">No Payment</span>',
+        'partial': '<span class="badge bg-warning text-dark">Partial</span>',
+        'full': '<span class="badge bg-success">Full Payment</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">Unknown</span>';
 }
 
 function formatDate(dateString) {
@@ -293,6 +433,12 @@ function formatDate(dateString) {
         month: 'short',
         day: 'numeric'
     });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 </script>
 <?= $this->endSection() ?>
