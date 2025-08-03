@@ -120,7 +120,8 @@ class TrialManagerDashboardController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
         }
 
-        $mobile = $this->request->getPost('mobile');
+        $input = $this->request->getJSON(true);
+        $mobile = $input['mobile'] ?? '';
 
         if (empty($mobile)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Mobile number is required']);
@@ -154,6 +155,8 @@ class TrialManagerDashboardController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
         }
 
+        $input = $this->request->getJSON(true);
+        
         $validation = \Config\Services::validation();
 
         $rules = [
@@ -164,11 +167,11 @@ class TrialManagerDashboardController extends BaseController
             'cricket_type' => 'required|in_list[bowler,batsman,all-rounder,wicket-keeper]'
         ];
 
-        if (!$this->validate($rules)) {
+        if (!$validation->setRules($rules)->run($input)) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $this->validator->getErrors()
+                'errors' => $validation->getErrors()
             ]);
         }
 
@@ -176,11 +179,11 @@ class TrialManagerDashboardController extends BaseController
         $trialCityId = session()->get('trial_city_id');
 
         $playerData = [
-            'name' => $this->request->getPost('name'),
-            'mobile' => $this->request->getPost('mobile'),
-            'email' => $this->request->getPost('email'),
-            'age' => $this->request->getPost('age'),
-            'cricket_type' => $this->request->getPost('cricket_type'),
+            'name' => $input['name'],
+            'mobile' => $input['mobile'],
+            'email' => $input['email'] ?? null,
+            'age' => $input['age'],
+            'cricket_type' => $input['cricket_type'],
             'trial_city_id' => $trialCityId,
             'trial_manager_id' => $managerId,
             'payment_status' => 'full', // TM registered players are considered full paid
@@ -208,9 +211,10 @@ class TrialManagerDashboardController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
         }
 
-        $playerId = $this->request->getPost('player_id');
-        $amount = $this->request->getPost('amount');
-        $paymentMethod = $this->request->getPost('payment_method');
+        $input = $this->request->getJSON(true);
+        $playerId = $input['player_id'] ?? '';
+        $amount = $input['amount'] ?? '';
+        $paymentMethod = $input['payment_method'] ?? '';
 
         $player = $this->trialPlayerModel->find($playerId);
         if (!$player) {
@@ -257,6 +261,23 @@ class TrialManagerDashboardController extends BaseController
         }
     }
 
+    // Calculate fees based on cricket type
+    private function calculateFees($cricketType)
+    {
+        $fees = [
+            'trial' => 999,
+            'tshirt' => 199,
+            'total' => 1198
+        ];
+
+        if (in_array($cricketType, ['all-rounder', 'wicket-keeper'])) {
+            $fees['trial'] = 1199;
+            $fees['total'] = 1398;
+        }
+
+        return $fees;
+    }
+
     // Logout
     public function logout()
     {
@@ -293,6 +314,45 @@ class TrialManagerDashboardController extends BaseController
         ", [$managerId]);
 
         $collections = $collectionQuery->getResultArray();
+
+        // Initialize stats
+        $stats = [
+            'total_players' => 0,
+            'full_payment' => 0,
+            'partial_payment' => 0,
+            'no_payment' => 0,
+            'total_collection' => 0,
+            'online_collection' => 0,
+            'offline_collection' => 0
+        ];
+
+        // Process status counts
+        foreach ($statusCounts as $status) {
+            $stats['total_players'] += $status['count'];
+            switch ($status['payment_status']) {
+                case 'full':
+                    $stats['full_payment'] = $status['count'];
+                    break;
+                case 'partial':
+                    $stats['partial_payment'] = $status['count'];
+                    break;
+                case 'no_payment':
+                    $stats['no_payment'] = $status['count'];
+                    break;
+            }
+        }
+
+        // Process collections
+        foreach ($collections as $collection) {
+            $stats['total_collection'] += $collection['total_amount'];
+            if ($collection['payment_method'] === 'online') {
+                $stats['online_collection'] = $collection['total_amount'];
+            } else {
+                $stats['offline_collection'] = $collection['total_amount'];
+            }
+        }
+
+        return $stats;
 
         $stats = [
             'total_players' => 0,

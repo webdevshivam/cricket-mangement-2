@@ -17,6 +17,8 @@ class TrialPlayerModel extends Model
     'state_id',
     'city',
     'trial_city_id',
+    'trial_manager_id',
+    'registered_by_tm',
     'cricket_type',
     'payment_status',
     'verified_at',

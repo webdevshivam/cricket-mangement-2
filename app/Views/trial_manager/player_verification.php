@@ -295,16 +295,26 @@
                     </div>
                 `;
             } else {
-                const remainingAmount = player.payment_status === 'partial' ? fees.total - 199 : fees.total;
+                let remainingAmount = fees.total;
+                
+                // Calculate remaining amount based on payment status
+                if (player.payment_status === 'partial') {
+                    // Assuming partial means T-shirt fee paid (199)
+                    remainingAmount = fees.total - 199;
+                } else if (player.payment_status === 'no_payment') {
+                    remainingAmount = fees.total;
+                }
+                
                 return `
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Payment Required:</strong> ₹${remainingAmount}
+                        ${player.payment_status === 'partial' ? ' (Remaining after T-shirt fee)' : ''}
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <input type="number" id="paymentAmount" class="form-control" 
-                                   placeholder="Enter amount" value="${remainingAmount}">
+                                   placeholder="Enter amount" value="${remainingAmount}" min="1" max="${remainingAmount}">
                         </div>
                         <div class="col-md-6">
                             <select id="paymentMethod" class="form-select">
