@@ -353,51 +353,5 @@ class TrialManagerDashboardController extends BaseController
         }
 
         return $stats;
-
-        $stats = [
-            'total_players' => 0,
-            'full_payment' => 0,
-            'partial_payment' => 0,
-            'no_payment' => 0,
-            'online_collection' => 0,
-            'offline_collection' => 0,
-            'total_collection' => 0
-        ];
-
-        foreach ($statusCounts as $status) {
-            $stats['total_players'] += $status['count'];
-            $stats[$status['payment_status'] . '_payment'] = $status['count'];
-        }
-
-        foreach ($collections as $collection) {
-            $stats[$collection['payment_method'] . '_collection'] = $collection['total_amount'];
-            $stats['total_collection'] += $collection['total_amount'];
-        }
-
-        return $stats;
-    }
-
-    // Calculate fees based on cricket type
-    private function calculateFees($cricketType)
-    {
-        $tshirtFee = 199;
-        $trialFee = 0;
-
-        switch ($cricketType) {
-            case 'bowler':
-            case 'batsman':
-                $trialFee = 999;
-                break;
-            case 'all-rounder':
-            case 'wicket-keeper':
-                $trialFee = 1199;
-                break;
-        }
-
-        return [
-            'tshirt' => $tshirtFee,
-            'trial' => $trialFee,
-            'total' => $tshirtFee + $trialFee
-        ];
     }
 }
