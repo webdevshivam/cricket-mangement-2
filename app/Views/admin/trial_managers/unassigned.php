@@ -1,444 +1,462 @@
 
 <?= $this->extend('layouts/admin') ?>
 
-<?= $this->section('title') ?>Unassigned Trial Players<?= $this->endSection() ?>
+<?= $this->section('title') ?>Unassigned Players<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <div class="container-fluid">
-    <div class="row">
+    <!-- Header -->
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-dark text-light border-primary">
-                <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card bg-dark text-light border-warning">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">
-                        <i class="fas fa-user-plus text-primary"></i> Unassigned Trial Players
+                        <i class="fas fa-user-slash me-2"></i>Unassigned Players Management
                     </h4>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkAssignModal">
-                            <i class="fas fa-user-check"></i> Bulk Assign
+                    <div>
+                        <button class="btn btn-outline-dark me-2" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
                         </button>
-                        <a href="/admin/trial-managers" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Managers
+                        <a href="<?= base_url('admin/trial-managers') ?>" class="btn btn-outline-dark">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Managers
                         </a>
                     </div>
                 </div>
-
                 <div class="card-body">
-                    <!-- Filter Section -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <label class="form-label">Filter by Trial City</label>
-                            <select class="form-select bg-dark text-white border-secondary" id="cityFilter">
-                                <option value="">All Cities</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Search by Mobile</label>
-                            <input type="text" class="form-control bg-dark text-white border-secondary" 
-                                   id="mobileSearch" placeholder="Enter mobile number">
-                        </div>
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button class="btn btn-outline-info" onclick="applyFilters()">
-                                <i class="fas fa-filter"></i> Apply Filters
-                            </button>
-                            <button class="btn btn-outline-secondary ms-2" onclick="clearFilters()">
-                                <i class="fas fa-times"></i> Clear
-                            </button>
-                        </div>
-                    </div>
+                    <p class="mb-0">Assign unassigned players to trial managers based on their trial cities.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Players Table -->
-                    <div class="table-responsive">
-                        <table class="table table-dark table-striped">
-                            <thead>
-                                <tr>
-                                    <th width="50">
-                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="form-check-input">
-                                    </th>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th>Email</th>
-                                    <th>Age</th>
-                                    <th>Cricket Type</th>
-                                    <th>Trial City</th>
-                                    <th>Payment Status</th>
-                                    <th>Registered</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="playersTableBody">
-                                <tr>
-                                    <td colspan="10" class="text-center">
-                                        <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                        Loading unassigned players...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Selection Info -->
-                    <div id="selectionInfo" class="mt-3 text-info" style="display: none;">
-                        <span id="selectedPlayersCount">No players selected</span>
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-body">
+                    <h6 class="text-warning mb-3">
+                        <i class="fas fa-filter me-2"></i>Filter by Trial City
+                    </h6>
+                    <select id="cityFilter" class="form-select" onchange="filterByCity()">
+                        <option value="">All Cities</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-body">
+                    <h6 class="text-warning mb-3">
+                        <i class="fas fa-user-tie me-2"></i>Select Trial Manager
+                    </h6>
+                    <select id="managerSelect" class="form-select">
+                        <option value="">Select Manager</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-body">
+                    <h6 class="text-warning mb-3">
+                        <i class="fas fa-tasks me-2"></i>Bulk Actions
+                    </h6>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-warning flex-fill" onclick="selectAll()">
+                            <i class="fas fa-check-square me-1"></i>Select All
+                        </button>
+                        <button class="btn btn-outline-warning flex-fill" onclick="clearSelection()">
+                            <i class="fas fa-square me-1"></i>Clear All
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Bulk Assign Modal -->
-<div class="modal fade" id="bulkAssignModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title">Bulk Assign Players</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Select Trial Manager</label>
-                    <select class="form-select bg-dark text-white border-secondary" id="bulkAssignManager">
-                        <option value="">Select Manager...</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Filter Managers by City</label>
-                    <select class="form-select bg-dark text-white border-secondary" id="managerCityFilter">
-                        <option value="">All Cities</option>
-                    </select>
-                </div>
-                <div id="selectedPlayersCount" class="text-info">
-                    No players selected
+    <!-- Assignment Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark text-light border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-warning fw-bold">Selected Players: </span>
+                            <span id="selectedCount" class="badge bg-warning text-dark">0</span>
+                        </div>
+                        <button class="btn btn-warning" onclick="assignSelectedPlayers()" disabled id="assignBtn">
+                            <i class="fas fa-user-plus me-2"></i>Assign Selected Players
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="bulkAssignPlayers()">Assign Players</button>
+        </div>
+    </div>
+
+    <!-- Players Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark text-light border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>Unassigned Players
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover" id="playersTable">
+                            <thead class="table-warning text-dark">
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Age</th>
+                                    <th>Trial City</th>
+                                    <th>Payment Status</th>
+                                    <th>Registration Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="playersTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center">
+                                        <div class="spinner-border text-warning" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading players...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-let selectedPlayers = [];
-let allPlayers = [];
-let filteredPlayers = [];
-let allCities = [];
-let allManagers = [];
+let unassignedPlayers = [];
+let trialManagers = [];
+let selectedPlayers = new Set();
 
-// Load data on page load
+// Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    loadUnassignedPlayers();
-    loadTrialCities();
     loadTrialManagers();
+    loadUnassignedPlayers();
 });
 
-function loadUnassignedPlayers() {
-    fetch('/admin/trial-managers/unassigned-players')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            allPlayers = data.players;
-            filteredPlayers = [...allPlayers];
-            renderPlayersTable();
-        } else {
-            document.getElementById('playersTableBody').innerHTML = 
-                '<tr><td colspan="10" class="text-center text-muted">No unassigned players found</td></tr>';
-        }
-    })
-    .catch(error => {
-        console.error('Error loading players:', error);
-        document.getElementById('playersTableBody').innerHTML = 
-            '<tr><td colspan="10" class="text-center text-danger">Error loading players</td></tr>';
-    });
-}
-
-function loadTrialCities() {
-    fetch('/admin/trial-managers/trial-cities')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            allCities = data.cities;
-            populateCityFilters();
-        }
-    })
-    .catch(error => console.error('Error loading cities:', error));
-}
-
+// Load trial managers
 function loadTrialManagers() {
-    fetch('/admin/trial-managers/active')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            allManagers = data.managers;
-            populateManagerSelect();
-        }
-    })
-    .catch(error => console.error('Error loading managers:', error));
+    fetch('/admin/trial-managers/get-active-managers')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                trialManagers = data.managers;
+                populateManagerSelect();
+            } else {
+                notyf.error('Failed to load trial managers');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading managers:', error);
+            notyf.error('Error loading trial managers');
+        });
 }
 
-function populateCityFilters() {
-    const cityFilter = document.getElementById('cityFilter');
-    const managerCityFilter = document.getElementById('managerCityFilter');
-    
-    const cityOptions = allCities.map(city => 
-        `<option value="${city.id}">${escapeHtml(city.city_name)} (${city.player_count} players)</option>`
-    ).join('');
-    
-    cityFilter.innerHTML = '<option value="">All Cities</option>' + cityOptions;
-    managerCityFilter.innerHTML = '<option value="">All Cities</option>' + cityOptions;
-    
-    // Add change handler for manager city filter
-    managerCityFilter.addEventListener('change', filterManagersByCity);
+// Load unassigned players
+function loadUnassignedPlayers() {
+    fetch('/admin/trial/unassigned-players')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                unassignedPlayers = data.players;
+                populatePlayersTable();
+                populateCityFilter();
+            } else {
+                notyf.error('Failed to load unassigned players');
+                document.getElementById('playersTableBody').innerHTML = 
+                    '<tr><td colspan="9" class="text-center">No unassigned players found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading players:', error);
+            notyf.error('Error loading unassigned players');
+            document.getElementById('playersTableBody').innerHTML = 
+                '<tr><td colspan="9" class="text-center text-danger">Error loading players</td></tr>';
+        });
 }
 
+// Populate manager select dropdown
 function populateManagerSelect() {
-    const select = document.getElementById('bulkAssignManager');
-    const options = allManagers.map(manager => 
-        `<option value="${manager.id}" data-city-id="${manager.trial_city_id || ''}">${escapeHtml(manager.name)} - ${escapeHtml(manager.trial_name)} ${manager.city_name ? '(' + escapeHtml(manager.city_name) + ')' : ''}</option>`
-    ).join('');
+    const select = document.getElementById('managerSelect');
+    select.innerHTML = '<option value="">Select Manager</option>';
     
-    select.innerHTML = '<option value="">Select Manager...</option>' + options;
-}
-
-function filterManagersByCity() {
-    const selectedCityId = document.getElementById('managerCityFilter').value;
-    const managerSelect = document.getElementById('bulkAssignManager');
-    
-    managerSelect.innerHTML = '<option value="">Select Manager...</option>';
-    
-    const filteredManagers = selectedCityId ? 
-        allManagers.filter(manager => manager.trial_city_id == selectedCityId) : 
-        allManagers;
-    
-    const options = filteredManagers.map(manager => 
-        `<option value="${manager.id}" data-city-id="${manager.trial_city_id || ''}">${escapeHtml(manager.name)} - ${escapeHtml(manager.trial_name)} ${manager.city_name ? '(' + escapeHtml(manager.city_name) + ')' : ''}</option>`
-    ).join('');
-    
-    managerSelect.innerHTML += options;
-}
-
-function applyFilters() {
-    const cityFilter = document.getElementById('cityFilter').value;
-    const mobileSearch = document.getElementById('mobileSearch').value.trim();
-    
-    filteredPlayers = allPlayers.filter(player => {
-        const cityMatch = !cityFilter || player.trial_city_id == cityFilter;
-        const mobileMatch = !mobileSearch || player.mobile.includes(mobileSearch);
-        return cityMatch && mobileMatch;
+    trialManagers.forEach(manager => {
+        const option = document.createElement('option');
+        option.value = manager.id;
+        option.textContent = `${manager.name} (${manager.city_name || 'No City'})`;
+        option.dataset.cityId = manager.trial_city_id;
+        select.appendChild(option);
     });
+}
+
+// Populate city filter
+function populateCityFilter() {
+    const select = document.getElementById('cityFilter');
+    const cities = [...new Set(unassignedPlayers.map(p => p.trial_city_name).filter(Boolean))];
     
-    renderPlayersTable();
-    clearSelection();
+    select.innerHTML = '<option value="">All Cities</option>';
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        select.appendChild(option);
+    });
 }
 
-function clearFilters() {
-    document.getElementById('cityFilter').value = '';
-    document.getElementById('mobileSearch').value = '';
-    filteredPlayers = [...allPlayers];
-    renderPlayersTable();
-    clearSelection();
-}
-
-function renderPlayersTable() {
+// Populate players table
+function populatePlayersTable(filteredPlayers = null) {
+    const players = filteredPlayers || unassignedPlayers;
     const tbody = document.getElementById('playersTableBody');
     
-    if (filteredPlayers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No players found with current filters</td></tr>';
+    if (players.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">No players found</td></tr>';
         return;
     }
     
-    const rows = filteredPlayers.map(player => `
-        <tr>
+    tbody.innerHTML = players.map(player => `
+        <tr data-city="${player.trial_city_name || ''}" data-player-id="${player.id}">
             <td>
-                <input type="checkbox" class="form-check-input player-checkbox" 
-                       value="${player.id}" onchange="updateSelectedPlayers(${player.id}, this.checked)">
+                <input type="checkbox" class="player-checkbox" value="${player.id}" 
+                       onchange="updateSelection(${player.id})">
             </td>
-            <td>${escapeHtml(player.name)}</td>
+            <td>
+                <i class="fas fa-user me-2 text-warning"></i>
+                ${escapeHtml(player.name)}
+            </td>
             <td>${escapeHtml(player.mobile)}</td>
-            <td>${escapeHtml(player.email)}</td>
+            <td>${escapeHtml(player.email || 'N/A')}</td>
             <td>${player.age}</td>
-            <td><span class="badge bg-info">${escapeHtml(player.cricket_type)}</span></td>
-            <td>${player.trial_city_name ? escapeHtml(player.trial_city_name) : '<span class="text-muted">Not Set</span>'}</td>
+            <td>
+                <span class="badge bg-info">${escapeHtml(player.trial_city_name || 'Not Set')}</span>
+            </td>
             <td>${getPaymentStatusBadge(player.payment_status)}</td>
             <td>${formatDate(player.created_at)}</td>
             <td>
-                <button class="btn btn-sm btn-outline-primary" onclick="assignSinglePlayer(${player.id})">
-                    <i class="fas fa-user-check"></i> Assign
+                <button class="btn btn-sm btn-outline-warning" onclick="assignSinglePlayer(${player.id})" 
+                        title="Assign Individual">
+                    <i class="fas fa-user-plus"></i>
                 </button>
             </td>
         </tr>
     `).join('');
-    
-    tbody.innerHTML = rows;
 }
 
-function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.player-checkbox');
+// Filter players by city
+function filterByCity() {
+    const selectedCity = document.getElementById('cityFilter').value;
     
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAll.checked;
-        const playerId = parseInt(checkbox.value);
-        updateSelectedPlayers(playerId, checkbox.checked);
-    });
-}
-
-function updateSelectedPlayers(playerId, isSelected) {
-    if (isSelected) {
-        if (!selectedPlayers.includes(playerId)) {
-            selectedPlayers.push(playerId);
-        }
-    } else {
-        selectedPlayers = selectedPlayers.filter(id => id !== playerId);
-    }
-    
-    updateSelectionDisplay();
-    updateSelectAllState();
-}
-
-function updateSelectAllState() {
-    const checkboxes = document.querySelectorAll('.player-checkbox');
-    const selectAll = document.getElementById('selectAll');
-    
-    if (checkboxes.length === 0) {
-        selectAll.checked = false;
-        selectAll.indeterminate = false;
+    if (!selectedCity) {
+        populatePlayersTable();
+        updateManagerOptions();
         return;
     }
     
-    const checkedCount = selectedPlayers.length;
-    const totalVisible = checkboxes.length;
+    const filteredPlayers = unassignedPlayers.filter(player => 
+        player.trial_city_name === selectedCity
+    );
     
-    if (checkedCount === 0) {
-        selectAll.checked = false;
-        selectAll.indeterminate = false;
-    } else if (checkedCount === totalVisible) {
-        selectAll.checked = true;
-        selectAll.indeterminate = false;
-    } else {
-        selectAll.checked = false;
-        selectAll.indeterminate = true;
-    }
+    populatePlayersTable(filteredPlayers);
+    updateManagerOptions(selectedCity);
+    clearSelection();
 }
 
-function updateSelectionDisplay() {
-    const selectionInfo = document.getElementById('selectionInfo');
-    const countDisplay = document.getElementById('selectedPlayersCount');
+// Update manager options based on selected city
+function updateManagerOptions(cityName = null) {
+    const select = document.getElementById('managerSelect');
+    const options = select.querySelectorAll('option');
     
-    if (selectedPlayers.length > 0) {
-        selectionInfo.style.display = 'block';
-        countDisplay.textContent = `${selectedPlayers.length} player(s) selected`;
-    } else {
-        selectionInfo.style.display = 'none';
-        countDisplay.textContent = 'No players selected';
-    }
-}
-
-function clearSelection() {
-    selectedPlayers = [];
-    document.querySelectorAll('.player-checkbox').forEach(cb => cb.checked = false);
-    document.getElementById('selectAll').checked = false;
-    document.getElementById('selectAll').indeterminate = false;
-    updateSelectionDisplay();
-}
-
-function bulkAssignPlayers() {
-    const managerId = document.getElementById('bulkAssignManager').value;
-    
-    if (!managerId) {
-        alert('Please select a trial manager');
-        return;
-    }
-    
-    if (selectedPlayers.length === 0) {
-        alert('Please select at least one player');
-        return;
-    }
-    
-    // Get selected manager details
-    const selectedManager = allManagers.find(m => m.id == managerId);
-    const selectedManagerCity = selectedManager ? selectedManager.trial_city_id : null;
-    
-    // Check if selected players are from the same city as manager
-    if (selectedManagerCity) {
-        const incompatiblePlayers = selectedPlayers.filter(playerId => {
-            const player = allPlayers.find(p => p.id == playerId);
-            return player && player.trial_city_id && player.trial_city_id != selectedManagerCity;
-        });
+    options.forEach(option => {
+        if (option.value === '') return; // Skip default option
         
-        if (incompatiblePlayers.length > 0) {
-            const message = `Warning: ${incompatiblePlayers.length} selected player(s) are from different trial cities and cannot be assigned to this manager. Continue with remaining players?`;
-            if (!confirm(message)) {
-                return;
-            }
-            // Remove incompatible players from selection
-            selectedPlayers = selectedPlayers.filter(id => !incompatiblePlayers.includes(id));
-        }
-    }
-    
-    if (selectedPlayers.length === 0) {
-        alert('No compatible players selected for assignment');
-        return;
-    }
-    
-    fetch('/admin/trial-managers/assign-players', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-            manager_id: managerId,
-            player_ids: selectedPlayers
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            clearSelection();
-            loadUnassignedPlayers();
-            bootstrap.Modal.getInstance(document.getElementById('bulkAssignModal')).hide();
+        const manager = trialManagers.find(m => m.id == option.value);
+        if (!manager) return;
+        
+        if (cityName) {
+            // Show only managers from the selected city
+            const showOption = manager.city_name === cityName;
+            option.style.display = showOption ? 'block' : 'none';
+            option.disabled = !showOption;
         } else {
-            alert(data.message || 'Assignment failed');
+            // Show all managers
+            option.style.display = 'block';
+            option.disabled = false;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred during assignment');
     });
+    
+    // Reset selection if current selection is not valid
+    const currentSelection = select.value;
+    if (currentSelection) {
+        const currentManager = trialManagers.find(m => m.id == currentSelection);
+        if (cityName && currentManager && currentManager.city_name !== cityName) {
+            select.value = '';
+        }
+    }
 }
 
-function assignSinglePlayer(playerId) {
-    selectedPlayers = [playerId];
-    document.getElementById('bulkAssignModal').querySelector('.modal-title').textContent = 'Assign Player';
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('bulkAssignModal')).show();
+// Helper functions
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function getPaymentStatusBadge(status) {
     const badges = {
-        'no_payment': '<span class="badge bg-danger">No Payment</span>',
-        'partial': '<span class="badge bg-warning text-dark">Partial</span>',
-        'full': '<span class="badge bg-success">Full Payment</span>'
+        'full': '<span class="badge bg-success">Full Payment</span>',
+        'partial': '<span class="badge bg-warning text-dark">Partial Payment</span>',
+        'no_payment': '<span class="badge bg-danger">No Payment</span>'
     };
     return badges[status] || '<span class="badge bg-secondary">Unknown</span>';
 }
 
 function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-IN', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
     });
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+// Selection functions
+function updateSelection(playerId) {
+    const checkbox = document.querySelector(`input[value="${playerId}"]`);
+    
+    if (checkbox.checked) {
+        selectedPlayers.add(playerId);
+    } else {
+        selectedPlayers.delete(playerId);
+    }
+    
+    updateSelectionUI();
 }
+
+function selectAll() {
+    const visibleCheckboxes = document.querySelectorAll('.player-checkbox:not([style*="display: none"])');
+    visibleCheckboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        selectedPlayers.add(parseInt(checkbox.value));
+    });
+    
+    document.getElementById('selectAllCheckbox').checked = visibleCheckboxes.length > 0;
+    updateSelectionUI();
+}
+
+function clearSelection() {
+    selectedPlayers.clear();
+    document.querySelectorAll('.player-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('selectAllCheckbox').checked = false;
+    updateSelectionUI();
+}
+
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    
+    if (selectAllCheckbox.checked) {
+        selectAll();
+    } else {
+        clearSelection();
+    }
+}
+
+function updateSelectionUI() {
+    const count = selectedPlayers.size;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('assignBtn').disabled = count === 0 || !document.getElementById('managerSelect').value;
+}
+
+// Manager selection change
+document.getElementById('managerSelect').addEventListener('change', function() {
+    updateSelectionUI();
+});
+
+// Assignment functions
+function assignSelectedPlayers() {
+    const managerId = document.getElementById('managerSelect').value;
+    const playerIds = Array.from(selectedPlayers);
+    
+    if (!managerId) {
+        notyf.error('Please select a trial manager');
+        return;
+    }
+    
+    if (playerIds.length === 0) {
+        notyf.error('Please select at least one player');
+        return;
+    }
+    
+    assignPlayers(playerIds, managerId);
+}
+
+function assignSinglePlayer(playerId) {
+    const managerId = document.getElementById('managerSelect').value;
+    
+    if (!managerId) {
+        notyf.error('Please select a trial manager first');
+        return;
+    }
+    
+    assignPlayers([playerId], managerId);
+}
+
+function assignPlayers(playerIds, managerId) {
+    const manager = trialManagers.find(m => m.id == managerId);
+    
+    fetch('/admin/trial-managers/assign-players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            player_ids: playerIds,
+            manager_id: managerId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            notyf.success(`Successfully assigned ${playerIds.length} player(s) to ${manager.name}`);
+            refreshData();
+        } else {
+            notyf.error(data.message || 'Failed to assign players');
+        }
+    })
+    .catch(error => {
+        console.error('Error assigning players:', error);
+        notyf.error('Error assigning players');
+    });
+}
+
+function refreshData() {
+    clearSelection();
+    loadUnassignedPlayers();
+    loadTrialManagers();
+}
+
+// Initialize Notyf
+let notyf = new Notyf({
+    duration: 4000,
+    ripple: true,
+    position: {
+        x: 'right',
+        y: 'bottom'
+    }
+});
 </script>
 <?= $this->endSection() ?>

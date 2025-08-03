@@ -234,3 +234,7 @@ $routes->get('trial-manager/logout', 'TrialManagerDashboardController::logout');
 $routes->post('admin/trial-registration/search-mobile', 'TrialRegistrationController::searchByMobile', ['filter' => 'roleFilter:admin,manager,coach']);
 $routes->post('admin/trial-registration/bulk-delete', 'TrialRegistrationController::bulkDelete', ['filter' => 'roleFilter:admin']);
 $routes->post('admin/trial-registration/delete', 'TrialRegistrationController::deleteStudent', ['filter' => 'roleFilter:admin']);
+
+// Unassigned Players Management Routes
+$routes->get('admin/trial/unassigned-players', 'TrialManagerController::getUnassignedPlayers', ['filter' => 'roleFilter:admin']);
+$routes->post('admin/trial-managers/assign-players', 'TrialManagerController::assignPlayers', ['filter' => 'roleFilter:admin']);
