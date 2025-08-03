@@ -537,6 +537,23 @@
                                     </div>
                                     <p class="info-value"><?= esc($player['name']) ?></p>
                                 </div>
+                                <div class="info-group">
+                                    <div class="info-label">
+                                        <i class="fas fa-baseball-ball"></i>
+                                        Cricket Type
+                                    </div>
+                                    <p class="info-value">
+                                        <?php
+                                        $cricketTypes = [
+                                            'batsman' => 'Batsman',
+                                            'bowler' => 'Bowler', 
+                                            'all-rounder' => 'All-rounder',
+                                            'wicket-keeper' => 'Wicket Keeper'
+                                        ];
+                                        echo isset($cricketTypes[$player['cricket_type']]) ? $cricketTypes[$player['cricket_type']] : 'Unknown';
+                                        ?>
+                                    </p>
+                                </div>
 
                                 <div class="info-group">
                                     <div class="info-label">

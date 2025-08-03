@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `trial_payments` (
   `collected_by` varchar(100) DEFAULT NULL,
   `payment_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `trial_player_id` (`trial_player_id`),
   KEY `trial_manager_id` (`trial_manager_id`),
