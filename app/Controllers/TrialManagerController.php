@@ -411,4 +411,76 @@ class TrialManagerController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Failed to unassign player']);
         }
     }
+
+    // Search single player by mobile
+    public function searchSinglePlayer()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $input = $this->request->getJSON(true);
+        $mobile = $input['mobile'] ?? '';
+
+        if (strlen($mobile) !== 10 || !ctype_digit($mobile)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Please enter a valid 10-digit mobile number']);
+        }
+
+        $player = $this->trialPlayerModel
+            ->select('trial_players.*, trial_managers.name as manager_name')
+            ->join('trial_managers', 'trial_managers.id = trial_players.trial_manager_id', 'left')
+            ->where('trial_players.mobile', $mobile)
+            ->first();
+
+        if (!$player) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No player found with this mobile number']);
+        }
+
+        return $this->response->setJSON(['success' => true, 'player' => $player]);
+    }
+
+    // Get all trial cities with player counts
+    public function getTrialCities()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $db = \Config\Database::connect();
+        
+        $cities = $db->query("
+            SELECT 
+                tc.id,
+                tc.city_name,
+                COUNT(tp.id) as player_count
+            FROM trial_cities tc
+            LEFT JOIN trial_players tp ON tc.id = tp.trial_city_id
+            WHERE tc.status = 'enabled'
+            GROUP BY tc.id, tc.city_name
+            ORDER BY tc.city_name
+        ")->getResultArray();
+
+        return $this->response->setJSON(['success' => true, 'cities' => $cities]);
+    }
+
+    // Get players from specific trial city
+    public function getTrialPlayers($cityId)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        if (!$cityId || !is_numeric($cityId)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid city ID']);
+        }
+
+        $players = $this->trialPlayerModel
+            ->select('trial_players.*, trial_managers.name as manager_name')
+            ->join('trial_managers', 'trial_managers.id = trial_players.trial_manager_id', 'left')
+            ->where('trial_players.trial_city_id', $cityId)
+            ->orderBy('trial_players.created_at', 'DESC')
+            ->findAll();
+
+        return $this->response->setJSON(['success' => true, 'players' => $players]);
+    }
 }

@@ -1,4 +1,3 @@
-
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('title') ?>Trial Manager Details<?= $this->endSection() ?>
@@ -304,9 +303,9 @@ function loadUnassignedPlayers() {
 function displaySearchResults(players) {
     const resultsBody = document.getElementById('searchResultsBody');
     const resultsDiv = document.getElementById('searchResults');
-    
+
     resultsBody.innerHTML = '';
-    
+
     if (players.length === 0) {
         resultsBody.innerHTML = '<tr><td colspan="6" class="text-center">No players found</td></tr>';
     } else {
@@ -315,13 +314,13 @@ function displaySearchResults(players) {
             resultsBody.appendChild(row);
         });
     }
-    
+
     resultsDiv.classList.remove('d-none');
 }
 
 function displayUnassignedPlayers(players) {
     const container = document.getElementById('unassignedPlayers');
-    
+
     if (players.length === 0) {
         container.innerHTML = '<p class="text-center text-muted">No unassigned players found</p>';
         return;
@@ -348,12 +347,12 @@ function displayUnassignedPlayers(players) {
 
 function createPlayerRow(player, showAssignment = false) {
     const row = document.createElement('tr');
-    
+
     let assignmentInfo = 'Unassigned';
     if (player.trial_manager_id) {
         assignmentInfo = player.manager_name || 'Assigned to another manager';
     }
-    
+
     row.innerHTML = `
         <td><input type="checkbox" class="form-check-input player-checkbox" value="${player.id}" onchange="togglePlayerSelection(${player.id})"></td>
         <td>${player.name}</td>
@@ -362,13 +361,13 @@ function createPlayerRow(player, showAssignment = false) {
         <td>${player.cricket_type}</td>
         ${showAssignment ? `<td><span class="badge ${player.trial_manager_id ? 'bg-warning' : 'bg-success'}">${assignmentInfo}</span></td>` : `<td>${new Date(player.created_at).toLocaleDateString()}</td>`}
     `;
-    
+
     return row;
 }
 
 function togglePlayerSelection(playerId) {
     const checkbox = document.querySelector(`input[value="${playerId}"]`);
-    
+
     if (checkbox.checked) {
         if (!selectedPlayers.includes(playerId)) {
             selectedPlayers.push(playerId);
@@ -376,7 +375,7 @@ function togglePlayerSelection(playerId) {
     } else {
         selectedPlayers = selectedPlayers.filter(id => id !== playerId);
     }
-    
+
     document.getElementById('assignBtn').disabled = selectedPlayers.length === 0;
 }
 
