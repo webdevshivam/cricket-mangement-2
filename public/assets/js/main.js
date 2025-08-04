@@ -78,11 +78,39 @@ function initializeSelect2() {
  * Initialize modal functionality
  */
 function initializeModals() {
-  // Modal event handlers
+  // Initialize modal functionality
   $('.modal').on('show.bs.modal', function () {
     // Reset forms when modal opens
     $(this).find('form')[0]?.reset();
     $(this).find('.select2').val(null).trigger('change');
+
+    // Ensure proper z-index
+    var zIndex = 1055 + (10 * $('.modal:visible').length);
+    $(this).css('z-index', zIndex);
+    setTimeout(function() {
+      $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+    }, 0);
+  });
+
+  // Fix modal backdrop issues
+  $('.modal').on('hidden.bs.modal', function () {
+    $('.modal-backdrop').remove();
+    if ($('.modal.show').length > 0) {
+      $('body').addClass('modal-open');
+    }
+  });
+
+  // Prevent modal from closing when clicking inside modal content
+  $('.modal').on('click', function(e) {
+    if (e.target === this) {
+      $(this).modal('hide');
+    }
+  });
+
+  // Handle form submissions in modals
+  $('.modal form').on('submit', function(e) {
+    var submitBtn = $(this).find('button[type="submit"]');
+    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
   });
 }
 
@@ -570,7 +598,7 @@ function logout() {
   if (typeof notyf !== 'undefined') {
     notyf.success('You have been successfully logged out.');
   }
-  
+
   // Redirect to login page after a short delay
   setTimeout(() => {
     window.location.href = 'login.html';
@@ -663,7 +691,7 @@ $(document).ready(function () {
   $('.sidebar .dropdown-toggle').on('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     var target = $(this).attr('href');
     var $collapse = $(target);
     var $parentLi = $(this).closest('.nav-item');

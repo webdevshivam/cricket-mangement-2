@@ -1118,3 +1118,53 @@ ul.pagination {
     font-size: 0.85rem;
     font-weight: 400;
 }
+
+/* Modal fixes to prevent blinking */
+.modal {
+  z-index: 1055 !important;
+}
+
+.modal-backdrop {
+  z-index: 1050 !important;
+}
+
+.modal-content {
+  border-radius: 8px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog-centered {
+  min-height: calc(100vh - 3.5rem);
+}
+
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+  transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+  transform: none;
+}
+
+/* Prevent button hover conflicts */
+.modal .btn:hover {
+  z-index: auto;
+  position: relative;
+}
+
+/* Fix formstyling in modals */
+.modal .form-select {
+  background-color: #2a2a2a !important;
+  border-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+.modal .form-select:focus {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25) !important;
+}
+
+.modal .form-select option {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+}

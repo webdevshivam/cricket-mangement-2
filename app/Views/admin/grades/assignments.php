@@ -67,20 +67,22 @@
               </tr>
 
               <!-- Update Modal -->
-              <div class="modal fade" id="updateModal<?= $assignment['id'] ?>" tabindex="-1">
-                <div class="modal-dialog">
-                  <div class="modal-content bg-dark text-white">
-                    <div class="modal-header border-warning">
-                      <h5 class="modal-title text-warning">Update Grade Assignment</h5>
-                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <div class="modal fade" id="updateModal<?= $assignment['id'] ?>" tabindex="-1" aria-labelledby="updateModalLabel<?= $assignment['id'] ?>" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content bg-dark text-white border border-warning">
+                    <div class="modal-header border-bottom border-warning">
+                      <h5 class="modal-title text-warning" id="updateModalLabel<?= $assignment['id'] ?>">Update Grade Assignment</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form action="<?= site_url('admin/grades/updateAssignment/' . $assignment['id']) ?>" method="post">
                       <?= csrf_field(); ?>
                       <div class="modal-body">
-                        <p><strong>Player:</strong> <?= esc($assignment['player_name']) ?></p>
+                        <div class="mb-3">
+                          <p class="mb-2"><strong>Player:</strong> <?= esc($assignment['player_name']) ?></p>
+                        </div>
                         <div class="mb-3">
                           <label for="grade_id<?= $assignment['id'] ?>" class="form-label">Select New Grade</label>
-                          <select class="form-select" id="grade_id<?= $assignment['id'] ?>" name="grade_id" required>
+                          <select class="form-select bg-dark text-white border-secondary" id="grade_id<?= $assignment['id'] ?>" name="grade_id" required>
                             <option value="">-- Select Grade --</option>
                             <?php 
                             $gradeModel = new \App\Models\GradeModel();
@@ -93,37 +95,37 @@
                           </select>
                         </div>
                       </div>
-                      <div class="modal-footer border-warning">
+                      <div class="modal-footer border-top border-warning">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-warning">Update Assignment</button>
                       </div>
                     </form>
                   </div>
                 </div>
-              </div>
+              </div>v>
 
               <!-- Delete Modal -->
-              <div class="modal fade" id="deleteModal<?= $assignment['id'] ?>" tabindex="-1">
-                <div class="modal-dialog">
-                  <div class="modal-content bg-dark text-white">
-                    <div class="modal-header border-danger">
-                      <h5 class="modal-title text-danger">Remove Grade Assignment</h5>
-                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <div class="modal fade" id="deleteModal<?= $assignment['id'] ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?= $assignment['id'] ?>" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content bg-dark text-white border border-danger">
+                    <div class="modal-header border-bottom border-danger">
+                      <h5 class="modal-title text-danger" id="deleteModalLabel<?= $assignment['id'] ?>">Remove Grade Assignment</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                       <p>Are you sure you want to remove the grade assignment for <strong><?= esc($assignment['player_name']) ?></strong>?</p>
-                      <p class="text-warning">This action will remove the player from the assigned grade.</p>
+                      <p class="text-warning mb-0">This action will remove the player from the assigned grade.</p>
                     </div>
-                    <div class="modal-footer border-danger">
+                    <div class="modal-footer border-top border-danger">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <form action="<?= site_url('admin/grades/deleteAssignment/' . $assignment['id']) ?>" method="post" style="display: inline;">
+                      <form action="<?= site_url('admin/grades/deleteAssignment/' . $assignment['id']) ?>" method="post" class="d-inline">
                         <?= csrf_field(); ?>
                         <button type="submit" class="btn btn-danger">Remove Assignment</button>
                       </form>
                     </div>
                   </div>
                 </div>
-              </div>
+              </div>v>
 
             <?php endforeach; ?>
           <?php endif; ?>
