@@ -18,12 +18,15 @@
   <div class="card bg-dark border-warning mb-4">
     <div class="card-body">
       <form method="GET" action="<?= base_url('admin/league-registration') ?>">
-        <div class="row">
-          <div class="col-md-2">
+        <div class="row g-3">
+          <!-- Filter Row -->
+          <div class="col-md-3">
+            <label class="form-label text-warning small">Search by Phone</label>
             <input type="text" class="form-control bg-dark text-white" name="phone"
               placeholder="Search by phone" value="<?= esc($phone ?? '') ?>">
           </div>
           <div class="col-md-2">
+            <label class="form-label text-warning small">Payment Status</label>
             <select class="form-select bg-dark text-white" name="payment_status">
               <option value="">All Payment Status</option>
               <option value="unpaid" <?= (isset($payment_status) && $payment_status == 'unpaid') ? 'selected' : '' ?>>Unpaid</option>
@@ -31,29 +34,34 @@
             </select>
           </div>
           <div class="col-md-2">
+            <label class="form-label text-warning small">Age Group</label>
             <select class="form-select bg-dark text-white" name="age_group">
               <option value="">All Age Groups</option>
               <option value="under_16" <?= (isset($age_group) && $age_group == 'under_16') ? 'selected' : '' ?>>Under 16</option>
               <option value="above_16" <?= (isset($age_group) && $age_group == 'above_16') ? 'selected' : '' ?>>Above 16</option>
             </select>
           </div>
-          <div class="col-md-4">
-            <button type="submit" class="btn btn-warning me-2">
-              <i class="fas fa-search"></i> Filter
-            </button>
-            <a href="<?= base_url('admin/league-registration') ?>" class="btn btn-secondary">
-              <i class="fas fa-refresh"></i> Reset
-            </a>
+          <div class="col-md-3">
+            <label class="form-label text-warning small">Filter Actions</label>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-warning">
+                <i class="fas fa-search"></i> Filter
+              </button>
+              <a href="<?= base_url('admin/league-registration') ?>" class="btn btn-secondary">
+                <i class="fas fa-refresh"></i> Reset
+              </a>
+            </div>
           </div>
           <div class="col-md-2">
-            <button type="button" class="btn btn-success" onclick="bulkUpdateStatus('selected')">
-              <i class="fas fa-check"></i> Mark Selected
-            </button>
-          </div>
-          <div class="col-md-2">
-            <button type="button" class="btn btn-danger" onclick="bulkUpdateStatus('not_selected')">
-              <i class="fas fa-times"></i> Mark Not Selected
-            </button>
+            <label class="form-label text-warning small">Bulk Actions</label>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-success btn-sm" onclick="bulkUpdateStatus('selected')" title="Mark Selected Players as Selected">
+                <i class="fas fa-check"></i> Selected
+              </button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="bulkUpdateStatus('not_selected')" title="Mark Selected Players as Not Selected">
+                <i class="fas fa-times"></i> Not Selected
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -67,23 +75,20 @@
         <table class="table table-dark table-striped table-bordered" id="registrationsTable">
           <thead>
             <tr>
-              <th>
+              <th width="50">
                 <input type="checkbox" class="form-check-input" id="selectAll">
+                <small class="text-muted d-block">#</small>
               </th>
-              <th>#</th>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Email</th>
-              <th>Age</th>
-              <th>Cricketer Type</th>
-              <th>Age Group</th>
-              <th>Trial City</th>
-              <th>Payment Status</th>
-              <th>Status</th>
-              <th>Assigned Grade</th>
-              <th>Documents</th>
-              <th>Actions</th>
-              <th>Registered On</th>
+              <th width="150">Player Details</th>
+              <th width="120">Contact</th>
+              <th width="80">Age & Type</th>
+              <th width="100">Age Group</th>
+              <th width="120">Payment Status</th>
+              <th width="120">Selection Status</th>
+              <th width="120">Assigned Grade</th>
+              <th width="100">Documents</th>
+              <th width="80">Actions</th>
+              <th width="100">Registered On</th>
             </tr>
           </thead>
           <tbody>
@@ -97,15 +102,26 @@
                 <tr>
                   <td>
                     <input type="checkbox" class="form-check-input player-checkbox" value="<?= esc($reg['id']) ?>">
-                    <?= $i++ ?>
+                    <small class="text-muted d-block"><?= $i++ ?></small>
                   </td>
-                  <td><strong><?= esc($reg['name']) ?></strong></td>
-                  <td><span class="badge bg-info"><?= esc($reg['mobile']) ?></span></td>
-                  <td><?= esc($reg['email']) ?></td>
-                  <td><?= esc($reg['age']) ?> years</td>
-                  <td><span class="badge bg-secondary"><?= esc($reg['cricketer_type']) ?></span></td>
-                  <td><span class="badge bg-primary"><?= esc(str_replace('_', ' ', ucfirst($reg['age_group']))) ?></span></td>
-                  <td><span class="badge bg-success"><?= esc($reg['trial_city_name'] ?? 'N/A') ?></span></td>
+                  <td>
+                    <div>
+                      <strong class="text-white"><?= esc($reg['name']) ?></strong>
+                      <small class="text-muted d-block"><?= esc($reg['age']) ?> years</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div>
+                      <span class="badge bg-info mb-1"><?= esc($reg['mobile']) ?></span>
+                      <small class="text-muted d-block"><?= esc($reg['email']) ?></small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary"><?= esc($reg['cricketer_type']) ?></span>
+                  </td>
+                  <td>
+                    <span class="badge bg-primary"><?= esc(str_replace('_', ' ', ucfirst($reg['age_group']))) ?></span>
+                  </td>
                   <td>
                     <select class="form-select form-select-sm payment-status-select bg-dark text-white"
                       data-player-id="<?= esc($reg['id']) ?>"
@@ -144,24 +160,24 @@
                     </select>
                   </td>
                   <td>
-                    <div class="btn-group btn-group-sm">
+                    <div class="btn-group-vertical btn-group-sm">
                       <?php if (!empty($reg['aadhar_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/aadhar_document') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-info" title="View Aadhar Document" data-bs-toggle="tooltip">
+                          target="_blank" class="btn btn-sm btn-outline-info mb-1" title="View Aadhar Document" data-bs-toggle="tooltip">
                           <i class="fas fa-id-card"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['marksheet_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/marksheet_document') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-success" title="View Marksheet" data-bs-toggle="tooltip">
+                          target="_blank" class="btn btn-sm btn-outline-success mb-1" title="View Marksheet" data-bs-toggle="tooltip">
                           <i class="fas fa-graduation-cap"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['dob_proof'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/dob_proof') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-warning" title="View DOB Proof" data-bs-toggle="tooltip">
+                          target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="View DOB Proof" data-bs-toggle="tooltip">
                           <i class="fas fa-birthday-cake"></i>
                         </a>
                       <?php endif; ?>
@@ -186,7 +202,7 @@
               <?php endforeach; ?>
             <?php else : ?>
               <tr>
-                <td colspan="14" class="text-center text-muted">No league registrations found.</td>
+                <td colspan="11" class="text-center text-muted">No league registrations found.</td>
               </tr>
             <?php endif; ?>
           </tbody>

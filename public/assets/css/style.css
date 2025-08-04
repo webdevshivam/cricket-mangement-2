@@ -272,13 +272,67 @@ body {
 
 /* Stats Card Styles */
 .stats-card {
-  background: linear-gradient(
-    135deg,
-    var(--secondary-black) 0%,
-    var(--primary-black) 100%
-  );
-  border: 2px solid var(--accent-gold);
-  transition: all 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* League Registration Table Improvements */
+.table th {
+    background-color: #2c3e50 !important;
+    border-color: #ffc107 !important;
+    color: #ffc107 !important;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: #495057 !important;
+}
+
+.table-responsive {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.player-checkbox {
+    transform: scale(1.2);
+}
+
+.form-select-sm {
+    font-size: 0.875rem;
+    min-width: 110px;
+}
+
+.status-select option[value="selected"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.status-select option[value="not_selected"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.payment-status-select option[value="paid"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.payment-status-select option[value="unpaid"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-group-vertical .btn {
+    border-radius: 3px;
+    margin-bottom: 2px;
+}
+
+.btn-group-vertical .btn:last-child {
+    margin-bottom: 0;
 }
 
 .stats-card:hover {
