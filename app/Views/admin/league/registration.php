@@ -160,24 +160,24 @@
                     </select>
                   </td>
                   <td>
-                    <div class="btn-group-vertical btn-group-sm">
+                    <div class="btn-group btn-group-sm d-flex flex-wrap" style="gap: 2px;">
                       <?php if (!empty($reg['aadhar_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/aadhar_document') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-info mb-1" title="View Aadhar Document" data-bs-toggle="tooltip">
+                          target="_blank" class="btn btn-sm btn-outline-info" title="View Aadhar Document" data-bs-toggle="tooltip">
                           <i class="fas fa-id-card"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['marksheet_document'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/marksheet_document') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-success mb-1" title="View Marksheet" data-bs-toggle="tooltip">
+                          target="_blank" class="btn btn-sm btn-outline-success" title="View Marksheet" data-bs-toggle="tooltip">
                           <i class="fas fa-graduation-cap"></i>
                         </a>
                       <?php endif; ?>
 
                       <?php if (!empty($reg['dob_proof'])): ?>
                         <a href="<?= base_url('admin/league-registration/view-document/' . $reg['id'] . '/dob_proof') ?>"
-                          target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="View DOB Proof" data-bs-toggle="tooltip">
+                          target="_blank" class="btn btn-sm btn-outline-warning" title="View DOB Proof" data-bs-toggle="tooltip">
                           <i class="fas fa-birthday-cake"></i>
                         </a>
                       <?php endif; ?>
@@ -235,9 +235,9 @@
 
   // Individual payment status update
   document.addEventListener('DOMContentLoaded', function() {
-    const statusSelects = document.querySelectorAll('.payment-status-select');
+    const paymentStatusSelects = document.querySelectorAll('.payment-status-select');
 
-    statusSelects.forEach(select => {
+    paymentStatusSelects.forEach(select => {
       const originalValue = select.value;
 
       select.addEventListener('change', function() {
