@@ -163,10 +163,14 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
   // League Registration Admin Routes
   $routes->get('league-registration', 'LeagueRegistrationController::adminIndex');
   $routes->post('league-registration/update-payment-status', 'LeagueRegistrationController::updatePaymentStatus');
-  $routes->post('league-registration/update-grade', 'LeagueRegistrationController::updateGrade');
-  $routes->get('league-registration/view-document/(:num)/(:segment)', 'LeagueRegistrationController::viewDocument/$1/$2');
-  $routes->post('league-registration/delete', 'LeagueRegistrationController::deletePlayer');
-  $routes->get('league-registration/export-pdf', 'LeagueRegistrationController::exportPDF');
+    $routes->post('league-registration/update-status', 'LeagueRegistrationController::updateStatus');
+    $routes->post('league-registration/update-grade', 'LeagueRegistrationController::updateGrade');
+    $routes->post('league-registration/bulk-update-status', 'LeagueRegistrationController::bulkUpdateStatus');
+    $routes->post('league-registration/bulk-update-payment-status', 'LeagueRegistrationController::bulkUpdatePaymentStatus');
+    $routes->post('league-registration/bulk-update-grade', 'LeagueRegistrationController::bulkUpdateGrade');
+    $routes->post('league-registration/delete', 'LeagueRegistrationController::deletePlayer');
+    $routes->get('league-registration/view-document/(:num)/(:any)', 'LeagueRegistrationController::viewDocument/$1/$2');
+    $routes->get('league-registration/export-pdf', 'LeagueRegistrationController::exportPDF');
 });
 
 
