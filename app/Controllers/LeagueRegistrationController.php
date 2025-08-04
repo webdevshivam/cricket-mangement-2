@@ -510,6 +510,140 @@ class LeagueRegistrationController extends BaseController
         }
     }
 
+    public function bulkUpdatePaymentStatus()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['player_ids']) || !isset($data['payment_status']) || !is_array($data['player_ids'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing required data'
+                ]);
+            }
+
+            $validStatuses = ['unpaid', 'paid'];
+            if (!in_array($data['payment_status'], $validStatuses)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Invalid payment status'
+                ]);
+            }
+
+            $model = new LeaguePlayerModel();
+            $updatedCount = 0;
+
+            foreach ($data['player_ids'] as $playerId) {
+                $updateData = [
+                    'payment_status' => $data['payment_status'],
+                    'verified_at' => date('Y-m-d H:i:s')
+                ];
+
+                if ($model->update($playerId, $updateData)) {
+                    $updatedCount++;
+
+                    // Send email if status changed to paid
+                    if ($data['payment_status'] === 'paid') {
+                        $player = $model->find($playerId);
+                        if ($player) {
+                            $this->sendPaymentConfirmationEmail($player['email'], $player['name']);
+                        }
+                    }
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Successfully updated {$updatedCount} player(s) payment status",
+                'updated_count' => $updatedCount
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Bulk payment status update error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating payment status'
+            ]);
+        }
+    }
+
+    public function bulkUpdateGrade()
+    {
+        $this->response->setHeader('Content-Type', 'application/json');
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (empty($data['player_ids']) || empty($data['grade_id']) || !is_array($data['player_ids'])) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Missing required data'
+                ]);
+            }
+
+            $gradeAssignModel = new \App\Models\GradeAssignModel();
+            $gradeId = $data['grade_id'];
+            $updatedCount = 0;
+
+            foreach ($data['player_ids'] as $playerId) {
+                // Check if grade assignment already exists
+                $existingAssignment = $gradeAssignModel->where('player_id', $playerId)->first();
+
+                if ($existingAssignment) {
+                    // Update existing assignment
+                    $update = $gradeAssignModel->update($existingAssignment['id'], [
+                        'grade_id' => $gradeId,
+                        'assigned_at' => date('Y-m-d H:i:s'),
+                        'assigned_by' => session()->get('user_id') ?? 'admin',
+                        'status' => 'active'
+                    ]);
+                } else {
+                    // Create new assignment
+                    $update = $gradeAssignModel->insert([
+                        'player_id' => $playerId,
+                        'grade_id' => $gradeId,
+                        'assigned_at' => date('Y-m-d H:i:s'),
+                        'assigned_by' => session()->get('user_id') ?? 'admin',
+                        'status' => 'active'
+                    ]);
+                }
+
+                if ($update) {
+                    $updatedCount++;
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Successfully assigned grade to {$updatedCount} player(s)",
+                'updated_count' => $updatedCount
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Bulk grade update error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating grades'
+            ]);
+        }
+    }
+
     private function autoAssignGrade($playerId, $playerData)
     {
         $gradeModel = new \App\Models\GradeModel();

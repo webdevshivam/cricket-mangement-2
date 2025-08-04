@@ -54,13 +54,36 @@
           </div>
           <div class="col-md-2">
             <label class="form-label text-warning small">Bulk Actions</label>
-            <div class="d-flex gap-2">
-              <button type="button" class="btn btn-success btn-sm" onclick="bulkUpdateStatus('selected')" title="Mark Selected Players as Selected">
-                <i class="fas fa-check"></i> Selected
-              </button>
-              <button type="button" class="btn btn-danger btn-sm" onclick="bulkUpdateStatus('not_selected')" title="Mark Selected Players as Not Selected">
-                <i class="fas fa-times"></i> Not Selected
-              </button>
+            <div class="d-flex flex-column gap-1">
+              <div class="d-flex gap-1">
+                <button type="button" class="btn btn-success btn-sm" onclick="bulkUpdateStatus('selected')" title="Mark Selected Players as Selected">
+                  <i class="fas fa-check"></i> Selected
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="bulkUpdateStatus('not_selected')" title="Mark Selected Players as Not Selected">
+                  <i class="fas fa-times"></i> Not Selected
+                </button>
+              </div>
+              <div class="d-flex gap-1">
+                <select class="form-select form-select-sm bg-dark text-white" id="bulkPaymentStatus" style="max-width: 80px;">
+                  <option value="">Payment</option>
+                  <option value="paid">Paid</option>
+                  <option value="unpaid">Unpaid</option>
+                </select>
+                <button type="button" class="btn btn-info btn-sm" onclick="bulkUpdatePaymentStatus()" title="Update Payment Status">
+                  <i class="fas fa-money-bill"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-1">
+                <select class="form-select form-select-sm bg-dark text-white" id="bulkGrade" style="max-width: 80px;">
+                  <option value="">Grade</option>
+                  <?php foreach ($grades as $grade): ?>
+                    <option value="<?= $grade['id'] ?>"><?= esc($grade['title']) ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <button type="button" class="btn btn-warning btn-sm" onclick="bulkUpdateGrade()" title="Assign Grade">
+                  <i class="fas fa-award"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -343,6 +366,7 @@
   }
 
   function updatePlayerStatus(playerId, status, selectElement) {
+    const originalValue = selectElement.value;
     selectElement.disabled = true;
 
     fetch("<?= base_url('admin/league-registration/update-status') ?>", {
@@ -358,7 +382,7 @@
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
@@ -369,13 +393,14 @@
           notyf.success("Status updated successfully!");
         } else {
           notyf.error(data.message || "Failed to update status.");
-          selectElement.selectedIndex = 0;
+          selectElement.value = originalValue;
         }
       })
       .catch(error => {
         selectElement.disabled = false;
-        notyf.error("Network error occurred. Please check your connection.");
-        selectElement.selectedIndex = 0;
+        selectElement.value = originalValue;
+        console.error("Error:", error);
+        notyf.error("Network error occurred. Please check your connection and try again.");
       });
   }
 
@@ -511,6 +536,112 @@
     setTimeout(() => {
       notyf.success('PDF export completed!');
     }, 2000);
+  }
+
+  function bulkUpdatePaymentStatus() {
+    const checkedBoxes = document.querySelectorAll('.player-checkbox:checked');
+    const paymentStatus = document.getElementById('bulkPaymentStatus').value;
+    
+    if (checkedBoxes.length === 0) {
+      notyf.error('Please select at least one player to update.');
+      return;
+    }
+
+    if (!paymentStatus) {
+      notyf.error('Please select a payment status.');
+      return;
+    }
+
+    const playerIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
+    const statusText = paymentStatus === 'paid' ? 'Paid' : 'Unpaid';
+    
+    if (!confirm(`Are you sure you want to mark ${playerIds.length} player(s) payment status as ${statusText}?`)) {
+      return;
+    }
+
+    fetch("<?= base_url('admin/league-registration/bulk-update-payment-status') ?>", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+          player_ids: playerIds,
+          payment_status: paymentStatus
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          notyf.success(data.message);
+          document.getElementById('bulkPaymentStatus').value = '';
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          notyf.error(data.message || "Failed to bulk update payment status.");
+        }
+      })
+      .catch(error => {
+        notyf.error("Network error occurred. Please check your connection.");
+        console.error("Network error:", error);
+      });
+  }
+
+  function bulkUpdateGrade() {
+    const checkedBoxes = document.querySelectorAll('.player-checkbox:checked');
+    const gradeId = document.getElementById('bulkGrade').value;
+    
+    if (checkedBoxes.length === 0) {
+      notyf.error('Please select at least one player to update.');
+      return;
+    }
+
+    if (!gradeId) {
+      notyf.error('Please select a grade.');
+      return;
+    }
+
+    const playerIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
+    const gradeText = document.getElementById('bulkGrade').options[document.getElementById('bulkGrade').selectedIndex].text;
+    
+    if (!confirm(`Are you sure you want to assign grade "${gradeText}" to ${playerIds.length} player(s)?`)) {
+      return;
+    }
+
+    fetch("<?= base_url('admin/league-registration/bulk-update-grade') ?>", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+          player_ids: playerIds,
+          grade_id: gradeId
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          notyf.success(data.message);
+          document.getElementById('bulkGrade').value = '';
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          notyf.error(data.message || "Failed to bulk update grade.");
+        }
+      })
+      .catch(error => {
+        notyf.error("Network error occurred. Please check your connection.");
+        console.error("Network error:", error);
+      });
   }
 
   // Select All checkbox functionality
