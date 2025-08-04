@@ -81,7 +81,8 @@ class TeamPlayerModel extends Model
 
         $leagueModel = new \App\Models\LeaguePlayerModel();
 
-        $availableLeague = $leagueModel->where('payment_status', 'paid');
+        $availableLeague = $leagueModel->where('payment_status', 'paid')
+                                     ->where('status', 'selected');
         if (!empty($assignedLeague)) {
             $availableLeague->whereNotIn('id', $assignedLeague);
         }
